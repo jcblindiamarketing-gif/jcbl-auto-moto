@@ -1,0 +1,67 @@
+.brand-section {
+  background: #ffffff; /* changed to white */
+  padding: 60px 0 30px 0;
+  text-align: center;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+.brand-header h2 {
+  color: var(--primary); /* blue heading */
+  font-size: 38px;
+  font-weight: 600;
+  margin-bottom: 50px;
+  line-height: 1.4;
+  text-align: left;
+}
+.brand-header p {
+  color: var(--primary); /* blue heading */
+  font-size : 20px ;
+
+  text-align: right;
+}
+.brand-header{display:flex;
+justify-content:  space-between;
+align-items: flex-start ;}
+/* Swiper spacing fix */
+
+
+.brand-card {
+  padding: 25px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.brand-card img {
+  width: 120px;
+  max-width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: none; /* removed white effect since bg is white */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .brand-header h2 {
+    font-size: 26px;
+  }
+
+  .brand-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-header h2 {
+    font-size: 22px;
+  }
+}

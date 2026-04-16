@@ -1,0 +1,146 @@
+.products-section {
+  padding: 70px 20px;
+  background: #f5f5f5;
+  font-family: "Poppins", "Montserrat", sans-serif;
+}
+.products-section,
+.products-section * {
+  font-family: "Poppins", "Montserrat", sans-serif !important;
+}
+/* HEADER */
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+
+.products-header h2 {
+  font-size: 38px;
+  color: #0a0a3c;
+  margin-bottom: 10px;
+}
+
+.products-header p {
+  max-width: 550px;
+  font-size: 14px;
+  color: #555;
+}
+
+
+
+
+
+/* GRID WRAPPER */
+.products-slider-wrapper {
+  position: relative;
+}
+
+/* CARD */
+.product-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+  height: 380px;
+}
+
+/* HOVER EFFECT */
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+}
+
+/* IMAGE BOX */
+.product-image {
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: center;
+  height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* TITLE */
+.product-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #0a0a3c;
+    min-height: 45px;
+}
+.product-description h2{font-size:24px;
+line-height : 34px ;}
+
+.inquire-btn-popular{width: 100%;
+text-align: center;
+padding : 10px 0px ;}
+/* DESCRIPTION */
+.product-card p {
+    font-size: 13px;
+    color: #64748B;
+    min-height: 85px;
+    line-height: 1.5;
+    margin: 10px 0px;
+}
+
+/* BUTTON */
+.btn-inquire {
+    width: 100%;
+    display: block;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: #F8FAFC;
+    text-decoration: none;
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid #E2E8F0;
+}
+
+.btn-inquire:hover {
+   background: #f7a707;
+  color: #fff;
+}
+
+
+
+
+
+
+
+/* PAGINATION (if you add later) */
+.swiper-pagination-bullet {
+  background: #ccc;
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: #0a0a3c;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .products-section {
+    padding: 50px 15px;
+  }
+
+}

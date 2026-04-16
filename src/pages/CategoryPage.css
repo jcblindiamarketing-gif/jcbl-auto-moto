@@ -1,0 +1,135 @@
+.category-section-page {
+  padding: 160px 20px 80px 20px !important;
+  
+  font-family: "Poppins", sans-serif;
+}
+.category-header .category-title{
+    font-size : 38px ;
+    font-weight : 700 ;
+   
+}
+.pagination {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+}
+
+.pagination button {
+    color: var(--white);
+    padding: 8px 8px;
+    cursor: pointer;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  min-height: 300px; /* important for vertical centering */
+}
+
+/* 🔥 CENTER LOADER */
+.category-grid .loader-wrapper {
+  grid-column: 1 / -1; /* full width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* HEADER */
+.category-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.category-header h2 {
+  font-size: 38px;
+  color: #0a0a3c;
+  text-transform: capitalize;
+}
+
+.category-header p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* GRID */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* CARD */
+.category-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+}
+
+/* IMAGE */
+.category-image {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.category-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* TITLE */
+.category-card h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #0a0a3c;
+}
+
+/* BUTTON */
+.view-product-btn {
+ 
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-view:hover {
+  background: #f7a707;
+  color: #000;
+}
+
+/* NO PRODUCT */
+.no-product {
+  text-align: center;
+  grid-column: span 4;
+  color: #888;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}

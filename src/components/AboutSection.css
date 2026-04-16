@@ -1,0 +1,132 @@
+.about-section {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 60px 0;
+  position: relative;
+}
+
+/* Dark overlay like your design */
+.about-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.about-section {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 120px 0;
+  position: relative;
+}
+
+.about-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+.about-card {
+  position: relative; /* IMPORTANT for absolute child */
+  background: var(--primary);
+  color: #fff;
+  max-width: 600px;
+  padding: 40px;
+  border-radius: 16px;
+  overflow: hidden; /* keeps image inside */
+}
+
+.about-part-img {
+    position: absolute;
+    right: 0px;
+    width: 150px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.about-right{top:0px;}
+.about-left{left:-50px;bottom:-50px;}
+.about-card h2 {
+  font-size: 32px;
+  margin-bottom: 0px;
+}
+
+.about-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+.about-card {
+  background: var(--primary);
+  color: #fff;
+  max-width: 770px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.about-card h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+   color: #fff;
+}
+.white-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: var(--accent);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* icon default */
+.white-btn .btn-icon {
+  transition: transform 0.3s ease;
+   color: var(--white);
+   background-color: var(--primary);
+   padding: 5px;
+   border-radius: 50px;
+   font-size: 22px;
+}
+
+/* 🔥 rotate on hover */
+.white-btn:hover .btn-icon {
+  transform: rotate(-40deg) translateX(3px);
+  color: var(--white);
+}
+
+/* optional button hover */
+
+.about-card p {
+  font-size: 14px;
+  line-height: 24px;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+

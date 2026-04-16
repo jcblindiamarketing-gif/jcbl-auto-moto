@@ -1,0 +1,167 @@
+.footer {
+  background: #ffffff;
+  padding: 60px 20px 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 50px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* LEFT */
+.footer-left h3 {
+  margin-top: 15px;
+  font-size: 20px;
+  color: #1a1a3c;
+}
+
+.footer-left p {
+  font-size: 14px;
+  font-weight:300;
+  color: #555;
+  line-height: 1.7;
+}
+
+.footer-logo {
+  width: 70px;
+}
+
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+
+/* 🔥 ROUND ICON STYLE */
+.icon-circle {
+  width: 32px;
+  height: 32px;
+  background: #000;        /* black background */
+  color: #fff;             /* white icon */
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+/* HOVER EFFECT (optional but premium) */
+.icon-circle:hover {
+  background: #f9c349;     /* brand color */
+  color: #000;
+  transform: scale(1.1);
+}
+/* HEADINGS */
+.footer-links h4,
+.footer-products h4 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #1a1a3c;
+}
+
+/* LIST RESET */
+.footer-links ul,
+.footer-products ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* LIST ITEMS */
+.footer-links li,
+.footer-products li {
+  margin-bottom: 12px;
+}
+
+/* 🔥 FOOTER LINK (HEADER STYLE ANIMATION) */
+.footer-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+/* UNDERLINE EFFECT */
+.footer-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: #f9c349; /* same as header */
+  transition: width 0.3s ease;
+}
+
+/* HOVER */
+.footer-links a:hover {
+  color: #f9c349;
+}
+
+.footer-links a:hover::after {
+  width: 100%;
+}
+
+/* PRODUCTS */
+.footer-products li {
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+    position: relative;
+    display: block;
+    width: fit-content;
+}
+
+/* SAME HOVER EFFECT FOR PRODUCTS */
+.footer-products li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: #f9c349;
+  transition: 0.3s;
+}
+
+.footer-products li:hover {
+  color: #f9c349;
+}
+
+.footer-products li:hover::after {
+  width: 100%;
+}
+
+/* BOTTOM */
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .footer {
+    padding: 40px 15px;
+  }
+}

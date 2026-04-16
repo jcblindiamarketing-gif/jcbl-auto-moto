@@ -1,0 +1,190 @@
+/* ================= MAIN SECTION ================= */
+.hero {
+  padding: 160px 0 60px 0px ;
+  background: url("src/assets/images/hero-bg-dotted-img.png") no-repeat center center;
+  background-size: cover;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ================= LAYOUT ================= */
+.hero-layout {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    max-width: 1360px;
+    margin: 0 auto;
+    /* padding-left: 20px; */
+    padding-right: 0;
+}
+
+/* ================= LEFT SIDE ================= */
+
+.hero-left {
+  width: 40%;
+  position: relative;
+}
+
+/* DOTTED BG */
+.hero-left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("https://www.transparenttextures.com/patterns/dots.png");
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: #0a0a3c;
+  margin-bottom: 10px;
+}
+/* Hover fix */
+.btn-blue:hover {
+  color: var(--primary);
+}
+.hero-title {
+  font-size: 35px;
+  font-weight: 700;
+  color: #0a0a3c;
+  line-height: 1.2;
+}
+
+.hero-title span {
+  color: #f9a825;
+}
+
+.hero-description {
+  margin: 20px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+
+.btn-border {
+  border: 2px solid #0a0a3c;
+  padding: 12px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #0a0a3c;
+  transition: 0.3s;
+}
+
+
+
+/* ================= RIGHT SIDE (STICKY EDGE) ================= */
+
+.hero-right {
+  position: sticky;
+  top: 120px;
+
+  width: 60vw; /* half screen */
+  margin-left: auto;
+
+  /* 🔥 pushes to full right edge */
+  margin-right: calc(-50vw + 50%);
+
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* FRAME */
+.hero-frame {
+  width: 100%;
+  max-width: 900px;
+
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
+
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+/* IMAGE */
+.hero-frame img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+/* ================= SWIPER ================= */
+
+.swiper-pagination-bullet {
+  background: #ccc;
+}
+
+.swiper-pagination-bullet-active {
+  background: #0a0a3c;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 992px) {
+  .hero-layout {
+    flex-direction: column;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: 100%;
+  }
+
+  .hero-right {
+    position: relative;
+    margin-right: 0;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-frame img {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero {
+    padding: 60px 0;
+  }
+
+  .hero-title {
+    font-size: 26px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+  /* IMAGE */
+.hero-frame img {
+border-bottom-left-radius : 0px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+.hero-frame {
+    border-radius: 20px 0 0 0px;
+   
+}
+.hero-right {
+    bottom: 0px;
+    top: 0px;
+}
+.hero {
+    padding: 140px 0 0px 0;
+}
+}
