@@ -1,7 +1,7 @@
   import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
   import { useEffect, useState } from "react";
   import Lenis from "@studio-freight/lenis";
-
+import Contact from "./pages/Contact";
   import Header from "./components/Header";
   import Footer from "./components/Footer";
   import FooterCTA from "./components/FooterCTA";
@@ -37,13 +37,15 @@
           <>
             <Header />
 
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/post" element={<Post />} />
-              <Route path="/product/:slug" element={<ProductDetail />} />
-              <Route path="/category/:slug" element={<CategoryPage />} />
-            </Routes>
+           <Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/about" element={<About />} />
+  <Route path="/post" element={<Post />} />
+  <Route path="/product/:slug" element={<ProductDetail />} />
+  <Route path="/category/:slug" element={<CategoryPage />} />
+  
+  <Route path="/contact" element={<Contact />} />
+</Routes>
 
             <FooterCTA />
             <Footer />

@@ -10,52 +10,90 @@ export const MenuProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-{
-  menu(id: "main-menu", idType: SLUG) {
-    menuItems {
-      nodes {
-        id
-        label
-        url
-      }
-    }
-  }
+    const fetchMenuData = async () => {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+            {
+              menu(id: "main-menu", idType: SLUG) {
+                menuItems {
+                  nodes {
+                    id
+                    label
+                    url
+                  }
+                }
+              }
 
-  productCategories(first: 50) {
-    nodes {
-      id
-      name
-      slug
-      image {
-        sourceUrl
-      }
-    }
-  }
-}
-`,
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        console.log("GRAPHQL DATA 👉", res);
+              productCategories(first: 50) {
+                nodes {
+                  id
+                  name
+                  slug
+                  image {
+                    sourceUrl
+                  }
 
-        setMenu(res?.data?.menu?.menuItems?.nodes || []);
-        setCategories(res?.data?.productCategories?.nodes || []);
-        setLoading(false);
-      })
-      .catch((err) => {
+                  children {
+                    nodes {
+                      id
+                      name
+                      slug
+
+                      children {
+                        nodes {
+                          id
+                          name
+                          slug
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            `,
+          }),
+        });
+
+        if (!res.ok) throw new Error("API failed");
+
+        const data = await res.json();
+
+        console.log("GRAPHQL DATA 👉", data);
+
+        // ✅ MENU
+        setMenu(data?.data?.menu?.menuItems?.nodes || []);
+
+        // ✅ FORMAT CATEGORIES (VERY IMPORTANT)
+        const rawCategories = data?.data?.productCategories?.nodes || [];
+
+        const formattedCategories = rawCategories.map((parent) => ({
+          ...parent,
+          children:
+            parent.children?.nodes?.map((child) => ({
+              ...child,
+              children: child.children?.nodes || [],
+            })) || [],
+        }));
+
+        setCategories(formattedCategories);
+
+      } catch (err) {
         console.error("GraphQL Error:", err);
         setMenu([]);
         setCategories([]);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchMenuData();
   }, []);
 
   return (

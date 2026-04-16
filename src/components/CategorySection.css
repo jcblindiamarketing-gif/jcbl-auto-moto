@@ -51,6 +51,7 @@
   margin: 10px 0;
 }
 .category-header h2{font-size: 38px;}
+
 .category-description {
   font-size: 14px;
   color: #666;
@@ -104,5 +105,8 @@
   .category-image {
     width: 120px;
     height: 120px;
+  }
+  .category-header h2{
+    font-size: 24px !important;
   }
 }

@@ -1,6 +1,29 @@
 /* =========================
    HEADER BASE
 ========================= */
+/* MAIN CONTAINER (NO SCROLL HERE) */
+.mega-menu {
+  max-height: calc(100vh - 80px);
+  display: flex;
+}
+
+/* LEFT SIDE (OPTIONAL SCROLL) */
+.mega-left {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+/* RIGHT SIDE (MAIN SCROLL AREA) */
+.mega-right {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+/* smooth scroll */
+.mega-left,
+.mega-right {
+  scroll-behavior: smooth;
+}
 .header {
     position: fixed;
     padding: 10px 0px;
@@ -274,14 +297,18 @@ top : 100% ;
   background: rgba(0,0,0,0.4);
   z-index: 1000;
 }
-
+.mega-left {
+ overflow-y: scroll;
+}
 /* =========================
    MOBILE (FINAL FIX)
 ========================= */
 @media (max-width: 991px) {
   .mega-menu {
- 
-    top: 20px;
+    top: 0px;
+}
+.header {
+    top: 0px;
 }
 .top-bar{display : none;}
   /* =========================

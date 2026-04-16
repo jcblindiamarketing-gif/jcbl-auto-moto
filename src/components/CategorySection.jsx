@@ -4,7 +4,7 @@ import "./CategorySection.css";
 
 const API_URL = "https://www.jcblautomoto.com/graphql";
 
-function CategorySection() {
+function CategorySection({ openCatalogue }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,7 @@ function CategorySection() {
       .then((res) => {
         const rawCats = res?.data?.productCategories?.nodes || [];
 
-        // ✅ FLATTEN PARENT + CHILDREN (IMPORTANT FIX)
+        
   const allCats = rawCats;
 
         setCategories(allCats);
@@ -100,9 +100,9 @@ const filteredCategories = categories.filter((cat) => {
         <div className="category-header">
           <h2>Search By Category</h2>
 
-          <Link to="/contact" className="btn btn-blue">
-            Download Catalogue
-          </Link>
+         <button onClick={openCatalogue} className="btn btn-blue">
+  Download Catalogue
+</button>
         </div>
 
         {loading ? (

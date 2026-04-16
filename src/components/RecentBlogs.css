@@ -99,5 +99,13 @@
   .blog-image {
     width: 100%;
     height: 200px;
-  }
+ 
+ }
+
+ .blogs-header h2 {
+  font-size: 24px !important;
+}
+.blogs-section  .swiper-slide {
+    padding: 0px;
+}
 }

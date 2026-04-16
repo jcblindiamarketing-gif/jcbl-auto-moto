@@ -23,7 +23,7 @@ const sliderData = [
   { id: 5, image: img5 }
 ];
 
-function Hero() {
+function Hero({openCatalogue }) {
   return (
     <section className="hero">
       <div className="container hero-layout">
@@ -49,9 +49,9 @@ function Hero() {
                 Contact Us
               </Link>
 
-              <a href="/catalogue.pdf" className="btn btn-border">
-                Download Catalogue
-              </a>
+            <button className="btn btn-border" onClick={openCatalogue}>
+  Download Catalogue
+</button>
             </div>
 
           </div>

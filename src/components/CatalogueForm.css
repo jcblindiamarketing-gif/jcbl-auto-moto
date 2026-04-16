@@ -1,0 +1,97 @@
+/* 🔥 Form Container */
+.catalogue-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* 🔥 ONLY target direct inputs (NOT phone input internal) */
+.catalogue-form > input,
+.catalogue-form > select {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Focus */
+.catalogue-form > input:focus,
+.catalogue-form > select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* 🔥 Button */
+.catalogue-form button {
+  margin-top: 10px;
+  padding: 12px;
+  background: linear-gradient(135deg, #007bff, #0056d2);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.catalogue-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.25);
+}
+
+.catalogue-form button:active {
+  transform: scale(0.98);
+}
+
+/* ========================= */
+/* ✅ PHONE INPUT FIX */
+/* ========================= */
+
+.react-tel-input {
+  width: 100% !important;
+}
+
+/* main input */
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 45px !important;
+  padding-left: 48px !important; /* space for flag */
+  border-radius: 8px !important;
+  border: 1px solid #ddd !important;
+  font-size: 14px;
+}
+
+/* flag button */
+.react-tel-input .flag-dropdown {
+  border-radius: 8px 0 0 8px !important;
+  border: 1px solid #ddd !important;
+  background: #fff !important;
+}
+
+/* ensure flag is visible */
+.react-tel-input .selected-flag {
+  display: flex !important;
+  align-items: center;
+  padding: 0 8px;
+}
+
+/* dropdown list */
+.react-tel-input .country-list {
+  z-index: 99999 !important;
+}
+
+/* ========================= */
+/* 📱 Responsive */
+/* ========================= */
+
+@media (max-width: 500px) {
+  .catalogue-form > input,
+  .catalogue-form > select,
+  .catalogue-form button {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
