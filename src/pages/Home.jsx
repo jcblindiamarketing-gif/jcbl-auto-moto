@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../index.css";
 
 import Hero from "../components/Hero";
@@ -19,9 +19,31 @@ function Home() {
   const openCatalogue = () => setOpenForm(true);
   const closeCatalogue = () => setOpenForm(false);
 
+  // 🔥 FIX 1: Recalculate scroll height (Lenis fix)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 🔥 FIX 2: Modal scroll lock (safe)
+  useEffect(() => {
+    document.body.style.overflow = openForm ? "hidden" : "auto";
+
+    // recalc after modal open/close
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 200);
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openForm]);
+
   return (
     <>
-      {/* 🔥 Pass function to components */}
       <Hero openCatalogue={openCatalogue} />
       <BrandSection openCatalogue={openCatalogue} />
       <CategorySection openCatalogue={openCatalogue} />
@@ -33,7 +55,6 @@ function Home() {
       <GlobalNetwork />
       <RecentBlogs />
 
-      {/* 🔥 MODAL */}
       {openForm && (
         <div className="modal-overlay" onClick={closeCatalogue}>
           <div

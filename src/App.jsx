@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Lenis from "@studio-freight/lenis";
 
 import Contact from "./pages/Contact";
@@ -21,37 +21,111 @@ import "./index.css";
 function AppContent() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const lenisRef = useRef(null);
 
-  // Loader + scroll reset
+  // 🔥 Loader + scroll reset
   useEffect(() => {
     setLoading(true);
 
     const timer = setTimeout(() => {
       setLoading(false);
+
+      // reset scroll
       window.scrollTo(0, 0);
+      
+      // Update Lenis after route change if it exists
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+        setTimeout(() => {
+          lenisRef.current.resize();
+        }, 100);
+      }
+
+      // 🔥 force recalculation after route change
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 300);
+
     }, 800);
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  // FIX: Lenis inside routing
+  // 🔥 FIXED LENIS - WITHOUT BLOCKING WHEEL EVENTS
   useEffect(() => {
-    const lenis = new Lenis({
-      smooth: true,
-      lerp: 0.08,
-    });
+    // Small delay to ensure DOM is fully rendered
+    const initLenis = setTimeout(() => {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+      }
 
-    function raf(time) {
-      lenis.raf(time);
+      const lenis = new Lenis({
+        smooth: true,
+        lerp: 0.1,
+        duration: 1.2,
+        smoothTouch: true,
+        touchMultiplier: 2,
+        wheelMultiplier: 1,
+        normalizeWheel: false, // 🔥 CHANGED: Don't normalize wheel to avoid conflicts
+        infinite: false,
+        gestureOrientation: "vertical",
+        // 🔥 IMPORTANT: Don't prevent default on all wheel events
+        autoResize: true,
+      });
+
+      lenisRef.current = lenis;
+
+      // Connect Lenis to wheel events without blocking
+      const raf = (time) => {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      };
+      
       requestAnimationFrame(raf);
-    }
 
-    requestAnimationFrame(raf);
+      // 🔥 FIX: Recalculate scrollable height on resize and after content loads
+      const updateLenis = () => {
+        if (lenisRef.current) {
+          lenisRef.current.resize();
+        }
+      };
 
-    return () => {
-      lenis.destroy();
-    };
-  }, [location.pathname]); // re-init on route change
+      // Watch for DOM changes that might affect height
+      const resizeObserver = new ResizeObserver(() => {
+        updateLenis();
+      });
+
+      // Observe body for content changes
+      resizeObserver.observe(document.body);
+      
+      window.addEventListener("resize", updateLenis);
+      
+      // Also update after images load
+      const images = document.querySelectorAll('img');
+      images.forEach(img => {
+        if (img.complete) {
+          updateLenis();
+        } else {
+          img.addEventListener('load', updateLenis);
+        }
+      });
+
+      // Force update after delays
+      setTimeout(updateLenis, 100);
+      setTimeout(updateLenis, 500);
+      setTimeout(updateLenis, 1000);
+
+      return () => {
+        window.removeEventListener("resize", updateLenis);
+        resizeObserver.disconnect();
+        if (lenisRef.current) {
+          lenisRef.current.destroy();
+        }
+      };
+    }, 100);
+
+    return () => clearTimeout(initLenis);
+  }, []);
 
   return (
     <>

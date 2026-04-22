@@ -34,7 +34,8 @@ body {
 }
 html, body {
   font-family: "Poppins", "Montserrat", sans-serif;
-   scroll-behavior: auto; /* disable default */
+   scroll-behavior: auto; /* disable default */  height: auto;
+  overflow-x: hidden;
 }
 
 /* =========================
@@ -238,6 +239,7 @@ body {
   padding: 80px 0;
 }
 /* ===== MODAL ===== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
