@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
+import { Link } from "react-router-dom";
 
 import "swiper/css";
 import "./RecentBlogs.css";
@@ -32,8 +33,11 @@ const RecentBlogs = () => {
     <section className="blogs-section">
       <div className="container blogs-header">
         <h2>Recent Added Blogs</h2>
-        <button className="btn btn-blue see-all-blog">See All</button>
-      </div>
+<Link to="/blogs">
+  <button className="btn btn-blue see-all-blog">
+    See All
+  </button>
+</Link>      </div>
 
       <div className="container">
         {posts.length === 0 ? (
@@ -85,11 +89,11 @@ const RecentBlogs = () => {
                       ...
                     </p>
 
-                    <a href={post.link}>
-                      <button className="btn btn-blue read-more-button">
-                        Read More
-                      </button>
-                    </a>
+                <Link to={`/blog/${post.slug}`}>
+  <button className="btn btn-blue read-more-button">
+    Read More
+  </button>
+</Link>
                   </div>
 
                 </div>

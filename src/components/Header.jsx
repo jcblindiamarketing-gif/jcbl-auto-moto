@@ -17,9 +17,12 @@ const location = useLocation();
   const [activeChild, setActiveChild] = useState(null); // ✅ FIXED
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+
+
 useEffect(() => {
   setOpenMenu(false); // ✅ close menu when route changes
 }, [location.pathname]);
+
  useEffect(() => {
   const handleClickOutside = (e) => {
     const isInsideMenu = e.target.closest(".dropdown.mega");
@@ -338,8 +341,36 @@ menu
               <button className="btn btn-blue">
                 <span>Contact Us</span>
               </button>
-              <div className="lang">Eng ▾</div>
-              <button className="hamburger" onClick={toggleSidebar}>
+<select
+  className="lang"
+  onChange={(e) => {
+    const lang = e.target.value;
+
+    const googleSelect = document.querySelector(".goog-te-combo");
+
+    if (googleSelect) {
+      googleSelect.value = lang;
+      googleSelect.dispatchEvent(new Event("change"));
+    } else {
+      console.log("Translator not loaded yet");
+    }
+  }}
+>
+  <option value="en">English</option>
+  <option value="hi">Hindi</option>
+  <option value="es">Spanish</option>
+  <option value="fr">French</option>
+  <option value="de">German</option>
+  <option value="it">Italian</option>
+  <option value="pt">Portuguese</option>
+  <option value="ru">Russian</option>
+  <option value="ar">Arabic</option>
+  <option value="zh-CN">Chinese</option>
+  <option value="ja">Japanese</option>
+  <option value="ko">Korean</option>
+</select>          
+
+  <button className="hamburger" onClick={toggleSidebar}>
                 <HiMenu size={24} />
               </button>
             </>
