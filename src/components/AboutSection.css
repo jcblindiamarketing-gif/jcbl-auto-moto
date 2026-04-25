@@ -45,7 +45,7 @@
   border-radius: 16px;
   overflow: hidden; /* keeps image inside */
 }
-
+.about-cta h2{color : var(--white) ;}
 .about-part-img {
     position: absolute;
     right: 0px;

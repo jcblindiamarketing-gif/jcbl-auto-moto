@@ -2,7 +2,7 @@ import React from "react";
 import { FaGlobe, FaUsers, FaCheckCircle, FaBoxes } from "react-icons/fa";
 import "./WhyChooseUs.css";
 
-const WhyChooseUs = () => {
+const WhyChooseUs = ({ openCatalogue }) => {
   const data = [
     {
       icon: <FaGlobe />,
@@ -37,7 +37,7 @@ const WhyChooseUs = () => {
           </p>
         </div>
 
-        <button className="btn btn-blue">Download Catalogue</button>
+        <button className="btn btn-blue" onClick={openCatalogue}>Download Catalogue</button>
       </div>
 
       <div className="container why-cards">

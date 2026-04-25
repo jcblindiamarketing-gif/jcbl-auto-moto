@@ -1,30 +1,39 @@
 import ContactInfo from "../components/ContactInfo";
 import ContactForm from "../components/ContactForm";
 import Map from "../components/Map";
+import Breadcrumb from "../components/Breadcrumb"; // ✅ ADD THIS
+
 import "../components/Contact.css";
 import "../index.css";
+
 function Contact() {
   return (
-    <div className="container contact-section">
+    <>
+      {/* ✅ Breadcrumb */}
+      <Breadcrumb title="Contact Us" />
 
-      <h1>Contact Us</h1>
+      <div className="container contact-section">
 
-      <ContactInfo />
+    
 
-   <div className="contact-grid">
+        <ContactInfo />
 
-  {/* LEFT → MAP */}
-  <div className="map-box">
-    <Map />
-  </div>
+        <div className="contact-grid">
 
-  <div className="form-box">
-    <ContactForm />
-  </div>
+          {/* LEFT → MAP */}
+          <div className="map-box">
+            <Map />
+          </div>
 
-</div>
+          {/* RIGHT → FORM */}
+          <div className="form-box">
+            <ContactForm />
+          </div>
 
-    </div>
+        </div>
+
+      </div>
+    </>
   );
 }
 

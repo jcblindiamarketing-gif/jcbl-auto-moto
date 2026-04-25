@@ -2,6 +2,8 @@ import "./AboutSection.css";
 import aboutBg from "../assets/images/about-bg-img.png";
 import partimage from "../assets/images/parts-image.png";
 import { FaArrowRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
 
 function AboutSection() {
   return (
@@ -35,10 +37,11 @@ function AboutSection() {
             solutions tailored to evolving market needs.
           </p>
 
-       <button className="btn about-btn white-btn">
-  Learn More 
+      
+<Link to="/about" className="btn about-btn white-btn">
+  Learn More
   <FaArrowRight className="btn-icon" />
-</button>
+</Link>
 
         </div>
       </div>

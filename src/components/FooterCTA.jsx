@@ -1,6 +1,7 @@
 import React from "react";
 import "./FooterCTA.css";
 import bgImage from "../assets/images/before_footer_bg_img.png";
+import { Link } from "react-router-dom";
 
 const FooterCTA = () => {
   return (
@@ -23,7 +24,9 @@ const FooterCTA = () => {
         </div>
 
         <div className="footer-cta-btn">
-          <button className="btn btn-blue">Contact Us</button>
+        <Link to="/contact">
+  <button className="btn btn-blue">Contact Us</button>
+</Link>
         </div>
 
       </div>

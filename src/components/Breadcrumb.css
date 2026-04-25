@@ -1,0 +1,115 @@
+:root {
+  --nav-height: 72px;
+}
+
+/* MAIN SECTION */
+.breadcrumb-section {
+  position: relative;
+  width: 100%;
+  min-height: 220px;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ✅ Fix navbar overlap */
+  padding-top: var(--nav-height);
+  box-sizing: border-box;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+/* CONTENT */
+.breadcrumb-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 0 15px;
+}
+
+/* TITLE */
+.breadcrumb-content h1 {
+    color: var(--white);
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* LINKS */
+.breadcrumb-links {
+  font-size: 14px;
+}
+
+.breadcrumb-links a {
+  color: #fff;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.breadcrumb-links a:hover {
+  color: #ffd700; /* yellow hover */
+}
+
+.breadcrumb-links span {
+  color: #ddd;
+  margin: 0 5px;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 576px) {
+  .breadcrumb-section {
+    min-height: 200px;
+    padding-top: 80px;
+  }
+
+  .breadcrumb-content h1 {
+    font-size: 22px;
+  }
+}
+
+/* 📲 TABLET */
+@media (min-width: 768px) {
+  .breadcrumb-section {
+    min-height: 260px;
+    padding-top: 90px;
+  }
+
+  .breadcrumb-content h1 {
+    font-size: 30px;
+  }
+}
+
+/* 💻 DESKTOP */
+@media (min-width: 1024px) {
+  .breadcrumb-section {
+    min-height: 300px;
+    padding-top: 110px;
+  }
+
+  .breadcrumb-content h1 {
+    font-size: 36px;
+  }
+}
+
+/* 🖥 XL SCREENS */
+@media (min-width: 1280px) {
+  .breadcrumb-section {
+    min-height: 340px;
+    padding-top: 120px;
+  }
+
+  .breadcrumb-content h1 {
+    font-size: 42px;
+  }
+}

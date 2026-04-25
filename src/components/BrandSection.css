@@ -51,13 +51,21 @@ align-items: flex-start ;}
 
 /* Responsive */
 @media (max-width: 768px) {
-  .brand-header h2 {
-    font-size: 26px;
-  }
+.brand-header h2 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 15px;
+}
 
   .brand-card {
     padding: 20px;
   }
+  .brand-header{flex-direction: column;}
+  .brand-header p {
+    color: var(--primary);
+    font-size: 14px;
+    text-align: center;
+}
 }
 
 @media (max-width: 480px) {

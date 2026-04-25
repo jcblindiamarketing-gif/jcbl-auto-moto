@@ -8,6 +8,7 @@ import { MenuContext } from "../context/MenuContext";
 import { HiPhone, HiMail } from "react-icons/hi";
 import "./Header.css";
 import logo from "../assets/images/JCBL-logo-header.png";
+import SearchBar from "./SearchBar";
 
 function Header() {
 
@@ -329,53 +330,52 @@ menu
         </nav>
 
         {/* RIGHT SIDE */}
-        <div className="navbar-right">
-          {loading ? (
-            <>
-              <div className="skeleton-button"></div>
-              <div className="skeleton-lang"></div>
-              <div className="skeleton-hamburger"></div>
-            </>
-          ) : (
-            <>
-              <button className="btn btn-blue">
-                <span>Contact Us</span>
-              </button>
-<select
-  className="lang"
-  onChange={(e) => {
-    const lang = e.target.value;
+      <div className="navbar-right">
 
-    const googleSelect = document.querySelector(".goog-te-combo");
+  {/* 🔍 SEARCH BAR */}
+  <div className="header-search">
+    <SearchBar />
+  </div>
 
-    if (googleSelect) {
-      googleSelect.value = lang;
-      googleSelect.dispatchEvent(new Event("change"));
-    } else {
-      console.log("Translator not loaded yet");
-    }
-  }}
->
-  <option value="en">English</option>
-  <option value="hi">Hindi</option>
-  <option value="es">Spanish</option>
-  <option value="fr">French</option>
-  <option value="de">German</option>
-  <option value="it">Italian</option>
-  <option value="pt">Portuguese</option>
-  <option value="ru">Russian</option>
-  <option value="ar">Arabic</option>
-  <option value="zh-CN">Chinese</option>
-  <option value="ja">Japanese</option>
-  <option value="ko">Korean</option>
-</select>          
+  {loading ? (
+    <>
+      <div className="skeleton-button"></div>
+      <div className="skeleton-lang"></div>
+      <div className="skeleton-hamburger"></div>
+    </>
+  ) : (
+    <>
+      {/* CONTACT BUTTON */}
+      <Link to="/contact" className="btn btn-blue">
+        Contact Us
+      </Link>
 
-  <button className="hamburger" onClick={toggleSidebar}>
-                <HiMenu size={24} />
-              </button>
-            </>
-          )}
-        </div>
+      {/* LANGUAGE */}
+      <select
+        className="lang"
+        onChange={(e) => {
+          const lang = e.target.value;
+          const googleSelect = document.querySelector(".goog-te-combo");
+
+          if (googleSelect) {
+            googleSelect.value = lang;
+            googleSelect.dispatchEvent(new Event("change"));
+          }
+        }}
+      >
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="es">Spanish</option>
+        <option value="fr">French</option>
+      </select>
+
+      {/* MOBILE MENU */}
+      <button className="hamburger" onClick={toggleSidebar}>
+        <HiMenu size={24} />
+      </button>
+    </>
+  )}
+</div>
 
       </div>
     </header>

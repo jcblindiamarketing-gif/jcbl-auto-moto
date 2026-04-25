@@ -14,7 +14,11 @@ font-family: "Poppins", "Montserrat", sans-serif;
   margin-top: 20px;
   overflow-x: auto; /* responsive scroll */
 }
+.products-section .product-card p {
 
+    min-height: 70px;
+   
+}
 /* TABLE STYLE */
 .product-description table {
   width: 100%;
@@ -63,9 +67,10 @@ font-family: "Poppins", "Montserrat", sans-serif;
 .product-detail-image{margin : auto ;}
 /* CONTENT */
 .product-detail-content h1 {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #0a0a3c;
+    color: #0a0a3c;
+    margin-bottom: 20px;
+    font-size: 32px;
+    text-align: left;
 }
 
 .product-detail-content p {

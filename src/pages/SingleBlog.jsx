@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import Breadcrumb from "../components/Breadcrumb"; // ✅ ADD THIS
 import "./SingleBlog.css";
 
 const SingleBlog = () => {
@@ -32,14 +33,16 @@ const SingleBlog = () => {
 
     fetchPost();
   }, [slug]);
-useEffect(() => {
-  if (post) {
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 200);
-  }
-}, [post]);
-  // fetch only 3 latest blogs (FASTER)
+
+  useEffect(() => {
+    if (post) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 200);
+    }
+  }, [post]);
+
+  // latest blogs
   useEffect(() => {
     const fetchLatest = async () => {
       try {
@@ -57,87 +60,98 @@ useEffect(() => {
   }, []);
 
   return (
-    <div className="container blog-layout">
+    <>
+      {/* ✅ Breadcrumb with dynamic title */}
+      <Breadcrumb
+        title={
+          post
+            ? post.title.rendered.replace(/<[^>]+>/g, "")
+            : "Blog"
+        }
+      />
 
-      {/* LEFT BLOG */}
-      <div className="blog-main">
+      <div className="container blog-layout">
 
-        {/* IMAGE */}
-        {post ? (
-          <img
-            src={
-              post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-              "https://via.placeholder.com/600"
-            }
-            alt={post.title.rendered}
-          />
-        ) : (
-          <div className="img-skeleton"></div>
-        )}
+        {/* LEFT BLOG */}
+        <div className="blog-main">
 
-        {/* TITLE */}
-        {post ? (
-          <h1 dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
-        ) : (
-          <div className="text-skeleton title"></div>
-        )}
-
-        {/* CONTENT */}
-        {post ? (
-          <div className="blog-content-wrapper">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: post.cleanedContent,
-              }}
+          {/* IMAGE */}
+          {post ? (
+            <img
+              src={
+                post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+                "https://via.placeholder.com/600"
+              }
+              alt={post.title.rendered}
             />
-          </div>
-        ) : (
-          <div className="content-skeleton"></div>
-        )}
-      </div>
+          ) : (
+            <div className="img-skeleton"></div>
+          )}
 
-      {/* RIGHT SIDEBAR */}
-      <div className="blog-sidebar">
-        <h3>Latest Blogs</h3>
+          {/* TITLE */}
+          {post ? (
+            <h1 dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
+          ) : (
+            <div className="text-skeleton title"></div>
+          )}
 
-        {latestPosts.length > 0 ? (
-          latestPosts.map((item) => (
-            <Link
-              to={`/blog/${item.slug}`}
-              key={item.id}
-              className="sidebar-item"
-            >
-              <img
-                src={
-                  item._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-                  "https://via.placeholder.com/100"
-                }
-                alt={item.title.rendered}
+          {/* CONTENT */}
+          {post ? (
+            <div className="blog-content-wrapper">
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: post.cleanedContent,
+                }}
               />
+            </div>
+          ) : (
+            <div className="content-skeleton"></div>
+          )}
+        </div>
 
-              <div>
-                <h4
-                  dangerouslySetInnerHTML={{
-                    __html: item.title.rendered,
-                  }}
+        {/* RIGHT SIDEBAR */}
+        <div className="blog-sidebar">
+          <h3>Latest Blogs</h3>
+
+          {latestPosts.length > 0 ? (
+            latestPosts.map((item) => (
+              <Link
+                to={`/blog/${item.slug}`}
+                key={item.id}
+                className="sidebar-item"
+              >
+                <img
+                  src={
+                    item._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+                    "https://via.placeholder.com/100"
+                  }
+                  alt={item.title.rendered}
                 />
 
-                <p>
-                  {item.excerpt.rendered
-                    .replace(/<[^>]+>/g, "")
-                    .split(" ")
-                    .slice(0, 6)
-                    .join(" ")}
-                  ...
-                </p>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <p>Loading...</p>
-        )}
+                <div>
+                  <h4
+                    dangerouslySetInnerHTML={{
+                      __html: item.title.rendered,
+                    }}
+                  />
+
+                  <p>
+                    {item.excerpt.rendered
+                      .replace(/<[^>]+>/g, "")
+                      .split(" ")
+                      .slice(0, 6)
+                      .join(" ")}
+                    ...
+                  </p>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

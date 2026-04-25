@@ -1,6 +1,17 @@
 /* =========================
    HEADER BASE
 ========================= */
+.header-search {
+  margin-right: 15px;
+  position: relative;
+}
+
+/* mobile hide (optional) */
+@media (max-width: 768px) {
+  .header-search {
+    display: none;
+  }
+}
 /* MAIN CONTAINER (NO SCROLL HERE) */
 .mega-menu {
   max-height: calc(100vh - 80px);

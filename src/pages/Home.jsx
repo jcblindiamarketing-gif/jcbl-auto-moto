@@ -50,7 +50,7 @@ function Home() {
       <AboutSection />
       <StatsSection />
       <TestimonialSection />
-      <WhyChooseUs />
+      <WhyChooseUs openCatalogue={openCatalogue}  />
       <PopularProductsSlider />
       <GlobalNetwork />
       <RecentBlogs />
@@ -61,7 +61,7 @@ function Home() {
             className="modal-box"
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="close-btn" onClick={closeCatalogue}>
+            <button className="close-btn-modal" onClick={closeCatalogue}>
               ✖
             </button>
 
