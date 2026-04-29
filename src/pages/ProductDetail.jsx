@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import Loader from "../components/Loader";
 import fallbackImg from "../assets/images/logo-testimonial.png";
+import { Link } from "react-router-dom";
+
 
 const API_URL = "https://www.jcblautomoto.com/graphql";
 
@@ -136,7 +138,9 @@ body: JSON.stringify({
                 </p>
               )}
 
-              <button className="btn-blue btn">Inquire Now</button>
+       <Link to="/contact">
+  <button className="btn-blue btn">Inquire Now</button>
+</Link>
             </div>
           </div>
 

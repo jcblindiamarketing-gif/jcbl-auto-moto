@@ -15,20 +15,19 @@ function Header() {
   const { menu, categories, loading } = useContext(MenuContext);
 const location = useLocation();
   const [activeCat, setActiveCat] = useState(null);
-  const [activeChild, setActiveChild] = useState(null); // ✅ FIXED
+  const [activeChild, setActiveChild] = useState(null); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
 
 useEffect(() => {
-  setOpenMenu(false); // ✅ close menu when route changes
+  setOpenMenu(false); 
 }, [location.pathname]);
 
  useEffect(() => {
   const handleClickOutside = (e) => {
     const isInsideMenu = e.target.closest(".dropdown.mega");
 
-    // ✅ If click inside menu → do nothing
     if (isInsideMenu) return;
 
     setOpenMenu(false);

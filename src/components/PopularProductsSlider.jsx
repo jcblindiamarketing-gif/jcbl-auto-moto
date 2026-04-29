@@ -100,7 +100,7 @@ useEffect(() => {
 
                   <Link
                     to={`/product/${product.slug}`}
-                    className="btn btn-blue"
+                    className="btn btn-blue popular-product-btn"
                   >
                     Inquire Now
                   </Link>

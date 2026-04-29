@@ -49,7 +49,7 @@
 
 /* HOVER EFFECT */
 .product-card:hover {
-  transform: translateY(-6px);
+
   box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
 }
 
@@ -81,6 +81,13 @@
 }
 .product-description h2{font-size:24px;
 line-height : 34px ;}
+.popular-product-btn{
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 400;
+ 
+}
 
 .inquire-btn-popular{width: 100%;
 text-align: center;

@@ -30,11 +30,16 @@ export const MenuProvider = ({ children }) => {
                 }
               }
 
-              productCategories(first: 50) {
+              productCategories(first: 100) {
                 nodes {
                   id
                   name
                   slug
+                  parent {
+                    node {
+                      id
+                    }
+                  }
                   image {
                     sourceUrl
                   }
@@ -44,12 +49,22 @@ export const MenuProvider = ({ children }) => {
                       id
                       name
                       slug
+                      parent {
+                        node {
+                          id
+                        }
+                      }
 
                       children {
                         nodes {
                           id
                           name
                           slug
+                          parent {
+                            node {
+                              id
+                            }
+                          }
                         }
                       }
                     }
@@ -70,19 +85,40 @@ export const MenuProvider = ({ children }) => {
         // ✅ MENU
         setMenu(data?.data?.menu?.menuItems?.nodes || []);
 
-        // ✅ FORMAT CATEGORIES (VERY IMPORTANT)
+        // ✅ RAW CATEGORIES
         const rawCategories = data?.data?.productCategories?.nodes || [];
 
-        const formattedCategories = rawCategories.map((parent) => ({
-          ...parent,
+        // ✅ FORMAT TREE
+        const formatted = rawCategories.map((parent) => ({
+          id: parent.id,
+          name: parent.name,
+          slug: parent.slug,
+          parentId: parent.parent?.node?.id || null,
+          image: parent.image?.sourceUrl || null,
+
           children:
             parent.children?.nodes?.map((child) => ({
-              ...child,
-              children: child.children?.nodes || [],
+              id: child.id,
+              name: child.name,
+              slug: child.slug,
+              parentId: child.parent?.node?.id || parent.id,
+
+              children:
+                child.children?.nodes?.map((grand) => ({
+                  id: grand.id,
+                  name: grand.name,
+                  slug: grand.slug,
+                  parentId: grand.parent?.node?.id || child.id,
+                })) || [],
             })) || [],
         }));
 
-        setCategories(formattedCategories);
+        // ✅ ONLY TOP-LEVEL (PARENTS)
+        const parentCategories = formatted.filter(
+          (cat) => cat.parentId === null && cat.slug !== "uncategorized"
+        );
+
+        setCategories(parentCategories);
 
       } catch (err) {
         console.error("GraphQL Error:", err);
