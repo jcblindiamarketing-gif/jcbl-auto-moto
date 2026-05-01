@@ -8,25 +8,23 @@ function CategorySection({ openCatalogue }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-        {
-      productCategories(first: 100) {
-            nodes {
-              id
-              name
-              slug
-              description
-              image {
-                sourceUrl
-              }
-              children {
+useEffect(() => {
+  const fetchAllCategories = async () => {
+    let allCats = [];
+    let hasNextPage = true;
+    let after = null;
+
+    try {
+      while (hasNextPage) {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+            query ($after: String) {
+              productCategories(first: 100, after: $after, where: { hideEmpty: false }) {
                 nodes {
                   id
                   name
@@ -36,52 +34,60 @@ function CategorySection({ openCatalogue }) {
                     sourceUrl
                   }
                 }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
               }
             }
-          }
-        }
-        `,
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        const rawCats = res?.data?.productCategories?.nodes || [];
+            `,
+            variables: { after },
+          }),
+        });
 
-        
-  const allCats = rawCats;
+        const json = await res.json();
+        const data = json?.data?.productCategories;
 
-        setCategories(allCats);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("CATEGORY ERROR 👉", err);
-        setLoading(false);
-      });
-  }, []);
+        allCats = [...allCats, ...(data?.nodes || [])];
 
-  // ✅ CORRECT SLUGS
- const allowedSlugs = [
-  "batteries",
-  "chrome-parts",
-  "lubricants-engine-oil",
-  "motorcycle-spare-parts",
-  "motorcycle-helmets",
-  "car-alloy-wheels",
-  "heavy-machinery-parts",
-  "tractor-part",      
-  "car-spare-parts",     
-];
+        hasNextPage = data?.pageInfo?.hasNextPage;
+        after = data?.pageInfo?.endCursor;
+      }
 
-  // ✅ FILTER
-const filteredCategories = categories.filter((cat) => {
-  const slug = cat?.slug?.toLowerCase()?.trim();
+      setCategories(allCats);
 
-  return slug && allowedSlugs.includes(slug);
-});
+      setLoading(false);
+    } catch (err) {
+      console.error("CATEGORY ERROR ", err);
+      setLoading(false);
+    }
+  };
 
-  console.log("FINAL FILTER 👉", filteredCategories);
+  fetchAllCategories();
+}, []);
 
-  // ✅ DESCRIPTION LIMIT
+  //  ALLOWED SLUGS (STRICT)
+  const allowedSlugs = [
+    "batteries",
+    "chrome-parts",
+    "lubricants-engine-oil",
+    "motorcycle-spare-parts",
+    "motorcycle-helmets",
+    "car-alloy-wheels",
+    "heavy-machinery-parts",
+    "tractor-part", //  now this will work
+    "car-spare-parts",
+  ];
+
+  //  FILTER ONLY EXACT MATCHES
+  const filteredCategories = categories.filter((cat) => {
+    const slug = cat?.slug?.toLowerCase()?.trim();
+    return slug && allowedSlugs.includes(slug);
+  });
+
+  console.log("FINAL FILTER ", filteredCategories);
+
+  //  DESCRIPTION LIMIT
   const getShortDesc = (html) => {
     if (!html) return "Explore our products";
 
@@ -100,9 +106,9 @@ const filteredCategories = categories.filter((cat) => {
         <div className="category-header">
           <h2>Search By Category</h2>
 
-         <button onClick={openCatalogue} className="btn btn-blue">
-  Download Catalogue
-</button>
+          <button onClick={openCatalogue} className="btn btn-blue">
+            Download Catalogue
+          </button>
         </div>
 
         {loading ? (
