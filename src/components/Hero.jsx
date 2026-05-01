@@ -3,7 +3,7 @@ import { Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
 import shapeImg from "../assets/images/shape-hero-img.png";
 import "../index.css";
-
+import heroBg from "../assets/images/hero-bg-dotted-img.png";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
@@ -26,7 +26,7 @@ const sliderData = [
 
 function Hero({openCatalogue }) {
   return (
-    <section className="hero">
+    <section className="hero"   style={{ backgroundImage: `url(${heroBg})` }}>
       <img src={shapeImg} alt="shape" className="hero-shape" />
 
       <div className="container hero-layout">
