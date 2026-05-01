@@ -51,7 +51,16 @@ useEffect(() => {
       setActiveChild(parent.children[0].id);
     }
   }, [activeCat, categories]);
+const cleanUrl = (url) => {
+  if (!url) return "/";
 
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname.replace(/\/$/, "") || "/";
+  } catch {
+    return url;
+  }
+};
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -121,7 +130,7 @@ menu
     return !item.url.includes("/category/");
   })
   .map((item, index) => {
-                const path = item.url === "/" ? "/" : item.url.replace("#", "");
+               const path = cleanUrl(item.url);
 
                 // 🔥 PRODUCTS MEGA MENU
                 if (item.label && item.label.toLowerCase().includes("product")) {

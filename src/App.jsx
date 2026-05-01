@@ -137,7 +137,7 @@ function AppContent() {
 
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/about-jcbl-group" element={<About />} />
             <Route path="/post" element={<Post />} />
             <Route path="/blog/:slug" element={<SingleBlog />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
