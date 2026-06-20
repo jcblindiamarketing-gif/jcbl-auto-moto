@@ -1,0 +1,442 @@
+.category-section-page {
+  padding: 160px 20px 80px 20px !important;
+  font-family: "Poppins", sans-serif;
+}
+
+/* NEW: 70/30 Layout Container */
+.category-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* NEW: Main content - 70% */
+.category-main-content {
+  flex: 0 0 70%;
+  min-width: 0; /* Prevents overflow */
+}
+
+/* NEW: Sidebar - 30% */
+.category-sidebar {
+  flex: 0 0 30%;
+  position: sticky;
+  top: 120px;
+}
+
+.category-header .category-title {
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.pagination {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: center;
+}
+
+.pagination button {
+  color: var(--white);
+  padding: 8px 8px;
+  cursor: pointer;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+/* CENTER LOADER */
+.category-grid .loader-wrapper {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* HEADER */
+.category-header {
+  text-align: center;
+  margin-bottom: 20px;
+  display : flex ;
+  align-items: center ;
+  justify-content: space-between;
+}
+
+.category-header h2 {
+  font-size: 38px;
+  color: #0a0a3c;
+  text-transform: capitalize;
+}
+
+.category-header p {
+  font-size: 14px;
+  color: #666;
+}
+
+
+
+/* CARD */
+.category-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+}
+
+/* IMAGE */
+.category-image {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.category-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* TITLE */
+.category-card h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #0a0a3c;
+}
+
+/* BUTTON */
+.view-product-btn {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-view:hover {
+  background: #f7a707;
+  color: #000;
+}
+
+/* NO PRODUCT */
+.no-product {
+  text-align: center;
+  grid-column: span 4;
+  color: #888;
+}
+
+/* NEW: Responsive adjustments for 70/30 layout */
+@media (max-width: 1024px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Stack layout on tablet */
+  .category-layout {
+    flex-direction: column;
+  }
+  
+  .category-main-content {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+  
+  .category-sidebar {
+    flex: 0 0 100%;
+    width: 100%;
+    position: static;
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-layout {
+    gap: 20px;
+  }
+}
+
+
+/* Add these styles to your existing CategoryPage.css */
+
+/* Sidebar wrapper styling */
+.category-sidebar {
+  flex: 0 0 30%;
+  position: sticky;
+  top: 120px;
+}
+
+/* Style the form container that wraps ContactForm */
+.category-sidebar form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #eee;
+  box-shadow: 0px 10px 25px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Style all inputs inside the sidebar form */
+.category-sidebar input:not(.react-tel-input .form-control),
+.category-sidebar select,
+.category-sidebar textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.category-sidebar input:focus,
+.category-sidebar select:focus,
+.category-sidebar textarea:focus {
+  outline: none;
+  border-color: #f7a707;
+}
+
+/* Style phone input specifically */
+.category-sidebar .react-tel-input {
+  width: 100%;
+}
+
+.category-sidebar .react-tel-input .form-control {
+  width: 100% !important;
+  padding: 12px 14px 12px 48px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+}
+
+.category-sidebar .react-tel-input .flag-dropdown {
+  border-radius: 8px 0 0 8px !important;
+  border: 1px solid #ddd !important;
+  border-right: none !important;
+}
+
+/* Style the submit button */
+.category-sidebar button[type="submit"] {
+  background: #0a0a3c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.category-sidebar button[type="submit"]:hover:not(:disabled) {
+  background: #f7a707;
+  transform: translateY(-2px);
+}
+
+.category-sidebar button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Form header styling (add this inside your ContactForm if needed) */
+.category-sidebar .contact-form-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.category-sidebar .contact-form-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0a0a3c;
+  margin-bottom: 8px;
+}
+
+.category-sidebar .contact-form-header p {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Contact info styling */
+.category-sidebar .contact-info {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.category-sidebar .info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.category-sidebar .info-item svg {
+  color: #f7a707;
+  flex-shrink: 0;
+}
+/* Packaging Slider Section */
+.packaging-slider-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 2px solid #e5e7eb;
+  width: 100%;
+}
+
+.packaging-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 30px;
+  text-align: left;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.packaging-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  border-radius: 2px;
+}
+
+.packaging-swiper {
+  padding: 10px 5px 40px 5px;
+}
+
+.packaging-slide {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.packaging-slide:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.packaging-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.packaging-slide-title {
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  background: #f9fafb;
+  margin: 0;
+}
+
+/* Swiper Navigation Customization */
+.packaging-swiper .swiper-button-next,
+.packaging-swiper .swiper-button-prev {
+  background: rgba(37, 99, 235, 0.9);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.packaging-swiper .swiper-button-next:hover,
+.packaging-swiper .swiper-button-prev:hover {
+  background: #1e40af;
+  transform: scale(1.1);
+}
+
+.packaging-swiper .swiper-button-next::after,
+.packaging-swiper .swiper-button-prev::after {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.packaging-swiper .swiper-pagination-bullet {
+  background: #cbd5e1;
+  width: 10px;
+  height: 10px;
+}
+
+.packaging-swiper .swiper-pagination-bullet-active {
+  background: #2563eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .category-header .category-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+  .packaging-title {
+    font-size: 24px;
+  }
+  
+  .packaging-image {
+    height: 160px;
+  }
+  
+  .packaging-slide-title {
+    font-size: 12px;
+    padding: 8px;
+  }
+  
+  .packaging-swiper .swiper-button-next,
+  .packaging-swiper .swiper-button-prev {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .packaging-swiper .swiper-button-next::after,
+  .packaging-swiper .swiper-button-prev::after {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .packaging-image {
+    height: 120px;
+  }
+}
+/* Responsive */
+@media (max-width: 1024px) {
+  .category-sidebar {
+    flex: 0 0 100%;
+    position: static;
+    margin-top: 40px;
+  }
+}

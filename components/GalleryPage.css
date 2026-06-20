@@ -1,0 +1,21 @@
+.gallery-page {
+  min-height: 100vh;
+  background: white;
+}
+
+.gallery-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.gallery-header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.gallery-main {
+  display: flex;
+  min-height: calc(100vh - 120px);
+}

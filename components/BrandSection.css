@@ -1,0 +1,74 @@
+.brand-section {
+  background: #ffffff; /* changed to white */
+  padding: 60px 0 30px 0;
+  text-align: center;
+}
+
+.container {
+ max-width: 1360px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+.brand-header h2 {
+  color: var(--primary); /* blue heading */
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 50px;
+  line-height: 44px;
+  text-align: left;
+}
+.brand-header p {
+    color: var(--primary);
+    font-size: 16px;
+    text-align: right;
+    max-width: 730px;
+}
+.brand-header{display:flex;
+justify-content:  space-between;
+align-items: flex-start ;}
+/* Swiper spacing fix */
+
+
+.brand-card {
+  padding: 25px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.brand-card img {
+    width: 160px;
+    max-width: 160px;
+    height: 120px;
+    object-fit: contain;
+    filter: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.brand-header h2 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+  .brand-card {
+    padding: 20px;
+  }
+  .brand-header{flex-direction: column;}
+  .brand-header p {
+    color: var(--primary);
+    font-size: 14px;
+    text-align: center;
+}
+}
+
+@media (max-width: 480px) {
+  .brand-header h2 {
+    font-size: 22px;
+  }
+}
