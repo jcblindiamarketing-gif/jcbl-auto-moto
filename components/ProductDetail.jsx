@@ -1,5 +1,6 @@
+
+"use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import Loader from "../components/Loader";
 import fallbackImg from "../assets/images/logo-testimonial.png";
@@ -8,8 +9,7 @@ import Link from "next/link";
 
 const API_URL = "https://www.jcblautomoto.com/graphql";
 
-const ProductDetail = () => {
-  const { slug } = useParams();
+const ProductDetail = ({ slug }) => {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);

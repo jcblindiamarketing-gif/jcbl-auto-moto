@@ -8,10 +8,60 @@ import "./CategoryPage.css";
 import Loader from "../components/Loader";
 import ContactForm from "../components/ContactForm";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
 import 'swiper/css';
 
 const API_URL = "https://www.jcblautomoto.com/graphql";
+
+// Skeleton Components
+const CategoryCardSkeleton = () => (
+  <div className="category-card skeleton">
+    <div className="category-image skeleton-image"></div>
+    <div className="skeleton-title"></div>
+    <div className="skeleton-text"></div>
+    <div className="skeleton-button"></div>
+  </div>
+);
+
+const SubCategorySkeleton = () => (
+  <div className="category-card skeleton">
+    <div className="category-image skeleton-image"></div>
+    <div className="skeleton-title"></div>
+  </div>
+);
+
+const CategoryPageSkeleton = ({ type = 'subcategories' }) => {
+  const skeletonCount = type === 'subcategories' ? 8 : 6;
+  
+  return (
+    <section className="category-section-page new-sec">
+      <div className="container">
+        <div className="category-layout">
+          <div className="category-main-content">
+            <div className="category-header">
+              <div className="skeleton skeleton-title-large"></div>
+              <div className="skeleton skeleton-text-small"></div>
+            </div>
+            <div className="category-grid">
+              {[...Array(skeletonCount)].map((_, index) => (
+                type === 'subcategories' 
+                  ? <SubCategorySkeleton key={index} />
+                  : <CategoryCardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+          <aside className="category-sidebar">
+            <div className="skeleton-sidebar">
+              <div className="skeleton skeleton-title-medium"></div>
+              <div className="skeleton skeleton-text-long"></div>
+              <div className="skeleton skeleton-text-long"></div>
+              <div className="skeleton skeleton-button"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const CategoryPage = ({ slug }) => {
   const [products, setProducts] = useState([]);
@@ -22,6 +72,8 @@ const CategoryPage = ({ slug }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [cursorStack, setCursorStack] = useState([null]);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const [categoryDescription, setCategoryDescription] = useState("");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const limit = 10;
 
@@ -67,6 +119,7 @@ const CategoryPage = ({ slug }) => {
   useEffect(() => {
     setLoading(true);
     setCategoryLoaded(false);
+    setIsFirstLoad(true);
 
     fetch(API_URL, {
       method: "POST",
@@ -76,7 +129,7 @@ const CategoryPage = ({ slug }) => {
       body: JSON.stringify({
         query: `
         query GetCategory($slug: String!) {
-          productCategories(where: { slug: $slug }) {
+          productCategories(where: { slug: [$slug] }) {
             nodes {
               id
               name
@@ -107,9 +160,10 @@ const CategoryPage = ({ slug }) => {
       .then((res) => res.json())
       .then((res) => {
         const cat = res?.data?.productCategories?.nodes?.[0];
-
+        console.log("FULL RESPONSE:", res);
         if (cat) {
           setCategoryName(cat.name);
+          setCategoryDescription(cat.description || "");
           setSubCategories(cat.children?.nodes || []);
         } else {
           setCategoryName(slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
@@ -117,10 +171,12 @@ const CategoryPage = ({ slug }) => {
 
         setCategoryLoaded(true);
         setLoading(false);
+        setIsFirstLoad(false);
       })
       .catch(() => {
         setCategoryLoaded(true);
         setLoading(false);
+        setIsFirstLoad(false);
       });
   }, [slug]);
 
@@ -213,6 +269,37 @@ const CategoryPage = ({ slug }) => {
     window.scrollTo(0, 0);
   };
 
+  // Show skeleton while loading (first load)
+  if (isFirstLoad) {
+    return <CategoryPageSkeleton type={subCategories.length > 0 ? 'subcategories' : 'products'} />;
+  }
+
+  // Show loader while pagination loading
+  if (loading && !isFirstLoad && subCategories.length === 0) {
+    return (
+      <section className="category-section-page">
+        <div className="container">
+          <div className="category-layout">
+            <div className="category-main-content">
+              <div className="category-header">
+                <h1 className="category-title">{categoryName}</h1>
+                <p>Loading products...</p>
+              </div>
+              <div className="category-grid">
+                {[...Array(6)].map((_, index) => (
+                  <CategoryCardSkeleton key={index} />
+                ))}
+              </div>
+            </div>
+            <aside className="category-sidebar">
+              <ContactForm />
+            </aside>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   // Show loader while loading
   if (loading && !categoryLoaded) {
     return (
@@ -233,7 +320,6 @@ const CategoryPage = ({ slug }) => {
                 <h1 className="category-title">{categoryName}</h1>
                 <p>{subCategories.length} Categories</p>
               </div>
-
               <div className="category-grid">
                 {subCategories.map((cat) => (
                   <Link href={`/category/${cat.slug}`} key={cat.id}>
@@ -255,6 +341,14 @@ const CategoryPage = ({ slug }) => {
                   </Link>
                 ))}
               </div>
+              {categoryDescription && (
+                <div
+                  className="category-description"
+                  dangerouslySetInnerHTML={{
+                    __html: categoryDescription,
+                  }}
+                />
+              )}
             </div>
 
             <aside className="category-sidebar">
@@ -382,6 +476,14 @@ const CategoryPage = ({ slug }) => {
                 ))}
               </Swiper>
             </div>
+            {categoryDescription && (
+              <div
+                className="category-description"
+                dangerouslySetInnerHTML={{
+                  __html: categoryDescription,
+                }}
+              />
+            )}
           </div>
 
           <aside className="category-sidebar">

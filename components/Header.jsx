@@ -1,34 +1,55 @@
-"use client"; import Link from "next/link";
+"use client"; 
+import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { HiMenu, HiX, HiChevronRight, HiPhone, HiMail } from "react-icons/hi";
 import "./Header.css";
 import logo from "../assets/images/JCBL-logo-header.png";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
+
 function Header() {
+  // Add this missing state declaration
+  const [activeChild, setActiveChild] = useState(null);
   const [mobileParentOpen, setMobileParentOpen] = useState(null);
-const [mobileChildOpen, setMobileChildOpen] = useState(null);
+  const [mobileChildOpen, setMobileChildOpen] = useState(null);
   const [activeCat, setActiveCat] = useState("car-spare-parts");
-  const [activeChild, setActiveChild] = useState("hyundai");
+  
+  useEffect(() => {
+    const activeParent = parentCategories.find(
+      (p) => p.id === activeCat
+    );
+
+    if (!activeParent) return;
+
+    const children = getChildrenForParent(
+      activeParent.id,
+      activeParent.name
+    );
+
+    if (children.length > 0) {
+      setActiveChild(children[0].id);
+    }
+  }, [activeCat]);
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
-const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const hoverTimeout = useRef(null);
 
   // Handle window resize
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 992);
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 992);
+    };
 
-  handleResize(); // set initial value
+    handleResize(); // set initial value
 
-  window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
 
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Handle click outside for mobile
   useEffect(() => {
@@ -58,7 +79,7 @@ useEffect(() => {
     { id: "alloy-wheels", name: "Alloy Wheels", slug: "alloy-wheels" }
   ];
 
-  // STATIC CHILD CATEGORIES (Car Brands - from your second image)
+  // STATIC CHILD CATEGORIES (Car Brands)
   const carBrands = [
     { id: "hyundai", name: "Hyundai", slug: "hyundai", parentId: "car-spare-parts" },
     { id: "maruti-suzuki", name: "Maruti Suzuki", slug: "maruti-suzuki", parentId: "car-spare-parts" },
@@ -70,45 +91,97 @@ useEffect(() => {
     { id: "nissan", name: "Nissan", slug: "nissan", parentId: "car-spare-parts" }
   ];
 
-  // STATIC GRANDCHILDREN (Car Models)
+  // Heavy Machinery subcategories
+  const heavyMachinerySubs = [
+    { id: "heavy-machinery-pin-bushes", name: "Heavy Machinery Pin & Bushes", slug: "heavy-machinery-pin-bushes" },
+    { id: "heavy-machinery-misc-parts", name: "Heavy Machinery Misc. Parts", slug: "heavy-machinery-misc-parts" },
+    { id: "heavy-machinery-linkage-parts", name: "Heavy Machinery Linkage Parts", slug: "heavy-machinery-linkage-parts" }
+  ];
+
+  // STATIC GRANDCHILDREN (Car Models) - Updated with ALL models from images
   const carModels = {
-    hyundai: ["i10", "i20", "Verna", "Creta", "Elantra", "Tucson"],
-    "maruti-suzuki": ["Swift", "Baleno", "Dzire", "Vitara Brezza", "Ertiga", "Wagon R"],
-    mahindra: ["Scorpio", "XUV500", "Thar", "Bolero", "XUV700"],
-    tata: ["Nexon", "Harrier", "Safari", "Altroz", "Tiago", "Tigor"],
-    chevrolet: ["Beat", "Spark", "Cruze"],
+    hyundai: [
+      "Accent", 
+      "Elantra Fluidic", 
+      "Elantra", 
+      "Eon", 
+      "Grand i10", 
+      "i20 Elite", 
+      "Santro", 
+      "Verna Fluidic", 
+      "Creta", 
+      "i10", 
+      "i20", 
+      "Santro Xing", 
+      "Venue"
+    ],
+    "maruti-suzuki": [
+      "Alto", 
+      "Alto K10", 
+      "Alto 800", 
+      "Baleno", 
+      "Brezza", 
+      "Celerio", 
+      "Ciaz", 
+      "Dzire", 
+      "Ertiga", 
+      "Swift", 
+      "Swift Dzire", 
+      "Wagon R", 
+      "Zen", 
+      "Zen Estilo"
+    ],
+    mahindra: [
+      "TUV300", 
+      "XUV500", 
+      "Xylo", 
+      "Bolero", 
+      "KUV100", 
+      "XUV300", 
+      "Scorpio"
+    ],
+  tata: [
+  "Bolt",
+  "Indica",
+  "Indica Vista",
+  "Indigo",
+  "Nano",
+  "Nexon",
+  "Safari",
+  "Sumo",
+  "Tiago",
+  "Tigor",
+  "Zest"
+],
+    chevrolet: ["Beat"],
     renault: ["Kwid", "Triber", "Kiger", "Duster"],
-    honda: ["City", "Amaze", "Jazz", "Civic"],
+    honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
 
   // Battery subcategories (for Batteries parent)
- const batterySubs = [
-  {
-    id: "lithium-ion",
-    name: "Lithium Ion Battery",
-    externalUrl:
-      "https://jcblbatteries.com/category/lithium-ion-batteries/",
-  },
-  {
-    id: "automotive",
-    name: "Automotive Battery",
-    externalUrl:
-      "https://jcblbatteries.com/category/auto-starting-series/",
-  },
-  {
-    id: "motorcycle",
-    name: "Motorcycle Battery",
-    externalUrl:
-      "https://jcblbatteries.com/category/motorcycle-starting-series/",
-  },
-  {
-    id: "backup",
-    name: "Backup Application Batteries",
-    externalUrl:
-      "https://jcblbatteries.com/category/backup-applications/",
-  },
-];
+  const batterySubs = [
+    {
+      id: "lithium-ion",
+      name: "Lithium Ion Battery",
+      externalUrl: "https://jcblbatteries.com/category/lithium-ion-batteries/",
+    },
+    {
+      id: "automotive",
+      name: "Automotive Battery",
+      externalUrl: "https://jcblbatteries.com/category/auto-starting-series/",
+    },
+    {
+      id: "motorcycle",
+      name: "Motorcycle Battery",
+      externalUrl: "https://jcblbatteries.com/category/motorcycle-starting-series/",
+    },
+    {
+      id: "backup",
+      name: "Backup Application Batteries",
+      externalUrl: "https://jcblbatteries.com/category/backup-applications/",
+    },
+  ];
 
   // Get children for a parent category
   const getChildrenForParent = (parentId, parentName) => {
@@ -117,6 +190,9 @@ useEffect(() => {
     }
     if (parentName === "Batteries") {
       return batterySubs;
+    }
+    if (parentName === "Heavy Machinery Parts") {
+      return heavyMachinerySubs;
     }
     return [];
   };
@@ -129,19 +205,17 @@ useEffect(() => {
     return false;
   };
 
-const getGrandChildren = (parentName, childId) => {
-  if (parentName === "Car Spare Parts") {
-    const models = carModels[childId] || [];
-
-    return models.map(model => ({
-      id: `${childId}-${model.toLowerCase().replace(/\s+/g, '-')}`,
-      name: model,
-      slug: model.toLowerCase().replace(/\s+/g, '-')
-    }));
-  }
-
-  return [];
-};
+  const getGrandChildren = (parentName, childId) => {
+    if (parentName === "Car Spare Parts") {
+      const models = carModels[childId] || [];
+      return models.map(model => ({
+        id: `${childId}-${model.toLowerCase().replace(/\s+/g, '-')}`,
+        name: model,
+        slug: model.toLowerCase().replace(/\s+/g, '-')
+      }));
+    }
+    return [];
+  };
 
   // Static menu items (from your WordPress menu)
   const menuItems = [
@@ -149,8 +223,7 @@ const getGrandChildren = (parentName, childId) => {
     { label: "About Us", url: "/about-jcbl-group/" },
     { label: "Products", url: "/shop/", isProduct: true },
     { label: "Blog", url: "/blog/" },
-      { label: "News & Events", url: "/news-events/" }
-
+    { label: "News & Events", url: "/news-events/" }
   ];
 
   return (
@@ -182,13 +255,14 @@ const getGrandChildren = (parentName, childId) => {
           {/* LOGO */}
           <div className="logo">
             <Link href="/">
-<Image
-  src={logo}
-  alt="JCBL Logo"
-  width={80}
-  height={80}
-  priority
-/>            </Link>
+              <Image
+                src={logo}
+                alt="JCBL Logo"
+                width={80}
+                height={80}
+                priority
+              />            
+            </Link>
           </div>
 
           {/* NAVIGATION */}
@@ -242,7 +316,18 @@ const getGrandChildren = (parentName, childId) => {
                                   key={parent.id}
                                   href={`/category/${parent.slug}`}
                                   className={`parent-item ${activeCat === parent.id ? "active" : ""}`}
-                                  onMouseEnter={() => setActiveCat(parent.id)}
+                                  onMouseEnter={() => {
+                                    setActiveCat(parent.id);
+                                    const children = getChildrenForParent(
+                                      parent.id,
+                                      parent.name
+                                    );
+                                    if (children.length > 0) {
+                                      setActiveChild(children[0].id);
+                                    } else {
+                                      setActiveChild(null);
+                                    }
+                                  }}
                                   onClick={() => setOpenMenu(false)}
                                 >
                                   <span className="menu-item">
@@ -263,15 +348,18 @@ const getGrandChildren = (parentName, childId) => {
                                   if (parent.id !== activeCat) return null;
                                   const children = getChildrenForParent(parent.id, parent.name);
                                   return children.map((child) => (
-                                 <Link
-  key={child.id}
-  href={
-    child.externalUrl
-      ? child.externalUrl
-      : `/category/${child.slug}`
-  }
-  className={`child-item ${activeChild === child.id ? "active" : ""}`}
->
+                                    <Link
+                                      key={child.id}
+                                      href={
+                                        child.externalUrl
+                                          ? child.externalUrl
+                                          : `/category/${child.slug}`
+                                      }
+                                      className={`child-item ${activeChild === child.id ? "active" : ""}`}
+                                      onMouseEnter={() => {
+                                        setActiveChild(child.id);
+                                      }}
+                                    >
                                       <span className="menu-item">
                                         {child.name}
                                         {hasGrandChildren(parent.name, child.id) && (
@@ -287,25 +375,53 @@ const getGrandChildren = (parentName, childId) => {
                               <div className="grand-column">
                                 {parentCategories.map((parent) => {
                                   if (parent.id !== activeCat) return null;
-                                  const children = getChildrenForParent(parent.id, parent.name);
-                                  const currentChild = children.find(c => c.id === activeChild);
-                                  if (!currentChild) return null;
-                                  const grandchildren = getGrandChildren(parent.name, currentChild.id);
-                                  
-                                  if (grandchildren.length === 0) {
+
+                                  const children = getChildrenForParent(
+                                    parent.id,
+                                    parent.name
+                                  );
+
+                                  const currentChild = children.find(
+                                    (c) => c.id === activeChild
+                                  );
+
+                                  if (!currentChild) {
                                     return (
-                                      <div key="no-data" className="no-grandchildren">
-                                        <p className="coming-soon">Coming Soon...</p>
+                                      <div
+                                        key="empty"
+                                        className="no-grandchildren"
+                                      >
+                                        <p className="coming-soon">
+                                          Select a category
+                                        </p>
                                       </div>
                                     );
                                   }
-                                  
+
+                                  const grandchildren = getGrandChildren(
+                                    parent.name,
+                                    currentChild.id
+                                  );
+
+                                  if (!grandchildren.length) {
+                                    return (
+                                      <div
+                                        key="no-data"
+                                        className="no-grandchildren"
+                                      >
+                                        <p className="coming-soon">
+                                          Coming Soon...
+                                        </p>
+                                      </div>
+                                    );
+                                  }
+
                                   return grandchildren.map((grand) => (
                                     <Link
                                       key={grand.id}
                                       href={`/category/${grand.slug}`}
-                                      onClick={() => setOpenMenu(false)}
                                       className="grandchild-link"
+                                      onClick={() => setOpenMenu(false)}
                                     >
                                       {grand.name}
                                     </Link>
@@ -316,116 +432,114 @@ const getGrandChildren = (parentName, childId) => {
                           </>
                         )}
 
-                 
-{isMobile && (
-  <div className="mobile-categories">
-    {parentCategories.map((parent) => {
-      const children = getChildrenForParent(parent.id, parent.name);
+                        {/* MOBILE VIEW */}
+                        {isMobile && (
+                          <div className="mobile-categories">
+                            {parentCategories.map((parent) => {
+                              const children = getChildrenForParent(parent.id, parent.name);
 
-      return (
-        <div key={parent.id} className="mobile-parent">
+                              return (
+                                <div key={parent.id} className="mobile-parent">
+                                  <div className="mobile-parent-header">
+                                    <Link
+                                      href={`/category/${parent.slug}`}
+                                      className="parent-link"
+                                      onClick={() => {
+                                        setSidebarOpen(false);
+                                        setOpenMenu(false);
+                                      }}
+                                    >
+                                      {parent.name}
+                                    </Link>
 
-        <div className="mobile-parent-header">
-  <Link
-    href={`/category/${parent.slug}`}
-    className="parent-link"
-    onClick={() => {
-      setSidebarOpen(false);
-      setOpenMenu(false);
-    }}
-  >
-    {parent.name}
-  </Link>
+                                    {children.length > 0 && (
+                                      <button
+                                        type="button"
+                                        className="toggle-btn"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setMobileParentOpen(
+                                            mobileParentOpen === parent.id ? null : parent.id
+                                          );
+                                        }}
+                                      >
+                                        {mobileParentOpen === parent.id ? "-" : "+"}
+                                      </button>
+                                    )}
+                                  </div>
 
-  {children.length > 0 && (
-    <button
-      type="button"
-      className="toggle-btn"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setMobileParentOpen(
-          mobileParentOpen === parent.id ? null : parent.id
-        );
-      }}
-    >
-      {mobileParentOpen === parent.id ? "-" : "+"}
-    </button>
-  )}
-</div>
+                                  {mobileParentOpen === parent.id && (
+                                    <div className="mobile-children">
+                                      {children.map((child) => {
+                                        const grandchildren = getGrandChildren(
+                                          parent.name,
+                                          child.id
+                                        );
 
-          {mobileParentOpen === parent.id && (
-            <div className="mobile-children">
-              {children.map((child) => {
-                const grandchildren = getGrandChildren(
-                  parent.name,
-                  child.id
-                );
+                                        return (
+                                          <div key={child.id}>
+                                            <div className="mobile-child-header">
+                                              <Link
+                                                href={
+                                                  child.externalUrl
+                                                    ? child.externalUrl
+                                                    : `/category/${child.slug}`
+                                                }
+                                                className="child-link"
+                                                onClick={() => {
+                                                  setSidebarOpen(false);
+                                                  setOpenMenu(false);
+                                                }}
+                                              >
+                                                {child.name}
+                                              </Link>
 
-                return (
-                  <div key={child.id}>
+                                              {grandchildren.length > 0 && (
+                                                <button
+                                                  type="button"
+                                                  className="toggle-btn"
+                                                  onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setMobileChildOpen(
+                                                      mobileChildOpen === child.id ? null : child.id
+                                                    );
+                                                  }}
+                                                >
+                                                  {mobileChildOpen === child.id ? "-" : "+"}
+                                                </button>
+                                              )}
+                                            </div>
 
-                 <div className="mobile-child-header">
-<Link
-  href={
-    child.externalUrl
-      ? child.externalUrl
-      : `/category/${child.slug}`
-  }
-  className="child-link"
-  onClick={() => {
-    setSidebarOpen(false);
-    setOpenMenu(false);
-  }}
->
-  {child.name}
-</Link>
-
-  {grandchildren.length > 0 && (
-    <button
-      type="button"
-      className="toggle-btn"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setMobileChildOpen(
-          mobileChildOpen === child.id ? null : child.id
-        );
-      }}
-    >
-      {mobileChildOpen === child.id ? "-" : "+"}
-    </button>
-  )}
-</div>
-
-                    {mobileChildOpen === child.id &&
-                      grandchildren.length > 0 && (
-                        <div className="mobile-grandchildren">
-                          {grandchildren.map((grand) => (
-                            <Link
-                              key={grand.id}
-                              href={`/category/${grand.slug}`}
-                              className="grandchild-link"
-                              onClick={() => {
-                                setSidebarOpen(false);
-                                setOpenMenu(false);
-                              }}
-                            >
-                              {grand.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      );
-    })}
-  </div>
-)}
+                                            {mobileChildOpen === child.id &&
+                                              grandchildren.length > 0 && (
+                                                <div className="mobile-grandchildren">
+                                                  {grandchildren.map((grand) => (
+                                                    <Link
+                                                      key={grand.id}
+                                                      href={`/category/${grand.slug}`}
+                                                      className="grandchild-link"
+                                                      onClick={() => {
+                                                        setSidebarOpen(false);
+                                                        setOpenMenu(false);
+                                                      }}
+                                                    >
+                                                      {grand.name}
+                                                    </Link>
+                                                  ))}
+                                                </div>
+                                              )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
