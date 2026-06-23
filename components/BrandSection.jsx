@@ -24,23 +24,36 @@ import suzukiLogo from "../assets/images/New folder/suzuki.webp";
 import swarajLogo from "../assets/images/New folder/swaraj.webp";
 import tataLogo from "../assets/images/New folder/tata.webp";
 
-const brands = [
-  { name: "Bajaj", logo: bajajLogo },
+// Car brands
+const carBrands = [
   { name: "Chevrolet", logo: chevroletLogo },
-  { name: "Escorts", logo: escortsLogo },
-  { name: "Honda", logo: hondaLogo },
   { name: "Hyundai", logo: hyundaiLogo },
+  { name: "Nissan", logo: nissanLogo },
+  { name: "Tata", logo: tataLogo },
+  { name: "Honda", logo: hondaLogo }, // Honda makes both cars and bikes
+];
+
+// Motorcycle brands
+const motorcycleBrands = [
+  { name: "Bajaj", logo: bajajLogo },
+  { name: "Honda", logo: hondaLogo },
+  { name: "Suzuki", logo: suzukiLogo },
+  { name: "TVS", logo: tvsLogo },
+];
+
+// Tractor brands
+const tractorBrands = [
+  { name: "Escorts", logo: escortsLogo },
   { name: "John Deere", logo: johnDeereLogo },
   { name: "Mahindra", logo: mahindraLogo },
   { name: "Massey Ferguson", logo: masseyLogo },
   { name: "New Holland", logo: newHollandLogo },
-  { name: "Nissan", logo: nissanLogo },
   { name: "Sonalika", logo: sonalikaLogo },
-  { name: "Suzuki", logo: suzukiLogo },
   { name: "Swaraj", logo: swarajLogo },
-  { name: "Tata", logo: tataLogo },
-  { name: "TVS", logo: tvsLogo },
 ];
+
+// Combine all brands (cars first, then motorcycles, then tractors)
+const brands = [...carBrands, ...motorcycleBrands, ...tractorBrands];
 
 export default function BrandSection() {
   return (

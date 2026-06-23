@@ -11,6 +11,7 @@ import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from "react-icons/fa";
 import 'swiper/css';
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
+
 // Skeleton Components
 const CategoryCardSkeleton = () => (
   <div className="category-card skeleton">
@@ -65,49 +66,26 @@ const CategoryPageSkeleton = ({ type = 'subcategories' }) => {
 const FAQAccordion = ({ faqs }) => {
   const [openIndex, setOpenIndex] = useState(null);
 
-  // Debug: log when component renders
-  console.log('🟢 FAQAccordion rendered, faqs count:', faqs?.length);
-
   const toggleFAQ = (index) => {
-    console.log('🔵 toggleFAQ called with index:', index);
     setOpenIndex(prev => (prev === index ? null : index));
   };
 
-  // Force toggle first FAQ – if this works, state is fine
-  const forceToggleFirst = () => {
-    console.log('🟠 Force toggle clicked');
-    setOpenIndex(prev => (prev === 0 ? null : 0));
-  };
-
   if (!faqs || faqs.length === 0) {
-    return <div>No FAQs</div>; // So you can see if data is missing
+    return null;
   }
 
   return (
     <div className="faq-accordion-section">
       <h3 className="faq-title">Frequently Asked Questions</h3>
-
-    
-
       <div className="faq-accordion">
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
-            <div
-              key={index}
-              className={`faq-item ${isOpen ? 'active' : ''}`}
-            >
+            <div key={index} className={`faq-item ${isOpen ? 'active' : ''}`}>
               <button
                 className="faq-question"
                 type="button"
-                onMouseDown={(e) => {
-                  e.stopPropagation(); // Prevent parent listeners
-                  toggleFAQ(index);
-                }}
-                onTouchStart={(e) => {
-                  e.stopPropagation();
-                  toggleFAQ(index);
-                }}
+                onClick={() => toggleFAQ(index)}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -128,7 +106,6 @@ const FAQAccordion = ({ faqs }) => {
                   {isOpen ? <FaMinus /> : <FaPlus />}
                 </span>
               </button>
-
               {isOpen && (
                 <div className="faq-answer">
                   <div
@@ -145,7 +122,7 @@ const FAQAccordion = ({ faqs }) => {
   );
 };
 
-// Parse FAQ from description using DOMParser (safe & reliable)
+// Parse FAQ from description
 const parseFAQsFromDescription = (description) => {
   if (!description) return [];
   const parser = new DOMParser();
@@ -158,14 +135,14 @@ const parseFAQsFromDescription = (description) => {
     if (questionEl && answerEl) {
       items.push({
         question: questionEl.textContent.trim(),
-        answer: answerEl.innerHTML.trim() // preserve HTML formatting
+        answer: answerEl.innerHTML.trim()
       });
     }
   });
   return items;
 };
 
-// Remove FAQ container from description to avoid duplication
+// Remove FAQ container from description
 const removeFAQFromDescription = (description) => {
   if (!description) return '';
   const parser = new DOMParser();
@@ -176,6 +153,72 @@ const removeFAQFromDescription = (description) => {
     return doc.body.innerHTML;
   }
   return description;
+};
+
+// Packaging Slider Component
+const PackagingSlider = ({ images }) => {
+  return (
+    <div className="full-width-packaging-section">
+      <div className="packaging-slider-wrapper">
+        <div className="packaging-title-container">
+          <h2 className="packaging-title">Packaging</h2>
+        </div>
+        <Swiper
+          modules={[Autoplay]}
+          spaceBetween={0}
+          slidesPerView={5}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          loop={true}
+          className="simple-packaging-swiper"
+          style={{ margin: 0, padding: 0 }}
+          breakpoints={{
+            320: {
+              slidesPerView: 2,
+              spaceBetween: 10,
+            },
+            640: {
+              slidesPerView: 3,
+              spaceBetween: 10,
+            },
+            768: {
+              slidesPerView: 4,
+              spaceBetween: 10,
+            },
+            1024: {
+              slidesPerView: 5,
+              spaceBetween: 0,
+            },
+          }}
+        >
+          {images.map((image, index) => (
+            <SwiperSlide key={index} style={{ margin: 0, padding: 0 }}>
+              <img
+                loading="lazy"
+                decoding="async"
+                src={image}
+                alt={`Packaging ${index + 1}`}
+                className="simple-packaging-image"
+                style={{ 
+                  width: '100%', 
+                  height: 'auto', 
+                  display: 'block',
+                  margin: 0,
+                  padding: 0
+                }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/images/fallback.png";
+                }}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </div>
+  );
 };
 
 const CategoryPage = ({ slug }) => {
@@ -191,10 +234,16 @@ const CategoryPage = ({ slug }) => {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [faqData, setFaqData] = useState([]);
   const [descriptionWithoutFAQ, setDescriptionWithoutFAQ] = useState("");
+  
+  // States for "All Categories" view
+  const [allCategories, setAllCategories] = useState([]);
+  const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
+  const [allCategoriesPage, setAllCategoriesPage] = useState(1);
+  const [allCategoriesCursorStack, setAllCategoriesCursorStack] = useState([null]);
+  const [allCategoriesHasNext, setAllCategoriesHasNext] = useState(true);
 
   const limit = 10;
 
-  // Use images from public folder - these are the correct paths
   const packagingImages = [
     "../assets/images/packaging_img_2.webp",
     "../assets/images/packaging_img_2.webp",
@@ -220,15 +269,14 @@ const CategoryPage = ({ slug }) => {
     "../assets/images/packaging_img_23.webp"
   ];
 
-  // Helper function to render part numbers with multi-word handling
+  // Helper function to render part numbers
   const renderPartNumber = (label, value) => {
     if (!value) return null;
     const trimmed = value.trim();
     if (!trimmed) return null;
 
-    // Check if it contains spaces (multiple parts)
     if (trimmed.includes(' ')) {
-      const parts = trimmed.split(' ').filter(p => p); // remove empty parts
+      const parts = trimmed.split(' ').filter(p => p);
       return (
         <p>
           <strong>{label}:</strong>{' '}
@@ -242,7 +290,6 @@ const CategoryPage = ({ slug }) => {
       );
     }
 
-    // Single word – display normally
     return (
       <p>
         <strong>{label}:</strong> {trimmed}
@@ -250,23 +297,218 @@ const CategoryPage = ({ slug }) => {
     );
   };
 
-  // If no slug is provided, show a message
+  // Fetch all categories (for the "All Categories" view)
+  const fetchAllCategories = (cursor = null, page = 1) => {
+    setLoading(true);
+    setIsAllCategoriesView(true);
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+        query GetAllCategories($first: Int!, $after: String) {
+          productCategories(
+            first: $first
+            after: $after
+            where: { 
+              parent: 0,
+              hideEmpty: true
+            }
+          ) {
+            nodes {
+              id
+              name
+              slug
+              description
+              image {
+                sourceUrl
+              }
+              children {
+                nodes {
+                  id
+                  name
+                  slug
+                  image {
+                    sourceUrl
+                  }
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+        `,
+        variables: {
+          first: limit,
+          after: cursor
+        }
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const data = res?.data?.productCategories;
+        const categoriesData = data?.nodes || [];
+        
+        setAllCategories(categoriesData);
+        setAllCategoriesHasNext(data?.pageInfo?.hasNextPage || false);
+
+        if (page === allCategoriesCursorStack.length) {
+          setAllCategoriesCursorStack((prev) => [
+            ...prev,
+            data?.pageInfo?.endCursor,
+          ]);
+        }
+
+        setLoading(false);
+        setIsFirstLoad(false);
+        setCategoryLoaded(true);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+        setLoading(false);
+        setIsFirstLoad(false);
+        setCategoryLoaded(true);
+      });
+  };
+
+  // Handle "All Categories" page change
+  const handleAllCategoriesPageChange = (page) => {
+    const cursor = allCategoriesCursorStack[page - 1] || null;
+    setAllCategoriesPage(page);
+    fetchAllCategories(cursor, page);
+    window.scrollTo(0, 0);
+  };
+
+  // If no slug is provided, show all categories
   if (!slug) {
+    // Initial fetch for all categories
+useEffect(() => {
+  if (!slug) {
+    fetchAllCategories(null, 1);
+  }
+}, [slug]);
+
+    // Show skeleton while loading
+    if (isFirstLoad || loading) {
+      return (
+        <section className="category-section-page">
+          <div className="container">
+            <div className="category-layout">
+              <div className="category-main-content">
+                <div className="category-header">
+                  <h1 className="category-title">All Categories</h1>
+                  <p className="category-subtitle">Loading categories...</p>
+                </div>
+                <div className="category-grid">
+                  {[...Array(10)].map((_, index) => (
+                    <CategoryCardSkeleton key={index} />
+                  ))}
+                </div>
+              </div>
+              <aside className="category-sidebar">
+                <ContactForm />
+              </aside>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // Render all categories
     return (
-      <section className="category-section-page New">
+      <section className="category-section-page">
         <div className="container">
-          <h1>All Categories</h1>
-          <p>Please select a category</p>
+          <div className="category-layout">
+            <div className="category-main-content">
+              <div className="category-header">
+                <h1 className="category-title">All Categories</h1>
+                <p className="category-subtitle">
+                  {allCategories.length} Categories Available
+                </p>
+              </div>
+
+              <div className="category-grid">
+                {allCategories.map((category) => (
+                  <Link href={`/category/${category.slug}`} key={category.id}>
+                    <div className="category-card">
+                      <div className="category-image">
+                        <img
+                          loading="lazy"
+                          decoding="async"
+                          src={category.image?.sourceUrl || "/images/fallback.png"}
+                          alt={category.name}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/fallback.png";
+                          }}
+                        />
+                      </div>
+                      <h4>{category.name}</h4>
+                      {category.children?.nodes?.length > 0 && (
+                        <p className="subcategory-count">
+                          {category.children.nodes.length} Subcategories
+                        </p>
+                      )}
+                      <button className="btn-blue btn view-btn">
+                        View Category
+                      </button>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Pagination for All Categories */}
+              {allCategories.length > 0 && (
+                <div className="pagination modern">
+                  <button
+                    className="page-nav-btn"
+                    disabled={allCategoriesPage === 1}
+                    onClick={() => handleAllCategoriesPageChange(allCategoriesPage - 1)}
+                  >
+                    <FaChevronLeft />
+                  </button>
+
+                  <span className="page-info">Page {allCategoriesPage}</span>
+
+                  <button
+                    className="page-nav-btn"
+                    disabled={!allCategoriesHasNext}
+                    onClick={() => handleAllCategoriesPageChange(allCategoriesPage + 1)}
+                  >
+                    <FaChevronRight />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <aside className="category-sidebar">
+              <ContactForm />
+            </aside>
+          </div>
+
+          {/* Packaging Slider */}
+          <PackagingSlider images={packagingImages} />
         </div>
       </section>
     );
   }
+
+  // ============================================
+  // EXISTING CATEGORY VIEW CODE (with slug)
+  // ============================================
 
   // Fetch category data
   useEffect(() => {
     setLoading(true);
     setCategoryLoaded(false);
     setIsFirstLoad(true);
+    setIsAllCategoriesView(false);
 
     fetch(API_URL, {
       method: "POST",
@@ -307,20 +549,14 @@ const CategoryPage = ({ slug }) => {
       .then((res) => res.json())
       .then((res) => {
         const cat = res?.data?.productCategories?.nodes?.[0];
-        console.log("FULL RESPONSE:", res);
         if (cat) {
           setCategoryName(cat.name);
           const description = cat.description || "";
           setCategoryDescription(description);
           
-          // Parse FAQs from description
           const parsedFAQs = parseFAQsFromDescription(description);
-          console.log('Parsed FAQs:', parsedFAQs); // Debug log
           setFaqData(parsedFAQs);
-          
-          // Remove FAQ container from description for regular display
           setDescriptionWithoutFAQ(removeFAQFromDescription(description));
-          
           setSubCategories(cat.children?.nodes || []);
         } else {
           setCategoryName(slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
@@ -419,10 +655,8 @@ const CategoryPage = ({ slug }) => {
   // Handle page change
   const handlePageChange = (page) => {
     const cursor = cursorStack[page - 1] || null;
-
     setCurrentPage(page);
     fetchProducts(cursor, page);
-
     window.scrollTo(0, 0);
   };
 
@@ -499,7 +733,6 @@ const CategoryPage = ({ slug }) => {
                 ))}
               </div>
               
-              {/* Description without FAQ */}
               {descriptionWithoutFAQ && (
                 <div
                   className="category-description"
@@ -509,7 +742,6 @@ const CategoryPage = ({ slug }) => {
                 />
               )}
               
-              {/* FAQ Accordion */}
               {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
             </div>
 
@@ -517,6 +749,8 @@ const CategoryPage = ({ slug }) => {
               <ContactForm />
             </aside>
           </div>
+          
+          <PackagingSlider images={packagingImages} />
         </div>
       </section>
     );
@@ -559,8 +793,6 @@ const CategoryPage = ({ slug }) => {
                     </div>
 
                     <h4>{product.name}</h4>
-
-                    {/* Use the helper function for OEM and JCBL part numbers */}
                     {renderPartNumber('OEM', oemPartNumber)}
                     {renderPartNumber('JCBL', jcblPartNumber)}
 
@@ -595,47 +827,7 @@ const CategoryPage = ({ slug }) => {
                 </button>
               </div>
             )}
-
-            <div className="packaging-slider-section">
-              <h2 className="packaging-title">Packaging</h2>
-              <Swiper
-                modules={[Autoplay]}
-                spaceBetween={0}
-                slidesPerView={5}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                }}
-                loop={true}
-                className="simple-packaging-swiper"
-                style={{ margin: 0, padding: 0 }}
-              >
-                {packagingImages.map((image, index) => (
-                  <SwiperSlide key={index} style={{ margin: 0, padding: 0 }}>
-                    <img
-                      loading="lazy"
-                      decoding="async"
-                      src={image}
-                      alt={`Packaging ${index + 1}`}
-                      className="simple-packaging-image"
-                      style={{ 
-                        width: '100%', 
-                        height: 'auto', 
-                        display: 'block',
-                        margin: 0,
-                        padding: 0
-                      }}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/images/fallback.png";
-                      }}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
             
-            {/* Description without FAQ */}
             {descriptionWithoutFAQ && (
               <div
                 className="category-description"
@@ -645,7 +837,6 @@ const CategoryPage = ({ slug }) => {
               />
             )}
             
-            {/* FAQ Accordion */}
             {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
           </div>
 
@@ -653,9 +844,11 @@ const CategoryPage = ({ slug }) => {
             <ContactForm />
           </aside>
         </div>
+        
+        <PackagingSlider images={packagingImages} />
       </div>
     </section>
   );
 };
 
-export default CategoryPage;
+export default CategoryPage;  

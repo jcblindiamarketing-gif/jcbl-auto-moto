@@ -1,7 +1,7 @@
 /* ===== CONTAINER ===== */
 .blog-list-container {
   max-width: 1360px;
-  
+  margin : auto ;
   padding: 160px 20px 60px 20px ;
 }
 

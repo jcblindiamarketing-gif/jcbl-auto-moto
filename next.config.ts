@@ -1,7 +1,34 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: "/category/automotive-battery",
+        destination:
+          "https://jcblbatteries.com/category/auto-starting-series/",
+        permanent: true,
+      },
+      {
+        source: "/category/backup-applications-batteries",
+        destination:
+          "https://jcblbatteries.com/category/backup-applications/",
+        permanent: true,
+      },
+      {
+        source: "/category/lithium-ion-batteries",
+        destination:
+          "https://jcblbatteries.com/category/lithium-ion-batteries/",
+        permanent: true,
+      },
+      {
+        source: "/category/motorcycle-starting-series",
+        destination:
+          "https://jcblbatteries.com/category/motorcycle-starting-series/",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

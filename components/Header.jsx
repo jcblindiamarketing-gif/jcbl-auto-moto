@@ -70,7 +70,6 @@ function Header() {
     { id: "car-spare-parts", name: "Car Spare Parts", slug: "car-spare-parts" },
     { id: "chrome-parts", name: "Chrome Parts", slug: "chrome-parts" },
     { id: "motorcycle-spare-parts", name: "Motorcycle Spare Parts", slug: "motorcycle-spare-parts" },
-    { id: "helmets", name: "Helmets", slug: "helmets" },
     { id: "heavy-machinery-parts", name: "Heavy Machinery Parts", slug: "heavy-machinery-parts" },
     { id: "tractor-parts", name: "Tractor Parts", slug: "tractor-part" },
     { id: "lubricants", name: "Lubricants", slug: "lubricants" },
@@ -210,7 +209,7 @@ function Header() {
   const menuItems = [
     { label: "Home", url: "/" },
     { label: "About Us", url: "/about-jcbl-group/" },
-    { label: "Products", url: "/shop/", isProduct: true },
+   { label: "Products", url: "/category", isProduct: true },
     { label: "Blog", url: "/blog/" },
     { label: "News & Events", url: "/news-events/" }
   ];
@@ -282,16 +281,35 @@ function Header() {
                       }
                     }}
                   >
-                    <span
-                      className="nav-link"
-                      onClick={() => {
-                        if (isMobile) {
-                          setOpenMenu(!openMenu);
-                        }
-                      }}
-                    >
-                      {item.label}
-                    </span>
+{isMobile ? (
+  <div className="mobile-product-nav">
+    <Link
+      href="/category"
+      className="nav-link"
+      onClick={() => {
+        setSidebarOpen(false);
+      }}
+    >
+      {item.label}
+    </Link>
+
+    <button
+      type="button"
+      className="toggle-btn"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpenMenu(!openMenu);
+      }}
+    >
+      {openMenu ? "-" : "+"}
+    </button>
+  </div>
+) : (
+  <Link href="/category" className="nav-link">
+    {item.label}
+  </Link>
+)}
 
                     {openMenu && (
                       <div className="mega-menu">
