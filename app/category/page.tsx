@@ -1,5 +1,6 @@
-import CategoryPage from "@/components/CategoryPage";
+import CategoryPage from "../components/CategoryPage";
 
-export default function Page() {
+export default function CategoryIndexPage() {
+  // No slug provided, will show all categories
   return <CategoryPage />;
 }

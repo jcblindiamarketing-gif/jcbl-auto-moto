@@ -221,7 +221,11 @@ const PackagingSlider = ({ images }) => {
   );
 };
 
+// Main CategoryPage Component
 const CategoryPage = ({ slug = null }) => {
+  // Ensure slug is properly handled
+  const effectiveSlug = slug || null;
+  
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [subCategories, setSubCategories] = useState([]);
@@ -386,15 +390,14 @@ const CategoryPage = ({ slug = null }) => {
   };
 
   // If no slug is provided, show all categories
-  if (!slug) {
-    // Initial fetch for all categories
-useEffect(() => {
-  if (!slug) {
-    fetchAllCategories(null, 1);
-  }
-}, [slug]);
+  useEffect(() => {
+    if (!effectiveSlug) {
+      fetchAllCategories(null, 1);
+    }
+  }, [effectiveSlug]);
 
-    // Show skeleton while loading
+  // Show skeleton while loading for all categories
+  if (!effectiveSlug) {
     if (isFirstLoad || loading) {
       return (
         <section className="category-section-page">
@@ -505,6 +508,8 @@ useEffect(() => {
 
   // Fetch category data
   useEffect(() => {
+    if (!effectiveSlug) return;
+    
     setLoading(true);
     setCategoryLoaded(false);
     setIsFirstLoad(true);
@@ -542,7 +547,7 @@ useEffect(() => {
         }
         `,
         variables: {
-          slug: slug
+          slug: effectiveSlug
         }
       }),
     })
@@ -559,7 +564,7 @@ useEffect(() => {
           setDescriptionWithoutFAQ(removeFAQFromDescription(description));
           setSubCategories(cat.children?.nodes || []);
         } else {
-          setCategoryName(slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+          setCategoryName(effectiveSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
         }
 
         setCategoryLoaded(true);
@@ -571,7 +576,7 @@ useEffect(() => {
         setLoading(false);
         setIsFirstLoad(false);
       });
-  }, [slug]);
+  }, [effectiveSlug]);
 
   // Fetch products function
   const fetchProducts = (cursor = null, page = 1) => {
@@ -613,7 +618,7 @@ useEffect(() => {
         }
         `,
         variables: {
-          slug: slug,
+          slug: effectiveSlug,
           first: limit,
           after: cursor
         }
@@ -642,7 +647,7 @@ useEffect(() => {
 
   // Fetch products when category is loaded and has no subcategories
   useEffect(() => {
-    if (!categoryLoaded) return;
+    if (!categoryLoaded || !effectiveSlug) return;
 
     if (subCategories.length === 0) {
       setProducts([]);
@@ -650,7 +655,7 @@ useEffect(() => {
       setCursorStack([null]);
       fetchProducts(null, 1);
     }
-  }, [categoryLoaded, subCategories, slug]);
+  }, [categoryLoaded, subCategories, effectiveSlug]);
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -851,4 +856,4 @@ useEffect(() => {
   );
 };
 
-export default CategoryPage;  
+export default CategoryPage;
