@@ -1,16 +1,11 @@
 import CategoryPage from "../../../components/CategoryPage.jsx";
 
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
-
-export default async function CategoryPageWrapper({ params }: PageProps) {
+export default async function CategoryPageWrapper({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  return <CategoryPage slug={slug || null} />;
-}
 
-export async function generateStaticParams() {
-  return [];
+  return <CategoryPage {...({ slug } as any)} />;
 }
