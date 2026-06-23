@@ -37,8 +37,8 @@ const CategoryPageSkeleton = ({ type = 'subcategories' }) => {
         <div className="category-layout">
           <div className="category-main-content">
             <div className="category-header">
-              <div className="skeleton skeleton-title-large"></div>
-              <div className="skeleton skeleton-text-small"></div>
+              {/* <div className="skeleton skeleton-title-large"></div>
+              <div className="skeleton skeleton-text-small"></div> */}
             </div>
             <div className="category-grid">
               {[...Array(skeletonCount)].map((_, index) => (
