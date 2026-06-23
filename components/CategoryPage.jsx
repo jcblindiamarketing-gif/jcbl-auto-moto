@@ -221,7 +221,7 @@ const PackagingSlider = ({ images }) => {
   );
 };
 
-const CategoryPage = ({ slug }) => {
+const CategoryPage = ({ slug = null }) => {
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [subCategories, setSubCategories] = useState([]);
