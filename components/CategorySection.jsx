@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import "./CategorySection.css";
 
-const API_URL = "https://www.jcblautomoto.com/graphql";
+const API_URL = "https://api.jcblautomoto.com/graphql";
 
 export default function CategorySection({ openCatalogue }) {
   const [categories, setCategories] = useState([]);

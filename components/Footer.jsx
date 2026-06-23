@@ -22,7 +22,7 @@ const Footer = () => {
   const [menuItems, setMenuItems] = useState([]);
 
   const MENU_API =
-    "https://www.jcblautomoto.com/wp-json/custom/v1/menu";
+    "https://api.jcblautomoto.com/wp-json/custom/v1/menu";
 
   const getPath = (url) => {
     try {

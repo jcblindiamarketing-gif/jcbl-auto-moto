@@ -8,7 +8,6 @@ import SearchBar from "./SearchBar";
 import Image from "next/image";
 
 function Header() {
-  // Add this missing state declaration
   const [activeChild, setActiveChild] = useState(null);
   const [mobileParentOpen, setMobileParentOpen] = useState(null);
   const [mobileChildOpen, setMobileChildOpen] = useState(null);
@@ -66,7 +65,7 @@ function Header() {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // STATIC PARENT CATEGORIES (from your first image)
+  // STATIC PARENT CATEGORIES
   const parentCategories = [
     { id: "car-spare-parts", name: "Car Spare Parts", slug: "car-spare-parts" },
     { id: "chrome-parts", name: "Chrome Parts", slug: "chrome-parts" },
@@ -91,14 +90,7 @@ function Header() {
     { id: "nissan", name: "Nissan", slug: "nissan", parentId: "car-spare-parts" }
   ];
 
-  // Heavy Machinery subcategories
-  const heavyMachinerySubs = [
-    { id: "heavy-machinery-pin-bushes", name: "Heavy Machinery Pin & Bushes", slug: "heavy-machinery-pin-bushes" },
-    { id: "heavy-machinery-misc-parts", name: "Heavy Machinery Misc. Parts", slug: "heavy-machinery-misc-parts" },
-    { id: "heavy-machinery-linkage-parts", name: "Heavy Machinery Linkage Parts", slug: "heavy-machinery-linkage-parts" }
-  ];
-
-  // STATIC GRANDCHILDREN (Car Models) - Updated with ALL models from images
+  // STATIC GRANDCHILDREN (Car Models)
   const carModels = {
     hyundai: [
       "Accent", 
@@ -140,26 +132,26 @@ function Header() {
       "XUV300", 
       "Scorpio"
     ],
-  tata: [
-  "Bolt",
-  "Indica",
-  "Indica Vista",
-  "Indigo",
-  "Nano",
-  "Nexon",
-  "Safari",
-  "Sumo",
-  "Tiago",
-  "Tigor",
-  "Zest"
-],
+    tata: [
+      "Bolt",
+      "Indica",
+      "Indica Vista",
+      "Indigo",
+      "Nano",
+      "Nexon",
+      "Safari",
+      "Sumo",
+      "Tiago",
+      "Tigor",
+      "Zest"
+    ],
     chevrolet: ["Beat"],
     renault: ["Kwid", "Triber", "Kiger", "Duster"],
     honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
 
-  // Battery subcategories (for Batteries parent)
+  // Battery subcategories
   const batterySubs = [
     {
       id: "lithium-ion",
@@ -191,9 +183,6 @@ function Header() {
     if (parentName === "Batteries") {
       return batterySubs;
     }
-    if (parentName === "Heavy Machinery Parts") {
-      return heavyMachinerySubs;
-    }
     return [];
   };
 
@@ -217,7 +206,7 @@ function Header() {
     return [];
   };
 
-  // Static menu items (from your WordPress menu)
+  // Static menu items
   const menuItems = [
     { label: "Home", url: "/" },
     { label: "About Us", url: "/about-jcbl-group/" },
@@ -350,15 +339,10 @@ function Header() {
                                   return children.map((child) => (
                                     <Link
                                       key={child.id}
-                                      href={
-                                        child.externalUrl
-                                          ? child.externalUrl
-                                          : `/category/${child.slug}`
-                                      }
+                                      href={child.externalUrl ? child.externalUrl : `/category/${child.slug}`}
                                       className={`child-item ${activeChild === child.id ? "active" : ""}`}
-                                      onMouseEnter={() => {
-                                        setActiveChild(child.id);
-                                      }}
+                                      onMouseEnter={() => setActiveChild(child.id)}
+                                      onClick={() => setOpenMenu(false)}
                                     >
                                       <span className="menu-item">
                                         {child.name}
@@ -546,8 +530,9 @@ function Header() {
                 );
               }
               
+              // ✅ FIXED: Added onClick to close sidebar for non‑product links
               return (
-                <Link key={index} href={item.url}>
+                <Link key={index} href={item.url} onClick={() => setSidebarOpen(false)}>
                   {item.label}
                 </Link>
               );

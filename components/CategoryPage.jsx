@@ -7,11 +7,10 @@ import { Autoplay } from 'swiper/modules';
 import "./CategoryPage.css";
 import Loader from "../components/Loader";
 import ContactForm from "../components/ContactForm";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from "react-icons/fa";
 import 'swiper/css';
 
-const API_URL = "https://www.jcblautomoto.com/graphql";
-
+const API_URL = "https://api.jcblautomoto.com/graphql";
 // Skeleton Components
 const CategoryCardSkeleton = () => (
   <div className="category-card skeleton">
@@ -63,6 +62,122 @@ const CategoryPageSkeleton = ({ type = 'subcategories' }) => {
   );
 };
 
+const FAQAccordion = ({ faqs }) => {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  // Debug: log when component renders
+  console.log('🟢 FAQAccordion rendered, faqs count:', faqs?.length);
+
+  const toggleFAQ = (index) => {
+    console.log('🔵 toggleFAQ called with index:', index);
+    setOpenIndex(prev => (prev === index ? null : index));
+  };
+
+  // Force toggle first FAQ – if this works, state is fine
+  const forceToggleFirst = () => {
+    console.log('🟠 Force toggle clicked');
+    setOpenIndex(prev => (prev === 0 ? null : 0));
+  };
+
+  if (!faqs || faqs.length === 0) {
+    return <div>No FAQs</div>; // So you can see if data is missing
+  }
+
+  return (
+    <div className="faq-accordion-section">
+      <h3 className="faq-title">Frequently Asked Questions</h3>
+
+    
+
+      <div className="faq-accordion">
+        {faqs.map((faq, index) => {
+          const isOpen = openIndex === index;
+          return (
+            <div
+              key={index}
+              className={`faq-item ${isOpen ? 'active' : ''}`}
+            >
+              <button
+                className="faq-question"
+                type="button"
+                onMouseDown={(e) => {
+                  e.stopPropagation(); // Prevent parent listeners
+                  toggleFAQ(index);
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  toggleFAQ(index);
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 20px',
+                  background: '#f8f9fa',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  color: '#1a1a2e',
+                }}
+              >
+                <span className="faq-question-text">{faq.question}</span>
+                <span className="faq-icon">
+                  {isOpen ? <FaMinus /> : <FaPlus />}
+                </span>
+              </button>
+
+              {isOpen && (
+                <div className="faq-answer">
+                  <div
+                    className="faq-answer-content"
+                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Parse FAQ from description using DOMParser (safe & reliable)
+const parseFAQsFromDescription = (description) => {
+  if (!description) return [];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(description, 'text/html');
+  const faqItems = doc.querySelectorAll('.faq-item');
+  const items = [];
+  faqItems.forEach(item => {
+    const questionEl = item.querySelector('.faq-question');
+    const answerEl = item.querySelector('.faq-answer');
+    if (questionEl && answerEl) {
+      items.push({
+        question: questionEl.textContent.trim(),
+        answer: answerEl.innerHTML.trim() // preserve HTML formatting
+      });
+    }
+  });
+  return items;
+};
+
+// Remove FAQ container from description to avoid duplication
+const removeFAQFromDescription = (description) => {
+  if (!description) return '';
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(description, 'text/html');
+  const container = doc.querySelector('.faq-container');
+  if (container) {
+    container.remove();
+    return doc.body.innerHTML;
+  }
+  return description;
+};
+
 const CategoryPage = ({ slug }) => {
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
@@ -74,6 +189,8 @@ const CategoryPage = ({ slug }) => {
   const [hasNextPage, setHasNextPage] = useState(true);
   const [categoryDescription, setCategoryDescription] = useState("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [faqData, setFaqData] = useState([]);
+  const [descriptionWithoutFAQ, setDescriptionWithoutFAQ] = useState("");
 
   const limit = 10;
 
@@ -102,6 +219,36 @@ const CategoryPage = ({ slug }) => {
     "../assets/images/packaging_img_22.webp",
     "../assets/images/packaging_img_23.webp"
   ];
+
+  // Helper function to render part numbers with multi-word handling
+  const renderPartNumber = (label, value) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    // Check if it contains spaces (multiple parts)
+    if (trimmed.includes(' ')) {
+      const parts = trimmed.split(' ').filter(p => p); // remove empty parts
+      return (
+        <p>
+          <strong>{label}:</strong>{' '}
+          {parts.map((part, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <br />}
+              {part}
+            </React.Fragment>
+          ))}
+        </p>
+      );
+    }
+
+    // Single word – display normally
+    return (
+      <p>
+        <strong>{label}:</strong> {trimmed}
+      </p>
+    );
+  };
 
   // If no slug is provided, show a message
   if (!slug) {
@@ -163,7 +310,17 @@ const CategoryPage = ({ slug }) => {
         console.log("FULL RESPONSE:", res);
         if (cat) {
           setCategoryName(cat.name);
-          setCategoryDescription(cat.description || "");
+          const description = cat.description || "";
+          setCategoryDescription(description);
+          
+          // Parse FAQs from description
+          const parsedFAQs = parseFAQsFromDescription(description);
+          console.log('Parsed FAQs:', parsedFAQs); // Debug log
+          setFaqData(parsedFAQs);
+          
+          // Remove FAQ container from description for regular display
+          setDescriptionWithoutFAQ(removeFAQFromDescription(description));
+          
           setSubCategories(cat.children?.nodes || []);
         } else {
           setCategoryName(slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
@@ -341,14 +498,19 @@ const CategoryPage = ({ slug }) => {
                   </Link>
                 ))}
               </div>
-              {categoryDescription && (
+              
+              {/* Description without FAQ */}
+              {descriptionWithoutFAQ && (
                 <div
                   className="category-description"
                   dangerouslySetInnerHTML={{
-                    __html: categoryDescription,
+                    __html: descriptionWithoutFAQ,
                   }}
                 />
               )}
+              
+              {/* FAQ Accordion */}
+              {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
             </div>
 
             <aside className="category-sidebar">
@@ -398,13 +560,9 @@ const CategoryPage = ({ slug }) => {
 
                     <h4>{product.name}</h4>
 
-                    {oemPartNumber && (
-                      <p><strong>OEM:</strong> {oemPartNumber}</p>
-                    )}
-
-                    {jcblPartNumber && (
-                      <p><strong>JCBL:</strong> {jcblPartNumber}</p>
-                    )}
+                    {/* Use the helper function for OEM and JCBL part numbers */}
+                    {renderPartNumber('OEM', oemPartNumber)}
+                    {renderPartNumber('JCBL', jcblPartNumber)}
 
                     <Link href={`/product/${product.slug}`}>
                       <button className="btn-blue btn">
@@ -476,14 +634,19 @@ const CategoryPage = ({ slug }) => {
                 ))}
               </Swiper>
             </div>
-            {categoryDescription && (
+            
+            {/* Description without FAQ */}
+            {descriptionWithoutFAQ && (
               <div
                 className="category-description"
                 dangerouslySetInnerHTML={{
-                  __html: categoryDescription,
+                  __html: descriptionWithoutFAQ,
                 }}
               />
             )}
+            
+            {/* FAQ Accordion */}
+            {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
           </div>
 
           <aside className="category-sidebar">

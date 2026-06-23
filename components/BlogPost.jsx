@@ -26,7 +26,7 @@ const BlogPost = ({ slug }) => {
       try {
         // Try fetching by slug first
         let res = await fetch(
-          `https://www.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed&status=publish`
+          `https://api.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed&status=publish`
         );
 
         let data = await res.json();
@@ -37,7 +37,7 @@ const BlogPost = ({ slug }) => {
           
           // Try to get post by post name (slug) using the posts endpoint
           res = await fetch(
-            `https://www.jcblautomoto.com/wp-json/wp/v2/posts?per_page=100&_embed&status=publish`
+            `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=100&_embed&status=publish`
           );
           data = await res.json();
           
@@ -88,7 +88,7 @@ const BlogPost = ({ slug }) => {
     const fetchLatest = async () => {
       try {
         const res = await fetch(
-          `https://www.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`
+          `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`
         );
         const data = await res.json();
         setLatestPosts(data);

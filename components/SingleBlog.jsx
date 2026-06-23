@@ -13,7 +13,7 @@ const SingleBlog = () => {
     const fetchPost = async () => {
       try {
         const res = await fetch(
-          `https://www.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
+          `https://api.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
         );
         const data = await res.json();
 
@@ -47,7 +47,7 @@ const SingleBlog = () => {
     const fetchLatest = async () => {
       try {
         const res = await fetch(
-          `https://www.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed`
+          `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed`
         );
         const data = await res.json();
         setLatestPosts(data);

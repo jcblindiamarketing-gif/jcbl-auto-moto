@@ -14,7 +14,7 @@ const RecentBlogs = () => {
     const fetchBlogs = async () => {
       try {
         const res = await fetch(
-          "https://www.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed"
+          "https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed"
         );
 
         if (!res.ok) throw new Error("Failed to fetch blogs");

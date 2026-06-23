@@ -22,7 +22,7 @@ useEffect(() => {
   const fetchProducts = async () => {
     try {
       const res = await fetch(
-        "https://www.jcblautomoto.com/wp-json/wp/v2/product?per_page=10&_embed"
+        "https://api.jcblautomoto.com/wp-json/wp/v2/product?per_page=10&_embed"
       );
 
       const data = await res.json();

@@ -51,7 +51,6 @@
 .header-wrapper {
   display: flex;
   justify-content: space-between;
-  padding: 15px 20px;
 }
 
 .nav-link:hover {

@@ -43,12 +43,12 @@ const SearchBar = () => {
 
         const [productsRes, categoriesRes] = await Promise.all([
           fetch(
-            `https://www.jcblautomoto.com/wp-json/wp/v2/product?search=${encodeURIComponent(
+            `https://api.jcblautomoto.com/wp-json/wp/v2/product?search=${encodeURIComponent(
               value
             )}&per_page=20`
           ),
           fetch(
-            `https://www.jcblautomoto.com/wp-json/wp/v2/product_cat?search=${encodeURIComponent(
+            `https://api.jcblautomoto.com/wp-json/wp/v2/product_cat?search=${encodeURIComponent(
               value
             )}&per_page=20`
           ),

@@ -5,12 +5,12 @@ import Breadcrumb from "../components/Breadcrumb";
 
 const NewsEvents = () => {
   // This URL is valid and will work as a poster image
-  const videoPoster = "https://www.jcblautomoto.com/wp-content/uploads/2024/08/poster-video-mr-vindo.png";
+  const videoPoster = "https://api.jcblautomoto.com/wp-content/uploads/2024/08/poster-video-mr-vindo.png";
   
   // !!! IMPORTANT: This URL returns a 404 error (file not found).
   // The video will not play until you replace this with a correct URL.
   // You can get a correct URL by uploading the video to your WordPress site's media library.
-  const videoUrl = "https://www.jcblautomoto.com/wp-content/uploads/2024/08/jcbl-indiavideo.mp4"; 
+  const videoUrl = "https://api.jcblautomoto.com/wp-content/uploads/2024/08/jcbl-indiavideo.mp4"; 
 
   return (
     <section>

@@ -7,7 +7,7 @@ import fallbackImg from "../assets/images/logo-testimonial.png";
 import Link from "next/link";
 
 
-const API_URL = "https://www.jcblautomoto.com/graphql";
+const API_URL = "https://api.jcblautomoto.com/graphql";
 
 const ProductDetail = ({ slug }) => {
 

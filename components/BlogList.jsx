@@ -22,7 +22,7 @@ const BlogList = () => {
 
       try {
         const res = await fetch(
-          `https://www.jcblautomoto.com/wp-json/wp/v2/posts?per_page=${PER_PAGE}&page=${page}&_embed`
+          `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=${PER_PAGE}&page=${page}&_embed`
         );
 
         const total = res.headers.get("X-WP-TotalPages");
