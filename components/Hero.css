@@ -94,7 +94,6 @@
 }
 
 
-
 /* ================= RIGHT SIDE (STICKY EDGE) ================= */
 
 .hero-right {
@@ -115,10 +114,9 @@
 .hero-frame {
   width: 100%;
   max-width: 900px;
-
   border-radius: 20px 0 0 20px;
   overflow: hidden;
-height : auto ;
+height : 460px;
   padding: 10px;
   background: #fff;
   box-shadow: 0 20px 50px rgba(0,0,0,0.1);
@@ -173,7 +171,9 @@ height : auto ;
   .hero {
     padding: 60px 0;
   }
-
+  .hero-frame {
+    height: 160px; /* or 350px */
+  }
   .hero-title {
     font-size: 26px;
   }
