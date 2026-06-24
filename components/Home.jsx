@@ -13,8 +13,7 @@ import GlobalNetwork from "./GlobalNetwork";
 import RecentBlogs from "./RecentBlogs";
 import CatalogueForm from "./CatalogueForm";
 
-function Home() {
-  const [openForm, setOpenForm] = useState(false);
+function Home({ categories }) {  const [openForm, setOpenForm] = useState(false);
 
   const openCatalogue = () => setOpenForm(true);
   const closeCatalogue = () => setOpenForm(false);
@@ -46,7 +45,10 @@ function Home() {
     <>
       <Hero openCatalogue={openCatalogue} />
       <BrandSection openCatalogue={openCatalogue} />
-      <CategorySection openCatalogue={openCatalogue} />
+      <CategorySection
+  categories={categories}
+  openCatalogue={openCatalogue}
+/>
       <AboutSection />
       <StatsSection />
       <TestimonialSection />

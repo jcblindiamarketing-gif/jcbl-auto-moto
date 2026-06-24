@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
 import Link from "next/link";
 import "./CategorySection.css";
 
-const API_URL = "https://api.jcblautomoto.com/graphql";
 
-export default function CategorySection({ openCatalogue }) {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const hasFetched = useRef(false);
+
+export default function CategorySection({
+  categories,
+  openCatalogue
+}) {
+  // const [categories, setCategories] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  // const hasFetched = useRef(false);
 
   const allowedSlugsInOrder = [
     "car-spare-parts",
@@ -29,69 +32,69 @@ export default function CategorySection({ openCatalogue }) {
 
   const allowedSlugsSet = new Set(allowedSlugsInOrder);
 
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
+  // useEffect(() => {
+  //   if (hasFetched.current) return;
+  //   hasFetched.current = true;
 
-    const fetchAllCategories = async () => {
-      let allCats = [];
-      let hasNextPage = true;
-      let after = null;
+  //   const fetchAllCategories = async () => {
+  //     let allCats = [];
+  //     let hasNextPage = true;
+  //     let after = null;
 
-      try {
-        while (hasNextPage) {
-          const res = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              query: `
-                query ($after: String) {
-                  productCategories(
-                    first: 100,
-                    after: $after,
-                    where: { hideEmpty: false }
-                  ) {
-                    nodes {
-                      id
-                      name
-                      slug
-                      description
-                      image {
-                        sourceUrl
-                      }
-                    }
-                    pageInfo {
-                      hasNextPage
-                      endCursor
-                    }
-                  }
-                }
-              `,
-              variables: { after },
-            }),
-          });
+  //     try {
+  //       while (hasNextPage) {
+  //         const res = await fetch(API_URL, {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({
+  //             query: `
+  //               query ($after: String) {
+  //                 productCategories(
+  //                   first: 100,
+  //                   after: $after,
+  //                   where: { hideEmpty: false }
+  //                 ) {
+  //                   nodes {
+  //                     id
+  //                     name
+  //                     slug
+  //                     description
+  //                     image {
+  //                       sourceUrl
+  //                     }
+  //                   }
+  //                   pageInfo {
+  //                     hasNextPage
+  //                     endCursor
+  //                   }
+  //                 }
+  //               }
+  //             `,
+  //             variables: { after },
+  //           }),
+  //         });
 
-          const json = await res.json();
-          const data = json?.data?.productCategories;
+  //         const json = await res.json();
+  //         const data = json?.data?.productCategories;
 
-          allCats = [...allCats, ...(data?.nodes || [])];
+  //         allCats = [...allCats, ...(data?.nodes || [])];
 
-          hasNextPage = data?.pageInfo?.hasNextPage;
-          after = data?.pageInfo?.endCursor;
-        }
+  //         hasNextPage = data?.pageInfo?.hasNextPage;
+  //         after = data?.pageInfo?.endCursor;
+  //       }
 
-        setCategories(allCats);
-      } catch (err) {
-        console.error("CATEGORY ERROR", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setCategories(allCats);
+  //     } catch (err) {
+  //       console.error("CATEGORY ERROR", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchAllCategories();
-  }, []);
+  //   fetchAllCategories();
+  // }, []);
 
   const handleCategoryClick = (cat) => {
     const slug = cat?.slug?.toLowerCase()?.trim();
@@ -100,7 +103,15 @@ export default function CategorySection({ openCatalogue }) {
       window.open(externalUrls[slug], "_blank");
     }
   };
-
+console.log(
+  categories.map((cat) => ({
+    name: cat.name,
+    slug: cat.slug,
+  }))
+);
+console.log(
+  categories.find((c) => c.slug === "tractor-part")
+);
   const sortedCategories = categories
     .filter((cat) => {
       const slug = cat?.slug?.toLowerCase()?.trim();
@@ -138,61 +149,53 @@ export default function CategorySection({ openCatalogue }) {
           </button>
         </div>
 
-        {loading ? (
-          <div className="categories-grid">
-            {[...Array(9)].map((_, i) => (
-              <div className="category-card skeleton" key={i}></div>
-            ))}
-          </div>
+       <div className="categories-grid">
+  {sortedCategories.map((cat) => {
+    const imageUrl =
+      cat?.image?.sourceUrl ||
+      `/images/categories/${cat.slug}.png`;
+
+    const isExternal =
+      externalUrls[cat.slug?.toLowerCase()?.trim()];
+
+    return (
+      <div key={cat.id} className="category-card">
+        <div className="category-image">
+          <img
+            src={imageUrl}
+            alt={cat.name}
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = "/images/fallback.png";
+            }}
+          />
+        </div>
+
+        <h3 className="category-title">{cat.name}</h3>
+
+        <p className="category-description">
+          {getShortDesc(cat.description)}
+        </p>
+
+        {isExternal ? (
+          <button
+            onClick={() => handleCategoryClick(cat)}
+            className="category-btn btn-blue btn"
+          >
+            Visit Website
+          </button>
         ) : (
-          <div className="categories-grid">
-            {sortedCategories.map((cat) => {
-              const imageUrl =
-                cat?.image?.sourceUrl ||
-                `/images/categories/${cat.slug}.png`;
-
-              const isExternal =
-                externalUrls[cat.slug?.toLowerCase()?.trim()];
-
-              return (
-                <div key={cat.id} className="category-card">
-                  <div className="category-image">
-                    <img
-                      src={imageUrl}
-                      alt={cat.name}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = "/images/fallback.png";
-                      }}
-                    />
-                  </div>
-
-                  <h3 className="category-title">{cat.name}</h3>
-
-                  <p className="category-description">
-                    {getShortDesc(cat.description)}
-                  </p>
-
-                  {isExternal ? (
-                    <button
-                      onClick={() => handleCategoryClick(cat)}
-                      className="category-btn btn-blue btn"
-                    >
-                      Visit Website
-                    </button>
-                  ) : (
-                    <Link
-                      href={`/category/${cat.slug}`}
-                      className="category-btn btn-blue btn"
-                    >
-                      Inquire Now
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <Link
+            href={`/category/${cat.slug}`}
+            className="category-btn btn-blue btn"
+          >
+            Inquire Now
+          </Link>
         )}
+      </div>
+    );
+  })}
+</div>
       </div>
     </section>
   );
