@@ -145,7 +145,7 @@ function Header() {
       "Zest"
     ],
     chevrolet: ["Beat"],
-    renault: ["Kwid", "Triber", "Kiger", "Duster"],
+    renault: ["Kwid","Duster"],
     honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
