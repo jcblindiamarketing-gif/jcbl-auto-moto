@@ -452,7 +452,11 @@ const CategoryPage = ({ slug = null }) => {
                           }}
                         />
                       </div>
-                      <h4>{category.name}</h4>
+                     <Link href={`/category/${category.slug}`}>
+  <button type="button" className="category-btn btn-blue btn">
+    {category.name}
+  </button>
+</Link>
                       {category.children?.nodes?.length > 0 && (
                         <p className="subcategory-count">
                           {category.children.nodes.length} Subcategories
@@ -718,27 +722,41 @@ const CategoryPage = ({ slug = null }) => {
               </div>
               <div className="category-grid">
                 {subCategories.map((cat) => (
-                  <Link href={`/category/${cat.slug}`} key={cat.id}>
-                    <div className="category-card">
-                      <div className="category-image">
-                        <img
-                          loading="lazy"
-                          decoding="async"
-                          src={cat.image?.sourceUrl || "/images/fallback.png"}
-                          alt={cat.name}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/fallback.png";
-                          }}
-                        />
-                      </div>
-                      <h4>{cat.name}</h4>
-                    </div>
-                  </Link>
+             <div className="category-card" key={cat.id}>
+  <div className="category-image">
+    <img
+      loading="lazy"
+      decoding="async"
+      src={cat.image?.sourceUrl || "/images/fallback.png"}
+      alt={cat.name}
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = "/images/fallback.png";
+      }}
+    />
+  </div>
+
+  <h4>{cat.name}</h4>
+
+  <Link href={`/category/${cat.slug}`}>
+    <button type="button" className="category-btn btn-blue btn">
+      View Category
+    </button>
+  </Link>
+</div>
                 ))}
               </div>
               
-              {descriptionWithoutFAQ && (
+         
+              
+        
+            </div>
+
+            <aside className="category-sidebar">
+              <ContactForm />
+            </aside>
+          </div>
+               {descriptionWithoutFAQ && (
                 <div
                   className="category-description"
                   dangerouslySetInnerHTML={{
@@ -746,15 +764,7 @@ const CategoryPage = ({ slug = null }) => {
                   }}
                 />
               )}
-              
-              {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
-            </div>
-
-            <aside className="category-sidebar">
-              <ContactForm />
-            </aside>
-          </div>
-          
+                    {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
           <PackagingSlider images={packagingImages} />
         </div>
       </section>

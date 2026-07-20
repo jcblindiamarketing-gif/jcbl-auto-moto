@@ -173,12 +173,7 @@ const Footer = () => {
               </Link>
             </li>
 
-            <li>
-              <Link href="/category/helmets">
-                Helmets
-              </Link>
-            </li>
-
+           
             <li>
               <Link href="/category/heavy-machinery-parts">
                 Heavy Machinery Parts

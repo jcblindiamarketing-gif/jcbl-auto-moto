@@ -149,30 +149,90 @@ function Header() {
     honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
+const batteryGrandChildren = {
+  "auto-starting": [
+    {
+      name: "Low Maintenance Dry Charged",
+      url: "https://jcblbatteries.com/category/auto-starting-series/low-maintenance-dry-charged/"
+    },
+    {
+      name: "Sealed Maintenance Free Batteries",
+      url: "https://jcblbatteries.com/category/auto-starting-series/sealed-maintenance-free-batteries/"
+    },
+    {
+      name: "Start Stop Advance Series",
+      url: "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/"
+    },
+    {
+      name: "SMF BCI Series",
+      url: "https://jcblbatteries.com/product/smf-bci-series/"
+    }
+  ],
 
+  "motorcycle-starting": [
+    {
+      name: "Dry Charged",
+      url: "https://jcblbatteries.com/product/dry-charged-with-acid-bottle/"
+    },
+    {
+      name: "MF Series",
+      url: "https://jcblbatteries.com/category/motorcycle-starting-series/mf-series/"
+    },
+    {
+      name: "Gel Series",
+      url: "https://jcblbatteries.com/category/motorcycle-starting-series/gel-series/"
+    }
+  ],
+
+  "backup-application": [
+    {
+      name: "Solar / Inverter Tubular Batteries",
+      url: "https://jcblbatteries.com/product/high-performance-flooded-lead-acid-tubular-solar-inverter-batteries/"
+    },
+    {
+      name: "SMF VRLA Solar / Industrial Batteries",
+      url: "https://jcblbatteries.com/product/smf-vrla-solar-industrial-batteries/"
+    }
+  ],
+
+  "lithium-ion": [
+    {
+      name: "Residential Energy Storage",
+      url: "https://jcblbatteries.com/category/lithium-ion-batteries/residential-energy-storage-systems/"
+    },
+    {
+      name: "Replacement For VRLA AGM & Gel Batteries",
+      url: "https://jcblbatteries.com/product/replacement-for-vrla-agm-gel-batteries/"
+    },
+    {
+      name: "Start Stop Series",
+      url: "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/"
+    }
+  ]
+};
   // Battery subcategories
-  const batterySubs = [
-    {
-      id: "lithium-ion",
-      name: "Lithium Ion Battery",
-      externalUrl: "https://jcblbatteries.com/category/lithium-ion-batteries/",
-    },
-    {
-      id: "automotive",
-      name: "Automotive Battery",
-      externalUrl: "https://jcblbatteries.com/category/auto-starting-series/",
-    },
-    {
-      id: "motorcycle",
-      name: "Motorcycle Battery",
-      externalUrl: "https://jcblbatteries.com/category/motorcycle-starting-series/",
-    },
-    {
-      id: "backup",
-      name: "Backup Application Batteries",
-      externalUrl: "https://jcblbatteries.com/category/backup-applications/",
-    },
-  ];
+const batterySubs = [
+  {
+    id: "auto-starting",
+    name: "Auto Starting Series",
+    externalUrl: "https://jcblbatteries.com/category/auto-starting-series/",
+  },
+  {
+    id: "motorcycle-starting",
+    name: "Motorcycle Starting Series",
+    externalUrl: "https://jcblbatteries.com/category/motorcycle-starting-series/",
+  },
+  {
+    id: "backup-application",
+    name: "Backup Application Batteries",
+    externalUrl: "https://jcblbatteries.com/category/backup-applications/",
+  },
+  {
+    id: "lithium-ion",
+    name: "Lithium-ion Batteries",
+    externalUrl: "https://jcblbatteries.com/category/lithium-ion-batteries/",
+  },
+];
 
   // Get children for a parent category
   const getChildrenForParent = (parentId, parentName) => {
@@ -186,24 +246,45 @@ function Header() {
   };
 
   // Check if a child has grandchildren
-  const hasGrandChildren = (parentName, childId) => {
-    if (parentName === "Car Spare Parts") {
-      return carModels[childId]?.length > 0;
-    }
-    return false;
-  };
+const hasGrandChildren = (parentName, childId) => {
 
-  const getGrandChildren = (parentName, childId) => {
-    if (parentName === "Car Spare Parts") {
-      const models = carModels[childId] || [];
-      return models.map(model => ({
-        id: `${childId}-${model.toLowerCase().replace(/\s+/g, '-')}`,
-        name: model,
-        slug: model.toLowerCase().replace(/\s+/g, '-')
-      }));
+    if(parentName === "Car Spare Parts"){
+        return carModels[childId]?.length > 0;
     }
+
+    if(parentName === "Batteries"){
+        return batteryGrandChildren[childId]?.length > 0;
+    }
+
+    return false;
+};
+
+const getGrandChildren = (parentName, childId) => {
+
+    if(parentName === "Car Spare Parts"){
+
+        return (carModels[childId] || []).map(model => ({
+            id:model,
+            name:model,
+            slug:model.toLowerCase().replace(/\s+/g,"-")
+        }));
+
+    }
+
+    if(parentName === "Batteries"){
+
+        return batteryGrandChildren[childId].map((item,index)=>({
+
+            id:index,
+            name:item.name,
+            externalUrl:item.url
+
+        }));
+
+    }
+
     return [];
-  };
+};
 
   // Static menu items
   const menuItems = [
@@ -418,16 +499,16 @@ function Header() {
                                     );
                                   }
 
-                                  return grandchildren.map((grand) => (
-                                    <Link
-                                      key={grand.id}
-                                      href={`/category/${grand.slug}`}
-                                      className="grandchild-link"
-                                      onClick={() => setOpenMenu(false)}
-                                    >
-                                      {grand.name}
-                                    </Link>
-                                  ));
+                           return grandchildren.map((grand) => (
+  <Link
+    key={grand.id}
+    href={grand.externalUrl ? grand.externalUrl : `/category/${grand.slug}`}
+    className="grandchild-link"
+    onClick={() => setOpenMenu(false)}
+  >
+    {grand.name}
+  </Link>
+));
                                 })}
                               </div>
                             </div>
@@ -517,19 +598,19 @@ function Header() {
                                             {mobileChildOpen === child.id &&
                                               grandchildren.length > 0 && (
                                                 <div className="mobile-grandchildren">
-                                                  {grandchildren.map((grand) => (
-                                                    <Link
-                                                      key={grand.id}
-                                                      href={`/category/${grand.slug}`}
-                                                      className="grandchild-link"
-                                                      onClick={() => {
-                                                        setSidebarOpen(false);
-                                                        setOpenMenu(false);
-                                                      }}
-                                                    >
-                                                      {grand.name}
-                                                    </Link>
-                                                  ))}
+                                                {grandchildren.map((grand) => (
+  <Link
+    key={grand.id}
+    href={grand.externalUrl ? grand.externalUrl : `/category/${grand.slug}`}
+    className="grandchild-link"
+    onClick={() => {
+      setSidebarOpen(false);
+      setOpenMenu(false);
+    }}
+  >
+    {grand.name}
+  </Link>
+))}
                                                 </div>
                                               )}
                                           </div>

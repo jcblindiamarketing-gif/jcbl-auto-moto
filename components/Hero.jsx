@@ -8,7 +8,7 @@ import Image from "next/image";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
-
+import heroShape from "../assets/images/hero-image-shape.svg";
 import img1 from "../assets/images/slider-img-1.webp";
 import img2 from "../assets/images/slider-img-2.webp";
 import img3 from "../assets/images/slider-img-3.webp";
@@ -33,11 +33,11 @@ function Hero({ openCatalogue }) {
         backgroundImage: 'url("./assets/images/hero-bg-dotted-img.png")',
       }}
     >
-      <img
-        src="./assets/images/shape-hero-img.png"
-        alt="shape"
-        className="hero-shape"
-      />
+<Image
+  src={heroShape}
+  alt="shape"
+  className="hero-shape"
+/>
 
       <div className="container hero-layout">
         <div className="hero-left">
