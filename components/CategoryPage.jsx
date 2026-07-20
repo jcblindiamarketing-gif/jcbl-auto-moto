@@ -453,9 +453,9 @@ const CategoryPage = ({ slug = null }) => {
                         />
                       </div>
                      <Link href={`/category/${category.slug}`}>
-  <button type="button" className="category-btn btn-blue btn">
-    {category.name}
-  </button>
+ 
+    <h4>{category.name} </h4>
+ 
 </Link>
                       {category.children?.nodes?.length > 0 && (
                         <p className="subcategory-count">
@@ -739,7 +739,7 @@ const CategoryPage = ({ slug = null }) => {
   <h4>{cat.name}</h4>
 
   <Link href={`/category/${cat.slug}`}>
-    <button type="button" className="category-btn btn-blue btn">
+    <button type="button" className="btn btn-blue">
       View Category
     </button>
   </Link>

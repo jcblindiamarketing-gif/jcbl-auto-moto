@@ -180,14 +180,14 @@ console.log(
         {isExternal ? (
           <button
             onClick={() => handleCategoryClick(cat)}
-            className="category-btn btn-blue btn"
+            className=" btn-blue btn"
           >
             Visit Website
           </button>
         ) : (
           <Link
             href={`/category/${cat.slug}`}
-            className="category-btn btn-blue btn"
+            className=" btn-blue btn"
           >
             Inquire Now
           </Link>
