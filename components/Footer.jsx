@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import React from "react";import Link from "next/link";
 import Image from "next/image";
 
 import { FaWhatsapp } from "react-icons/fa";
@@ -17,48 +16,10 @@ import {
 
 import logo from "../assets/images/JCBL-logo-header.png";
 import "./Footer.css";
-
 const Footer = () => {
-  const [menuItems, setMenuItems] = useState([]);
 
-  const MENU_API =
-    "https://api.jcblautomoto.com/wp-json/custom/v1/menu";
 
-  const getPath = (url) => {
-    try {
-      return new URL(url).pathname;
-    } catch {
-      return "/";
-    }
-  };
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const res = await fetch(MENU_API);
-
-        if (!res.ok) {
-          throw new Error("Menu API failed");
-        }
-
-        const data = await res.json();
-
-        const mainMenu = (data || []).filter(
-          (item) =>
-            item.url &&
-            item.label !== "dgwt_wcas_search_box" &&
-            !item.url.includes("/category/")
-        );
-
-        setMenuItems(mainMenu);
-      } catch (err) {
-        console.error("Menu Error:", err);
-        setMenuItems([]);
-      }
-    };
-
-    fetchMenu();
-  }, []);
 
   return (
     <footer className="footer">
@@ -135,19 +96,25 @@ const Footer = () => {
         <div className="footer-links">
           <h4>Quick Links</h4>
 
-          <ul>
-            {menuItems.length > 0 ? (
-              menuItems.map((item) => (
-                <li key={item.id}>
-                  <Link href={getPath(item.url)}>
-                    {item.label}
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <li>Loading...</li>
-            )}
-          </ul>
+ <ul>
+  <li>
+    <Link href="/">Home</Link>
+  </li>
+
+  <li>
+    <Link href="/products">Products</Link>
+  </li>
+
+  <li>
+    <Link href="/contact">Contact</Link>
+  </li>
+
+  <li>
+    <Link href="/gallery">Gallery</Link>
+  </li>
+
+
+</ul>
         </div>
 
         {/* COLUMN 3 */}

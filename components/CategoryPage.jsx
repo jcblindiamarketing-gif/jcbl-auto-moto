@@ -843,7 +843,14 @@ const CategoryPage = ({ slug = null }) => {
               </div>
             )}
             
-            {descriptionWithoutFAQ && (
+          
+          </div>
+
+          <aside className="category-sidebar">
+            <ContactForm />
+          </aside>
+        </div>
+          {descriptionWithoutFAQ && (
               <div
                 className="category-description"
                 dangerouslySetInnerHTML={{
@@ -853,13 +860,6 @@ const CategoryPage = ({ slug = null }) => {
             )}
             
             {faqData.length > 0 && <FAQAccordion faqs={faqData} />}
-          </div>
-
-          <aside className="category-sidebar">
-            <ContactForm />
-          </aside>
-        </div>
-        
         <PackagingSlider images={packagingImages} />
       </div>
     </section>

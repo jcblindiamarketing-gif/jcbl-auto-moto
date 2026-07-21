@@ -213,9 +213,10 @@
     grid-template-columns: 1fr;
   }
   
-  .category-layout {
-    gap: 20px;
-  }
+.category-layout {
+    padding: 0px 0px 60px 0px;
+    gap: 30px;
+}
 }
 
 
