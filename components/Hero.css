@@ -168,6 +168,15 @@ height : 460px;
 }
 
 @media (max-width: 576px) {
+.btn-border {
+  padding: 12px 15px;
+}
+
+
+  .hero-shape {
+    top: 70px;
+    left: -25px;
+}
   .hero {
     padding: 60px 0;
   }
@@ -178,9 +187,7 @@ height : 460px;
     font-size: 26px;
   }
 
-  .hero-buttons {
-    flex-direction: column;
-  }
+
   /* IMAGE */
 .hero-frame img {
 border-bottom-left-radius : 0px;
