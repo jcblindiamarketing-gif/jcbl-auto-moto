@@ -30,14 +30,15 @@ const carBrands = [
   { name: "Hyundai", logo: hyundaiLogo },
   { name: "Nissan", logo: nissanLogo },
   { name: "Tata", logo: tataLogo },
+    { name: "Mahindra", logo: mahindraLogo },
+  { name: "Suzuki", logo: suzukiLogo },
   { name: "Honda", logo: hondaLogo }, // Honda makes both cars and bikes
 ];
 
 // Motorcycle brands
 const motorcycleBrands = [
   { name: "Bajaj", logo: bajajLogo },
-  { name: "Honda", logo: hondaLogo },
-  { name: "Suzuki", logo: suzukiLogo },
+
   { name: "TVS", logo: tvsLogo },
 ];
 
@@ -45,7 +46,7 @@ const motorcycleBrands = [
 const tractorBrands = [
   { name: "Escorts", logo: escortsLogo },
   { name: "John Deere", logo: johnDeereLogo },
-  { name: "Mahindra", logo: mahindraLogo },
+
   { name: "Massey Ferguson", logo: masseyLogo },
   { name: "New Holland", logo: newHollandLogo },
   { name: "Sonalika", logo: sonalikaLogo },
@@ -90,15 +91,18 @@ export default function BrandSection() {
           }}
         >
           {brands.map((brand, index) => (
-            <SwiperSlide key={index}>
-              <div className="brand-card">
-                <img
-                  src={brand.logo.src}
-                  alt={brand.name}
-                  loading="lazy"
-                />
-              </div>
-            </SwiperSlide>
+        <SwiperSlide key={index}>
+  <a
+    href="https://www.jcblautomoto.com/category"
+    className="brand-card"
+  >
+    <img
+      src={brand.logo.src}
+      alt={brand.name}
+      loading="lazy"
+    />
+  </a>
+</SwiperSlide>
           ))}
         </Swiper>
       </div>
