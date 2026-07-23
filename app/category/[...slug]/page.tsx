@@ -1,14 +1,17 @@
-import CategoryPage from "../../../components/CategoryPage";
+import CategoryPage from "...";
 
-export default async function CategoryPageWrapper({
+export default async function Page({
   params,
 }: {
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
 
-  // last URL segment
-  const currentSlug = slug[slug.length - 1];
+  const currentSlug = slug.at(-1);
+
+  if (!currentSlug) {
+    return null;
+  }
 
   return <CategoryPage slug={currentSlug} />;
 }
