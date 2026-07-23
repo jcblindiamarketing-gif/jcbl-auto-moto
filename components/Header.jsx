@@ -109,6 +109,7 @@ function Header() {
       "i10", 
       "i20", 
       "Santro Xing", 
+    "Santro",
       "Venue"
     ],
     "maruti-suzuki": [

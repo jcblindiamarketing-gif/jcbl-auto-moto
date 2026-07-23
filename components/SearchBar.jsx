@@ -41,30 +41,28 @@ const SearchBar = () => {
       try {
         setLoading(true);
 
-        const [productsRes, categoriesRes] = await Promise.all([
-          fetch(
-            `https://api.jcblautomoto.com/wp-json/wp/v2/product?search=${encodeURIComponent(
-              value
-            )}&per_page=20`
-          ),
-          fetch(
-            `https://api.jcblautomoto.com/wp-json/wp/v2/product_cat?search=${encodeURIComponent(
-              value
-            )}&per_page=20`
-          ),
-        ]);
+ const [productsRes, categoriesRes] = await Promise.all([
+  fetch(
+    `https://api.jcblautomoto.com/wp-json/jcbl/v1/search?keyword=${encodeURIComponent(
+      value
+    )}`
+  ),
+  fetch(
+    `https://api.jcblautomoto.com/wp-json/wp/v2/product_cat?search=${encodeURIComponent(
+      value
+    )}&per_page=20`
+  ),
+]);
 
-        const products = await productsRes.json();
-        const categories = await categoriesRes.json();
+const products = await productsRes.json();
+const categories = await categoriesRes.json();
 
         const keyword = value.toLowerCase().trim();
 
-        const filteredProducts = Array.isArray(products)
-          ? products.filter((item) =>
-              item?.title?.rendered?.toLowerCase().includes(keyword)
-            )
-          : [];
 
+const filteredProducts = Array.isArray(products)
+  ? products
+  : [];
         const filteredCategories = Array.isArray(categories)
           ? categories.filter((item) =>
               item?.name?.toLowerCase().includes(keyword)
