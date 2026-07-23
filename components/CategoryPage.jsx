@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import "./CategoryPage.css";
-import Loader from "../components/Loader";
-import ContactForm from "../components/ContactForm";
+import Loader from "./Loader";
+import ContactForm from "./ContactForm";
 import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from "react-icons/fa";
 import 'swiper/css';
 import { usePathname } from "next/navigation";
@@ -223,7 +223,9 @@ const PackagingSlider = ({ images }) => {
   );
 };
 
-// Main CategoryPage Component
+/**
+ * @param {{ slug?: string | null }} props
+ */
 const CategoryPage = ({ slug = null }) => {
     const pathname = usePathname();
   // Ensure slug is properly handled

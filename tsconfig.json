@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/category/page.js"  ],
+, "app/category/page.js", "components/CategoryPage.jsx"  ],
   "exclude": ["node_modules"]
 }
