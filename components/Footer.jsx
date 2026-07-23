@@ -106,7 +106,7 @@ const Footer = () => {
   </li>
 
   <li>
-    <Link href="/contact">Contact</Link>
+    <Link href="/contact-us">Contact</Link>
   </li>
 
   <li>
@@ -122,43 +122,35 @@ const Footer = () => {
           <h4>Product Categories</h4>
 
           <ul>
+               <li>
+              <Link href="/category/car-spare-parts">
+                Car Spare Parts
+              </Link>
+            </li>
             <li>
               <Link href="/category/chrome-parts">
                 Chrome Parts
               </Link>
             </li>
 
-            <li>
-              <Link href="/category/car-spare-parts">
-                Car Spare Parts
-              </Link>
-            </li>
-
-            <li>
-              <Link href="/category/motorcycle-alloy-wheels">
-                Motorcycle Alloy Wheels
-              </Link>
-            </li>
-
-           
-            <li>
+           <li>
               <Link href="/category/heavy-machinery-parts">
                 Heavy Machinery Parts
               </Link>
             </li>
-
-            <li>
-              <Link href="/category/truck-parts">
-                Truck Parts
+           <li>
+              <Link href="/category/tractor-part">
+               Tractor Part
               </Link>
             </li>
 
-            <li>
-              <Link href="/category/lubricants">
-                Lubricants
+                  <li>
+              <Link href="/category/lubricants-engine-oil">
+             Lubricants
               </Link>
             </li>
 
+     
             <li>
               <Link href="/category/automotive-battery">
                 Batteries
@@ -166,10 +158,24 @@ const Footer = () => {
             </li>
 
             <li>
-              <Link href="/category/alloy-wheels">
-                Alloy Wheels
+              <Link href="/category/motorcycle-spare-parts">
+              Motorcycle Spare Parts
               </Link>
             </li>
+      
+            <li>
+              <Link href="/category/car-alloy-wheels">
+             Car Alloy Wheels
+              </Link>
+            </li>
+      
+
+          
+
+           
+      
+
+         
           </ul>
         </div>
 
@@ -210,12 +216,9 @@ const Footer = () => {
               <span className="icon-circle">
                 <FaMapMarkerAlt />
               </span>
-              Plot No. 580, Phase 9,
-              Industrial Area,
+              1st Floor, Plot No.580,
               <br />
-              Sector 66,
-              Punjab 160062,
-              India
+              Phase- 9, Industrial Area, Sector 66, <br /> Sahibzada Ajit Singh Nagar, <br /> Punjab 160062
             </p>
 
           </div>

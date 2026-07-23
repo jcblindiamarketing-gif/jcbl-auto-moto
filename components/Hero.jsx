@@ -55,7 +55,7 @@ function Hero({ openCatalogue }) {
             </p>
 
             <div className="hero-buttons">
-              <Link href="/contact" className="btn btn-blue">
+              <Link href="/contact-us" className="btn btn-blue">
                 Contact Us
               </Link>
 

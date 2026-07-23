@@ -72,7 +72,11 @@ function Header() {
     { id: "motorcycle-spare-parts", name: "Motorcycle Spare Parts", slug: "motorcycle-spare-parts" },
     { id: "heavy-machinery-parts", name: "Heavy Machinery Parts", slug: "heavy-machinery-parts" },
     { id: "tractor-parts", name: "Tractor Parts", slug: "tractor-part" },
-    { id: "lubricants", name: "Lubricants", slug: "lubricants" },
+   {
+  id: "lubricants",
+  name: "Lubricants",
+  slug: "lubricants-engine-oil"
+},
     { id: "batteries", name: "Batteries", slug: "batteries" },
     { id: "alloy-wheels", name: "Alloy Wheels", slug: "alloy-wheels" }
   ];
@@ -93,6 +97,7 @@ function Header() {
   const carModels = {
     hyundai: [
       "Accent", 
+      "Accord",
       "Elantra Fluidic", 
       "Elantra", 
       "Eon", 
@@ -436,13 +441,17 @@ const getGrandChildren = (parentName, childId) => {
                                   if (parent.id !== activeCat) return null;
                                   const children = getChildrenForParent(parent.id, parent.name);
                                   return children.map((child) => (
-                                    <Link
-                                      key={child.id}
-                                      href={child.externalUrl ? child.externalUrl : `/category/${child.slug}`}
-                                      className={`child-item ${activeChild === child.id ? "active" : ""}`}
-                                      onMouseEnter={() => setActiveChild(child.id)}
-                                      onClick={() => setOpenMenu(false)}
-                                    >
+                                
+<Link
+  key={child.id}
+  href={
+    child.externalUrl
+      ? child.externalUrl
+      : `/category/${parent.slug}/${child.slug}`
+  }
+  className={`child-item ${activeChild === child.id ? "active" : ""}`}
+  onMouseEnter={() => setActiveChild(child.id)}
+>
                                       <span className="menu-item">
                                         {child.name}
                                         {hasGrandChildren(parent.name, child.id) && (
@@ -502,7 +511,11 @@ const getGrandChildren = (parentName, childId) => {
                            return grandchildren.map((grand) => (
   <Link
     key={grand.id}
-    href={grand.externalUrl ? grand.externalUrl : `/category/${grand.slug}`}
+href={
+  grand.externalUrl
+    ? grand.externalUrl
+    : `/category/${parent.slug}/${currentChild.slug}/${grand.slug}`
+}
     className="grandchild-link"
     onClick={() => setOpenMenu(false)}
   >
@@ -565,10 +578,10 @@ const getGrandChildren = (parentName, childId) => {
                                             <div className="mobile-child-header">
                                               <Link
                                                 href={
-                                                  child.externalUrl
-                                                    ? child.externalUrl
-                                                    : `/category/${child.slug}`
-                                                }
+  child.externalUrl
+    ? child.externalUrl
+    : `/category/${parent.slug}/${child.slug}`
+}
                                                 className="child-link"
                                                 onClick={() => {
                                                   setSidebarOpen(false);
@@ -643,7 +656,7 @@ const getGrandChildren = (parentName, childId) => {
             <div className="header-search">
               <SearchBar />
             </div>
-            <Link href="/contact" className="btn btn-blue">
+            <Link href="/contact-us" className="btn btn-blue">
               Contact Us
             </Link>
             <select

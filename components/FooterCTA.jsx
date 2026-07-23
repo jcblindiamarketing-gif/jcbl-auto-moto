@@ -33,7 +33,7 @@ const FooterCTA = () => {
         </div>
 
         <div className="footer-cta-btn">
-          <Link href="/contact">
+          <Link href="/contact-us">
             <button className="btn btn-blue">
               Contact Us
             </button>

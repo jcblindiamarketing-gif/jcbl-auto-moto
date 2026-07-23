@@ -9,6 +9,8 @@ import Loader from "../components/Loader";
 import ContactForm from "../components/ContactForm";
 import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from "react-icons/fa";
 import 'swiper/css';
+import { usePathname } from "next/navigation";
+
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
@@ -223,6 +225,7 @@ const PackagingSlider = ({ images }) => {
 
 // Main CategoryPage Component
 const CategoryPage = ({ slug = null }) => {
+    const pathname = usePathname();
   // Ensure slug is properly handled
   const effectiveSlug = slug || null;
   
@@ -738,7 +741,7 @@ const CategoryPage = ({ slug = null }) => {
 
   <h4>{cat.name}</h4>
 
-  <Link href={`/category/${cat.slug}`}>
+  <Link href={`${pathname}/${cat.slug}`}>
     <button type="button" className="btn btn-blue">
       View Category
     </button>
