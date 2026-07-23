@@ -295,7 +295,7 @@ const getGrandChildren = (parentName, childId) => {
   // Static menu items
   const menuItems = [
     { label: "Home", url: "/" },
-    { label: "About Us", url: "/about-jcbl-group/" },
+    { label: "About Us", url: "/about-us/" },
    { label: "Products", url: "/category", isProduct: true },
     { label: "Blog", url: "/blog/" },
     { label: "News & Events", url: "/news-events/" }

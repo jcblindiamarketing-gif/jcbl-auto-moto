@@ -50,7 +50,7 @@ function AboutSection() {
             Our strong international supply network has established us as a dependable automotive parts exporter from India, supporting distributors, importers, and automotive businesses with reliable sourcing solutions, consistent product availability, and long-term supply partnerships.
           </p>
 
-          <Link href="/about-jcbl-group" className="btn about-btn white-btn">
+          <Link href="/about-us" className="btn about-btn white-btn">
             Learn More
             <FaArrowRight className="btn-icon" />
           </Link>
