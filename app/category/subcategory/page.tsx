@@ -8,12 +8,7 @@ interface PageProps {
 }
 
 export default async function SubCategoryPage({ params }: PageProps) {
-  const { category, subcategory } = await params;
+  const { subcategory } = await params;
 
-  return (
-    <CategoryPage
-      slug={subcategory}
-      parentSlug={category}
-    />
-  );
+  return <CategoryPage slug={subcategory} />;
 }
