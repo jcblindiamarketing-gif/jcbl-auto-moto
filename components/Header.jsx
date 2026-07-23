@@ -103,13 +103,13 @@ function Header() {
       "Eon", 
       "Grand i10", 
       "i20 Elite", 
-      "Santro", 
+    
       "Verna Fluidic", 
       "Creta", 
       "i10", 
       "i20", 
       "Santro Xing", 
-    "Santro",
+        "Santro", 
       "Venue"
     ],
     "maruti-suzuki": [

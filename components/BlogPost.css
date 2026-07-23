@@ -93,8 +93,12 @@
 
 .blog-content-wrapper li {
   margin-bottom: 8px;
+  font-size : 16px;
 }
 
+.blog-content a{
+  color : var(--accent);
+}
 .blog-content-wrapper blockquote {
   border-left: 4px solid #0066cc;
   padding-left: 20px;
