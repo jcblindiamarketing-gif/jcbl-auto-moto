@@ -1,18 +1,27 @@
 import BlogPost from "@/components/BlogPost";
 import { notFound } from "next/navigation";
+import { generateSEOMetadata } from "@/lib/metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  console.log("Metadata slug:", slug);
+
+  return generateSEOMetadata(`/blog/${slug}/`, "post");
+}
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // Await the params (Next.js 15+)
   const { slug } = await params;
 
-  console.log("Slug from params:", slug);
-
   if (!slug) {
-    console.error("No slug found in params");
     notFound();
   }
 

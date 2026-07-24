@@ -87,13 +87,6 @@ a {
 }
 
 
-
-/* =========================
-   BUTTON SYSTEM
-========================= *//* =========================
-   BUTTON SYSTEM (FINAL FIX)
-========================= */
-
 .btn {
     position: relative;
     display: inline-block;
@@ -148,7 +141,7 @@ a {
   position: relative;
   overflow: hidden;
   z-index: 1;
-}/* TEXT LAYER (IMPORTANT 🔥) */
+}
 .btn span {
   position: relative;
   z-index: 2;

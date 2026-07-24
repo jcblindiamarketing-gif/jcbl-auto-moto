@@ -253,30 +253,29 @@ const CategoryPage = ({ slug = null }) => {
 
   const limit = 10;
 
-  const packagingImages = [
-    "../assets/images/packaging_img_2.webp",
-    "../assets/images/packaging_img_2.webp",
-    "../assets/images/packaging_img_3.webp",
-    "../assets/images/packaging_img_4.webp",
-    "../assets/images/packaging_img_5.webp",
-    "../assets/images/packaging_img_6.webp",
-    "../assets/images/packaging_img_7.webp",
-    "../assets/images/packaging_img_8.webp",
-    "../assets/images/packaging_img_9.webp",
-    "../assets/images/packaging_img_10.webp",
-    "../assets/images/packaging_img_11.webp",
-    "../assets/images/packaging_img_12.webp",
-    "../assets/images/packaging_img_13.webp",
-    "../assets/images/packaging_img_14.webp",
-    "../assets/images/packaging_img_15.webp",
-    "../assets/images/packaging_img_17.webp",
-    "../assets/images/packaging_img_18.webp",
-    "../assets/images/packaging_img_19.webp",
-    "../assets/images/packaging_img_20.webp",
-    "../assets/images/packaging_img_21.webp",
-    "../assets/images/packaging_img_22.webp",
-    "../assets/images/packaging_img_23.webp"
-  ];
+const packagingImages = [
+  "/assets/images/packaging_img_2.webp",
+  "/assets/images/packaging_img_3.webp",
+  "/assets/images/packaging_img_4.webp",
+  "/assets/images/packaging_img_5.webp",
+  "/assets/images/packaging_img_6.webp",
+  "/assets/images/packaging_img_7.webp",
+  "/assets/images/packaging_img_8.webp",
+  "/assets/images/packaging_img_9.webp",
+  "/assets/images/packaging_img_10.webp",
+  "/assets/images/packaging_img_11.webp",
+  "/assets/images/packaging_img_12.webp",
+  "/assets/images/packaging_img_13.webp",
+  "/assets/images/packaging_img_14.webp",
+  "/assets/images/packaging_img_15.webp",
+  "/assets/images/packaging_img_17.webp",
+  "/assets/images/packaging_img_18.webp",
+  "/assets/images/packaging_img_19.webp",
+  "/assets/images/packaging_img_20.webp",
+  "/assets/images/packaging_img_21.webp",
+  "/assets/images/packaging_img_22.webp",
+  "/assets/images/packaging_img_23.webp",
+];
 
   // Helper function to render part numbers
   const renderPartNumber = (label, value) => {
@@ -327,25 +326,39 @@ const CategoryPage = ({ slug = null }) => {
               hideEmpty: true
             }
           ) {
-            nodes {
-              id
-              name
-              slug
-              description
-              image {
-                sourceUrl
-              }
-              children {
-                nodes {
-                  id
-                  name
-                  slug
-                  image {
-                    sourceUrl
-                  }
-                }
-              }
-            }
+          nodes {
+  id
+  name
+  slug
+
+  seo {
+    title
+    metaDesc
+    canonical
+    opengraphTitle
+    opengraphDescription
+    opengraphImage {
+      sourceUrl
+    }
+  }
+
+  description
+
+  image {
+    sourceUrl
+  }
+
+  children {
+    nodes {
+      id
+      name
+      slug
+      image {
+        sourceUrl
+      }
+    }
+  }
+}
             pageInfo {
               hasNextPage
               endCursor
@@ -531,66 +544,105 @@ const CategoryPage = ({ slug = null }) => {
       },
       body: JSON.stringify({
         query: `
-        query GetCategory($slug: String!) {
-          productCategories(where: { slug: [$slug] }) {
-            nodes {
-              id
-              name
-              slug
-              description
-              image {
-                sourceUrl
-              }
-              children {
-                nodes {
-                  id
-                  name
-                  slug
-                  image {
-                    sourceUrl
-                  }
-                }
-              }
-            }
+query GetCategory($slug: String!) {
+  productCategories(where: { slug: [$slug] }) {
+    nodes {
+      id
+      name
+slug
+
+seo {
+  title
+  metaDesc
+  canonical
+  opengraphTitle
+  opengraphDescription
+  opengraphImage {
+    sourceUrl
+  }
+}
+
+description
+
+      image {
+        sourceUrl
+      }
+
+      children {
+        nodes {
+          id
+          name
+          slug
+          image {
+            sourceUrl
           }
         }
+      }
+    }
+  }
+}
         `,
         variables: {
           slug: effectiveSlug
         }
       }),
     })
-      .then((res) => res.json())
-      .then((res) => {
-        const cat = res?.data?.productCategories?.nodes?.[0];
-        if (cat) {
-          setCategoryName(cat.name);
-          const description = cat.description || "";
-          setCategoryDescription(description);
-          
-          const parsedFAQs = parseFAQsFromDescription(description);
-          setFaqData(parsedFAQs);
-          setDescriptionWithoutFAQ(removeFAQFromDescription(description));
-          setSubCategories(cat.children?.nodes || []);
-        } else {
-          setCategoryName(effectiveSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-        }
+.then(async (response) => {
+  console.log("STATUS:", response.status);
+  console.log("OK:", response.ok);
 
-        setCategoryLoaded(true);
-        setLoading(false);
-        setIsFirstLoad(false);
-      })
-      .catch(() => {
-        setCategoryLoaded(true);
-        setLoading(false);
-        setIsFirstLoad(false);
-      });
+  const text = await response.text();
+  console.log("RAW RESPONSE:", text);
+
+  return text ? JSON.parse(text) : {};
+})
+.then((res) => {
+  console.log("CATEGORY RESPONSE", JSON.stringify(res, null, 2));
+
+  const cat = res?.data?.productCategories?.nodes?.[0];
+  console.log("CATEGORY SEO:", cat?.seo);
+  console.log("CATEGORY SEO", cat?.seo);
+
+  if (cat) {
+    setCategoryName(cat.name);
+    const description = cat.description || "";
+    setCategoryDescription(description);
+
+    const parsedFAQs = parseFAQsFromDescription(description);
+    setFaqData(parsedFAQs);
+    setDescriptionWithoutFAQ(removeFAQFromDescription(description));
+    setSubCategories(cat.children?.nodes || []);
+  } else {
+    setCategoryName(
+      effectiveSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    );
+  }
+
+  setCategoryLoaded(true);
+  setLoading(false);
+  setIsFirstLoad(false);
+})
   }, [effectiveSlug]);
 
   // Fetch products function
   const fetchProducts = (cursor = null, page = 1) => {
     setLoading(true);
-
+console.log(`
+query GetCategory($slug: String!) {
+  productCategories(where: { slug: [$slug] }) {
+    nodes {
+      id
+      name
+      slug
+      seo {
+        title
+        metaDesc
+        canonical
+      }
+    }
+  }
+}
+`);
     fetch(API_URL, {
       method: "POST",
       headers: {

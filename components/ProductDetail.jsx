@@ -30,7 +30,18 @@ const ProductDetail = ({ slug }) => {
 body: JSON.stringify({
   query: `
 {
-  product(id: "${slug}", idType: SLUG) {
+ product(id: "${slug}", idType: SLUG) {
+  seo {
+    title
+    metaDesc
+    canonical
+    opengraphTitle
+    opengraphDescription
+  }
+
+  id
+  name
+  description
     ... on SimpleProduct {
       id
       name
