@@ -9,7 +9,11 @@ export async function GET() {
   </sitemap>
 
   <sitemap>
-    <loc>${SITE_URL}/blog-sitemap.xml</loc>
+    <loc>${SITE_URL}/post-sitemap.xml</loc>
+  </sitemap>
+
+  <sitemap>
+    <loc>${SITE_URL}/category-sitemap.xml</loc>
   </sitemap>
 
   <sitemap>
@@ -17,7 +21,7 @@ export async function GET() {
   </sitemap>
 
   <sitemap>
-    <loc>${SITE_URL}/category-sitemap.xml</loc>
+    <loc>${SITE_URL}/product_cat-sitemap.xml</loc>
   </sitemap>
 
 </sitemapindex>`;
