@@ -1,33 +1,75 @@
 const API_URL = "https://api.jcblautomoto.com/graphql";
 const SITE_URL = "https://www.jcblautomoto.com";
 
-export async function GET() {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-        query {
-          posts(first: 1000) {
-            nodes {
-              uri
-              modified
+async function getAllPosts() {
+  const allPosts: any[] = [];
+
+  let after: string | null = null;
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 3600 },
+      body: JSON.stringify({
+        query: `
+          query GetPosts($after: String) {
+            posts(first: 100, after: $after) {
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+              nodes {
+                uri
+                modified
+              }
             }
           }
-        }
-      `,
-    }),
-    next: { revalidate: 3600 },
-  });
+        `,
+        variables: {
+          after,
+        },
+      }),
+    });
 
-  const { data } = await res.json();
+    const json = await res.json();
 
-  const urls = data.posts.nodes
-    .filter((post: any) => post.uri)
+    if (json.errors) {
+      console.error(json.errors);
+      break;
+    }
+
+    const { nodes, pageInfo } = json.data.posts;
+
+    allPosts.push(...nodes);
+
+    console.log(
+      `Fetched ${nodes.length}, Total: ${allPosts.length}`
+    );
+
+    hasNextPage = pageInfo.hasNextPage;
+    after = pageInfo.endCursor;
+
+    // Safety check
+    if (hasNextPage && !after) {
+      console.warn("Pagination stopped because endCursor is null.");
+      break;
+    }
+  }
+
+  return allPosts;
+}
+
+export async function GET() {
+  const posts = await getAllPosts();
+
+  const urls = posts
+    .filter((post) => post.uri)
     .map(
-      (post: any) => `
+      (post) => `
   <url>
     <loc>${SITE_URL}${post.uri}</loc>
     <lastmod>${post.modified}</lastmod>
