@@ -30,7 +30,7 @@ export async function GET() {
       (page: any) => `
   <url>
     <loc>${SITE_URL}${page.uri}</loc>
-    <lastmod>${page.modified}</lastmod>
+   <lastmod>${page.modified.split("T")[0]}</lastmod>
   </url>`
     )
     .join("");

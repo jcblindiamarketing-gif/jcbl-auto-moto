@@ -108,7 +108,7 @@ export async function GET() {
         (product) => `
   <url>
     <loc>${SITE_URL}${product.uri}</loc>
-    <lastmod>${product.modified}</lastmod>
+   <lastmod>${product.modified.split("T")[0]}</lastmod>
   </url>`
       )
       .join("");

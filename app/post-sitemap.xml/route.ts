@@ -75,7 +75,7 @@ export async function GET() {
       (post) => `
   <url>
     <loc>${SITE_URL}${post.uri}</loc>
-    <lastmod>${post.modified}</lastmod>
+   <lastmod>${post.modified.split("T")[0]}</lastmod>
   </url>`
     )
     .join("");
