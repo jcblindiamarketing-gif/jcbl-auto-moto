@@ -1,7 +1,7 @@
 const WP_GRAPHQL = "https://api.jcblautomoto.com/graphql";
 
 const query = `
-query GetPostSEO($uri: ID!) {
+query GetPostSEO($uri: ID!) { 
   post(id: $uri, idType: URI) {
     seo {
       title
