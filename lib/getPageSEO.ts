@@ -20,19 +20,29 @@ export async function getPageSEO(uri: string) {
     }
   `;
 
-  const res = await fetch(WP_GRAPHQL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    next: { revalidate: 60 },
-    body: JSON.stringify({
-      query,
-      variables: { uri },
-    }),
-  });
+  try {
+    const res = await fetch(WP_GRAPHQL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 60 },
+      body: JSON.stringify({
+        query,
+        variables: { uri },
+      }),
+    });
 
-  const json = await res.json();
+    if (!res.ok) {
+      console.error(`GraphQL request failed: ${res.status}`);
+      return null;
+    }
 
-  return json?.data?.page?.seo ?? null;
+    const json = await res.json();
+
+    return json?.data?.page?.seo ?? null;
+  } catch (error) {
+    console.error("getPageSEO failed:", error);
+    return null;
+  }
 }
