@@ -1,14 +1,33 @@
 const API_URL = "https://api.jcblautomoto.com/graphql";
+const SITE_URL = "https://www.jcblautomoto.com";
 
-async function getAllProducts() {
-  const allProducts: any[] = [];
+type ProductNode = {
+  uri: string;
+  modified: string;
+};
+
+type ProductsResponse = {
+  data: {
+    products: {
+      nodes: ProductNode[];
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string | null;
+      };
+    };
+  };
+  errors?: unknown;
+};
+
+async function getAllProducts(): Promise<ProductNode[]> {
+  const allProducts: ProductNode[] = [];
 
   let after: string | null = null;
   let hasNextPage = true;
   let previousCursor: string | null = null;
 
   while (hasNextPage) {
-    const res = await fetch(API_URL, {
+    const response: Response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,23 +70,22 @@ async function getAllProducts() {
       }),
     });
 
-    const json = await res.json();
+    if (!response.ok) {
+      throw new Error(`GraphQL request failed: ${response.status}`);
+    }
 
-    if (json.errors) {
-      console.error(json.errors);
+    const result = (await response.json()) as ProductsResponse;
+
+    if (result.errors) {
+      console.error(result.errors);
       break;
     }
 
-    const { nodes, pageInfo } = json.data.products;
+    const nodes = result.data.products.nodes;
+    const pageInfo = result.data.products.pageInfo;
 
     allProducts.push(...nodes);
 
-    console.log("Fetched:", nodes.length);
-    console.log("Total:", allProducts.length);
-    console.log("hasNextPage:", pageInfo.hasNextPage);
-    console.log("endCursor:", pageInfo.endCursor);
-
-    // Stop if the cursor doesn't move forward
     if (pageInfo.endCursor === previousCursor) {
       console.warn("Cursor did not advance. Stopping pagination.");
       break;
@@ -78,7 +96,38 @@ async function getAllProducts() {
     hasNextPage = pageInfo.hasNextPage;
   }
 
-  console.log("Final Product Count:", allProducts.length);
-
   return allProducts;
+}
+
+export async function GET() {
+  try {
+    const products = await getAllProducts();
+
+    const urls = products
+      .map(
+        (product) => `
+  <url>
+    <loc>${SITE_URL}${product.uri}</loc>
+    <lastmod>${product.modified}</lastmod>
+  </url>`
+      )
+      .join("");
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+
+    return new Response(xml, {
+      headers: {
+        "Content-Type": "application/xml",
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    return new Response("Failed to generate sitemap", {
+      status: 500,
+    });
+  }
 }

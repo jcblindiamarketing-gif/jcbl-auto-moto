@@ -8,7 +8,7 @@ async function getAllPosts() {
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const res = await fetch(API_URL, {
+   const res: Response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,15 +35,18 @@ async function getAllPosts() {
       }),
     });
 
-    const json = await res.json();
+   const json: any = await res.json();
 
     if (json.errors) {
       console.error(json.errors);
       break;
     }
 
-    const { nodes, pageInfo } = json.data.posts;
-
+  const nodes: any[] = json.data.posts.nodes;
+const pageInfo: {
+  hasNextPage: boolean;
+  endCursor: string | null;
+} = json.data.posts.pageInfo;
     allPosts.push(...nodes);
 
     console.log(
