@@ -101,27 +101,25 @@ const BlogPost = ({ slug }) => {
   }, []);
 
   // Show loading state
-  if (loading) {
-    return (
-      <>
-        <Breadcrumb title="Loading..." />
-        <div className="container blog-layout">
-          <div className="blog-main">
-            <div className="img-skeleton"></div>
-            <div className="text-skeleton title"></div>
-            <div className="content-skeleton"></div>
-            <div className="content-skeleton"></div>
-          </div>
-          <div className="blog-sidebar">
-            <h3>Latest Blogs</h3>
-            <div className="sidebar-skeleton"></div>
-            <div className="sidebar-skeleton"></div>
-            <div className="sidebar-skeleton"></div>
-          </div>
-        </div>
-      </>
-    );
-  }
+if (loading) {
+  return (
+    <div className="container blog-layout">
+      <div className="blog-main">
+        <div className="img-skeleton"></div>
+        <div className="text-skeleton title"></div>
+        <div className="content-skeleton"></div>
+        <div className="content-skeleton"></div>
+      </div>
+
+      <div className="blog-sidebar">
+        <h3>Latest Blogs</h3>
+        <div className="sidebar-skeleton"></div>
+        <div className="sidebar-skeleton"></div>
+        <div className="sidebar-skeleton"></div>
+      </div>
+    </div>
+  );
+}
 
   // Show error state
   if (error || !post) {
