@@ -3,10 +3,10 @@ import { getCategories } from "@/lib/getCategories";
 import { getYoastSEO } from "@/lib/yoast";
 
 export async function generateMetadata() {
-  // 👇 Replace with your actual frontend URL
-  const seo = await getYoastSEO("https://jcblautomoto.com");
+  // Fetch homepage SEO from the WordPress site URL
+  const seo = await getYoastSEO("https://api.jcblautomoto.com/");
 
-  if (!seo) {
+  if (!seo || !seo.json) {
     return {
       title: "JCBL Auto Moto",
       description: "",
@@ -18,7 +18,7 @@ export async function generateMetadata() {
     description: seo.json.description,
 
     alternates: {
-      canonical: seo.json.canonical,
+      canonical: "https://www.jcblautomoto.com/",
     },
 
     robots: seo.json.robots,
@@ -26,11 +26,13 @@ export async function generateMetadata() {
     openGraph: {
       title: seo.json.og_title,
       description: seo.json.og_description,
+      url: "https://www.jcblautomoto.com/",
       siteName: seo.json.og_site_name,
+      type: "website",
     },
 
     twitter: {
-      card: seo.json.twitter_card,
+      card: seo.json.twitter_card || "summary_large_image",
     },
   };
 }
