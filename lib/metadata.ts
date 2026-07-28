@@ -3,6 +3,9 @@ import { getProductSEO } from "@/lib/getProductSEO";
 import { getCategorySEO } from "@/lib/getCategorySEO";
 import { getPostSEO } from "@/lib/getPostSEO";
 
+const WORDPRESS_URL = "https://api.jcblautomoto.com";
+const FRONTEND_URL = "https://www.jcblautomoto.com";
+
 export async function generateSEOMetadata(
   uri: string,
   type: "page" | "product" | "category" | "post" = "page"
@@ -29,6 +32,8 @@ export async function generateSEOMetadata(
       break;
   }
 
+  console.log("Canonical from WP:", seo?.canonical);
+
   if (!seo) {
     return {
       title: "JCBL Auto Moto",
@@ -36,12 +41,18 @@ export async function generateSEOMetadata(
     };
   }
 
+  const canonical = seo.canonical
+    ? seo.canonical.replace(WORDPRESS_URL, FRONTEND_URL)
+    : undefined;
+
   return {
     title: seo.title,
     description: seo.metaDesc,
+
     alternates: {
-      canonical: seo.canonical,
+      canonical,
     },
+
     openGraph: {
       title: seo.opengraphTitle,
       description: seo.opengraphDescription,
