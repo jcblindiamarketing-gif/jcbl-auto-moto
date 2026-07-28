@@ -1,7 +1,13 @@
 :root {
   --nav-height: 72px;
 }
-
+.breadcrumb-title {
+  display: block;
+  font-size: 40px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
 /* MAIN SECTION */
 .breadcrumb-section {
   position: relative;

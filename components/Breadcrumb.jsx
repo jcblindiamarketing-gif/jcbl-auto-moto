@@ -18,7 +18,7 @@ const Breadcrumb = ({ title }) => {
       <div className="overlay"></div>
 
       <div className="container breadcrumb-content">
-        <h1>{title}</h1>
+       <span className="breadcrumb-title">{title}</span>
 
         <div className="breadcrumb-links">
           <Link href="/">Home</Link>
