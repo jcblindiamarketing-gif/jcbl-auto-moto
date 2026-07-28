@@ -51,6 +51,10 @@ const latestPosts = await latestRes.json();
 const post = posts[0];
 
 post.cleanedContent = post.content.rendered
+  .replace(
+    /https:\/\/api\.jcblautomoto\.com/g,
+    "https://www.jcblautomoto.com"
+  )
   .replace(/overflow\s*:\s*hidden/gi, "overflow:visible")
   .replace(/height\s*:\s*100vh/gi, "height:auto")
   .replace(/max-height\s*:\s*\d+px/gi, "max-height:none");
