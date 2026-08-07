@@ -92,7 +92,39 @@ function Header() {
     { id: "honda", name: "Honda", slug: "honda", parentId: "car-spare-parts" },
     { id: "nissan", name: "Nissan", slug: "nissan", parentId: "car-spare-parts" }
   ];
-
+// Motorcycle Brands
+const motorcycleBrands = [
+  {
+    id: "bajaj",
+    name: "Bajaj",
+    slug: "bajaj",
+    parentId: "motorcycle-spare-parts",
+  },
+  {
+    id: "hero",
+    name: "Hero",
+    slug: "hero",
+    parentId: "motorcycle-spare-parts",
+  },
+  {
+    id: "honda",
+    name: "Honda",
+    slug: "honda-motorcycle-spare-parts", // Only Honda changed
+    parentId: "motorcycle-spare-parts",
+  },
+  {
+    id: "tvs",
+    name: "TVS",
+    slug: "tvs",
+    parentId: "motorcycle-spare-parts",
+  },
+  {
+    id: "yamaha",
+    name: "Yamaha",
+    slug: "yamaha",
+    parentId: "motorcycle-spare-parts",
+  },
+];
   // STATIC GRANDCHILDREN (Car Models)
   const carModels = {
     hyundai: [
@@ -155,6 +187,58 @@ function Header() {
     honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
+
+  const motorcycleModels = {
+  bajaj: [
+    "Avenger Vibrant",
+    "Boxer/KB4S",
+    "Calibar",
+    "CT-100",
+    "Discover",
+    "Platina",
+    "Pulsar",
+    "XCD",
+  ],
+
+  hero: [
+    "CD DLX",
+    "Glamour",
+    "Hunk Achiever",
+    "Karizma",
+    "Passion",
+    "Smart/Ambition",
+    "Splendor",
+  ],
+
+  honda: [
+    "CBZ/CB Trigger",
+    "Dream Yuga",
+    "Livo",
+    "Shine",
+    "Stunner",
+    "Twister",
+    "Unicorn",
+  ],
+
+  tvs: [
+    "Apache",
+    "Centra",
+    "Fiero",
+    "MAX-100/Phoenix",
+    "Star City",
+    "Victor",
+  ],
+
+  yamaha: [
+    "Crux",
+    "FZ",
+    "Libero",
+    "R15/Gladiator",
+    "RX-100/Saluto",
+    "SZF/Fazer",
+  ],
+};
+
 const batteryGrandChildren = {
   "auto-starting": [
     {
@@ -241,15 +325,21 @@ const batterySubs = [
 ];
 
   // Get children for a parent category
-  const getChildrenForParent = (parentId, parentName) => {
-    if (parentName === "Car Spare Parts") {
-      return carBrands;
-    }
-    if (parentName === "Batteries") {
-      return batterySubs;
-    }
-    return [];
-  };
+const getChildrenForParent = (parentId, parentName) => {
+  if (parentName === "Car Spare Parts") {
+    return carBrands;
+  }
+
+if (parentName === "Motorcycle Spare Parts") {
+    return motorcycleBrands;
+}
+
+  if (parentName === "Batteries") {
+    return batterySubs;
+  }
+
+  return [];
+};
 
   // Check if a child has grandchildren
 const hasGrandChildren = (parentName, childId) => {
@@ -276,7 +366,17 @@ const getGrandChildren = (parentName, childId) => {
         }));
 
     }
+if (parentName === "Motorcycle Spare Parts") {
 
+    return (motorcycleModels[childId] || []).map(model => ({
+        id: model,
+        name: model,
+        slug: model
+            .toLowerCase()
+            .replace(/\//g, "-")
+            .replace(/\s+/g, "-")
+    }));
+}
     if(parentName === "Batteries"){
 
         return batteryGrandChildren[childId].map((item,index)=>({
