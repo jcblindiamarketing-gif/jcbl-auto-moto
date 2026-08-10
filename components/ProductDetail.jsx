@@ -177,7 +177,7 @@ const productSpecifications = product?.metaData?.find(
                 </p>
               )}
 
-       <Link href="/contact">
+       <Link href="/contact-us">
   <button className="btn-blue btn">Inquire Now</button>
 </Link>
             </div>
