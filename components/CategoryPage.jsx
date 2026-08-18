@@ -473,11 +473,11 @@ if (!effectiveSlug) {
           <p>Explore our product categories</p>
         </div>
       </section>
-
-      <CategorySection
-        categories={allCategories}
-        openCatalogue={() => {}}
-      />
+<CategorySection
+  categories={allCategories}
+  openCatalogue={() => {}}
+  hideCatalogueButton={true}
+/>
     </>
   );
 }

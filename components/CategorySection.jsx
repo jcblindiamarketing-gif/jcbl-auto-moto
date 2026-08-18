@@ -8,7 +8,8 @@ import "./CategorySection.css";
 
 export default function CategorySection({
   categories,
-  openCatalogue
+  openCatalogue,
+  hideCatalogueButton = false,
 }) {
   // const [categories, setCategories] = useState([]);
   // const [loading, setLoading] = useState(true);
@@ -144,9 +145,11 @@ console.log(
         <div className="category-header">
           <h2>Search By Category</h2>
 
-          <button onClick={openCatalogue} className="btn btn-blue">
-            Download Catalogue
-          </button>
+      {!hideCatalogueButton && (
+  <button onClick={openCatalogue} className="btn btn-blue">
+    Download Catalogue
+  </button>
+)}
         </div>
 
        <div className="categories-grid">
