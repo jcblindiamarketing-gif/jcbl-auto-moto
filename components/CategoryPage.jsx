@@ -10,7 +10,7 @@ import ContactForm from "./ContactForm";
 import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from "react-icons/fa";
 import 'swiper/css';
 import { usePathname } from "next/navigation";
-
+import CategorySection from "./CategorySection";
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
@@ -227,34 +227,45 @@ const PackagingSlider = ({ images }) => {
  * @param {{ slug?: string | null }} props
  */
 const CategoryPage = ({ slug = null }) => {
-    const pathname = usePathname();
+  const pathname = usePathname();
+
+const allowedSlugsInOrder = [
+  "car-spare-parts",
+  "chrome-parts",
+  "motorcycle-spare-parts",
+  "motorcycle-helmets",
+  "heavy-machinery-parts",
+  "tractor-part",
+  "lubricants-engine-oil",
+  "car-alloy-wheels",
+  "batteries",
+];
+
   // Ensure slug is properly handled
-  const effectiveSlug = slug || null;
-  
-  const [products, setProducts] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [subCategories, setSubCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [categoryLoaded, setCategoryLoaded] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [cursorStack, setCursorStack] = useState([null]);
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [categoryDescription, setCategoryDescription] = useState("");
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [faqData, setFaqData] = useState([]);
-  const [descriptionWithoutFAQ, setDescriptionWithoutFAQ] = useState("");
-  
-  // States for "All Categories" view
-  const [allCategories, setAllCategories] = useState([]);
-  const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
-  const [allCategoriesPage, setAllCategoriesPage] = useState(1);
-  const [allCategoriesCursorStack, setAllCategoriesCursorStack] = useState([null]);
-  const [allCategoriesHasNext, setAllCategoriesHasNext] = useState(true);
+ const effectiveSlug = slug || null;
 
-  const limit = 10;
+const [products, setProducts] = useState([]);
+const [categoryName, setCategoryName] = useState("");
+const [subCategories, setSubCategories] = useState([]);
+const [loading, setLoading] = useState(true);
+const [categoryLoaded, setCategoryLoaded] = useState(false);
+const [currentPage, setCurrentPage] = useState(1);
+const [cursorStack, setCursorStack] = useState([null]);
+const [hasNextPage, setHasNextPage] = useState(true);
+const [categoryDescription, setCategoryDescription] = useState("");
+const [isFirstLoad, setIsFirstLoad] = useState(true);
+const [faqData, setFaqData] = useState([]);
+const [descriptionWithoutFAQ, setDescriptionWithoutFAQ] = useState("");
 
+// States for "All Categories" view
+const [allCategories, setAllCategories] = useState([]);
+const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
+const [allCategoriesPage, setAllCategoriesPage] = useState(1);
+const [allCategoriesCursorStack, setAllCategoriesCursorStack] = useState([null]);
+const [allCategoriesHasNext, setAllCategoriesHasNext] = useState(true);
+const limit = 100;
 const packagingImages = [
-  "/assets/images/packaging_img_2.webp",
+  "/assets/images/packaging_img_2.webp",  
   "/assets/images/packaging_img_3.webp",
   "/assets/images/packaging_img_4.webp",
   "/assets/images/packaging_img_5.webp",
@@ -306,98 +317,130 @@ const packagingImages = [
   };
 
   // Fetch all categories (for the "All Categories" view)
-  const fetchAllCategories = (cursor = null, page = 1) => {
-    setLoading(true);
-    setIsAllCategoriesView(true);
+const fetchAllCategories = async () => {
+  setLoading(true);
+  setIsAllCategoriesView(true);
 
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-        query GetAllCategories($first: Int!, $after: String) {
-          productCategories(
-            first: $first
-            after: $after
-            where: { 
-              parent: 0,
-              hideEmpty: true
+  let allCategoriesFromWP = [];
+  let hasNextPage = true;
+  let after = null;
+
+  try {
+    while (hasNextPage) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+            query GetAllCategories($first: Int!, $after: String) {
+              productCategories(
+                first: $first
+                after: $after
+                where: {
+                  hideEmpty: false
+                }
+              ) {
+                nodes {
+                  id
+                  name
+                  slug
+                  description
+
+                  image {
+                    sourceUrl
+                  }
+
+                  children {
+                    nodes {
+                      id
+                      name
+                      slug
+
+                      image {
+                        sourceUrl
+                      }
+                    }
+                  }
+                }
+
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
             }
-          ) {
-          nodes {
-  id
-  name
-  slug
-
-  seo {
-    title
-    metaDesc
-    canonical
-    opengraphTitle
-    opengraphDescription
-    opengraphImage {
-      sourceUrl
-    }
-  }
-
-  description
-
-  image {
-    sourceUrl
-  }
-
-  children {
-    nodes {
-      id
-      name
-      slug
-      image {
-        sourceUrl
-      }
-    }
-  }
-}
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-          }
-        }
-        `,
-        variables: {
-          first: limit,
-          after: cursor
-        }
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        const data = res?.data?.productCategories;
-        const categoriesData = data?.nodes || [];
-        
-        setAllCategories(categoriesData);
-        setAllCategoriesHasNext(data?.pageInfo?.hasNextPage || false);
-
-        if (page === allCategoriesCursorStack.length) {
-          setAllCategoriesCursorStack((prev) => [
-            ...prev,
-            data?.pageInfo?.endCursor,
-          ]);
-        }
-
-        setLoading(false);
-        setIsFirstLoad(false);
-        setCategoryLoaded(true);
-      })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-        setLoading(false);
-        setIsFirstLoad(false);
-        setCategoryLoaded(true);
+          `,
+          variables: {
+            first: 100,
+            after,
+          },
+        }),
       });
-  };
+
+      const json = await response.json();
+
+      const data = json?.data?.productCategories;
+
+      const nodes = data?.nodes || [];
+
+      allCategoriesFromWP = [
+        ...allCategoriesFromWP,
+        ...nodes,
+      ];
+
+      hasNextPage = data?.pageInfo?.hasNextPage || false;
+
+      after = data?.pageInfo?.endCursor || null;
+    }
+
+    console.log(
+      "TOTAL WORDPRESS CATEGORIES:",
+      allCategoriesFromWP.length
+    );
+
+    const filteredCategories = allCategoriesFromWP
+      .filter((cat) => {
+        const slug = cat?.slug?.toLowerCase()?.trim();
+
+        return allowedSlugsInOrder.includes(slug);
+      })
+      .sort((a, b) => {
+        const slugA = a?.slug?.toLowerCase()?.trim();
+        const slugB = b?.slug?.toLowerCase()?.trim();
+
+        return (
+          allowedSlugsInOrder.indexOf(slugA) -
+          allowedSlugsInOrder.indexOf(slugB)
+        );
+      });
+
+    console.log(
+      "FINAL CATEGORY LIST:",
+      filteredCategories.map((cat) => ({
+        name: cat.name,
+        slug: cat.slug,
+      }))
+    );
+
+    setAllCategories(filteredCategories);
+
+    setLoading(false);
+    setIsFirstLoad(false);
+    setCategoryLoaded(true);
+
+  } catch (error) {
+    console.error(
+      "Error fetching categories:",
+      error
+    );
+
+    setLoading(false);
+    setIsFirstLoad(false);
+    setCategoryLoaded(true);
+  }
+};
 
   // Handle "All Categories" page change
   const handleAllCategoriesPageChange = (page) => {
@@ -414,115 +457,21 @@ const packagingImages = [
     }
   }, [effectiveSlug]);
 
-  // Show skeleton while loading for all categories
-  if (!effectiveSlug) {
-    if (isFirstLoad || loading) {
-      return (
-        <section className="category-section-page">
-          <div className="container">
-            <div className="category-layout">
-              <div className="category-main-content">
-                <div className="category-header">
-                  <h1 className="category-title">All Categories</h1>
-                  <p className="category-subtitle">Loading categories...</p>
-                </div>
-                <div className="category-grid">
-                  {[...Array(10)].map((_, index) => (
-                    <CategoryCardSkeleton key={index} />
-                  ))}
-                </div>
-              </div>
-              <aside className="category-sidebar">
-                <ContactForm />
-              </aside>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    // Render all categories
+// Show CategorySection when no category slug exists
+if (!effectiveSlug) {
+  if (isFirstLoad || loading) {
     return (
-      <section className="category-section-page">
-        <div className="container">
-          <div className="category-layout">
-            <div className="category-main-content">
-              <div className="category-header">
-                <h1 className="category-title">All Categories</h1>
-                <p className="category-subtitle">
-                  {allCategories.length} Categories Available
-                </p>
-              </div>
-
-              <div className="category-grid">
-                {allCategories.map((category) => (
-                  <Link href={`/category/${category.slug}`} key={category.id}>
-                    <div className="category-card">
-                      <div className="category-image">
-                        <img
-                          loading="lazy"
-                          decoding="async"
-                          src={category.image?.sourceUrl || "/images/fallback.png"}
-                          alt={category.name}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/fallback.png";
-                          }}
-                        />
-                      </div>
-                     <Link href={`/category/${category.slug}`}>
- 
-    <h4>{category.name} </h4>
- 
-</Link>
-                      {category.children?.nodes?.length > 0 && (
-                        <p className="subcategory-count">
-                          {category.children.nodes.length} Subcategories
-                        </p>
-                      )}
-                      <button className="btn-blue btn view-btn">
-                        View Category
-                      </button>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Pagination for All Categories */}
-              {allCategories.length > 0 && (
-                <div className="pagination modern">
-                  <button
-                    className="page-nav-btn"
-                    disabled={allCategoriesPage === 1}
-                    onClick={() => handleAllCategoriesPageChange(allCategoriesPage - 1)}
-                  >
-                    <FaChevronLeft />
-                  </button>
-
-                  <span className="page-info">Page {allCategoriesPage}</span>
-
-                  <button
-                    className="page-nav-btn"
-                    disabled={!allCategoriesHasNext}
-                    onClick={() => handleAllCategoriesPageChange(allCategoriesPage + 1)}
-                  >
-                    <FaChevronRight />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <aside className="category-sidebar">
-              <ContactForm />
-            </aside>
-          </div>
-
-          {/* Packaging Slider */}
-          <PackagingSlider images={packagingImages} />
-        </div>
-      </section>
+      <CategoryPageSkeleton type="categories" />
     );
   }
+
+  return (
+<CategorySection
+  categories={allCategories}
+  openCatalogue={() => {}}
+/>
+  );
+}
 
   // ============================================
   // EXISTING CATEGORY VIEW CODE (with slug)
