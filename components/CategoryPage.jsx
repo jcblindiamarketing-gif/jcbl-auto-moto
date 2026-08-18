@@ -466,13 +466,21 @@ if (!effectiveSlug) {
   }
 
   return (
-<CategorySection
-  categories={allCategories}
-  openCatalogue={() => {}}
-/>
+    <>
+      <section className="category-page-heading">
+        <div className="container">
+          <h1>All Categories</h1>
+          <p>Explore our product categories</p>
+        </div>
+      </section>
+
+      <CategorySection
+        categories={allCategories}
+        openCatalogue={() => {}}
+      />
+    </>
   );
 }
-
   // ============================================
   // EXISTING CATEGORY VIEW CODE (with slug)
   // ============================================
