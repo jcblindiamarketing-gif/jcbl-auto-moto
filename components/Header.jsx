@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { HiMenu, HiX, HiChevronRight, HiPhone, HiMail } from "react-icons/hi";
 import "./Header.css";
-import logo from "../assets/images/JCBL-logo-header.png";
+
 import SearchBar from "./SearchBar";
 import Image from "next/image";
 
@@ -429,13 +429,13 @@ if (parentName === "Motorcycle Spare Parts") {
           {/* LOGO */}
           <div className="logo">
             <Link href="/">
-              <Image
-                src={logo}
-                alt="JCBL Logo"
-                width={80}
-                height={80}
-                priority
-              />            
+         <Image
+  src="/images/JCBL-logo-header.png"
+  alt="JCBL Logo"
+  width={80}
+  height={80}
+  priority
+/>
             </Link>
           </div>
 
