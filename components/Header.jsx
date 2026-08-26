@@ -129,7 +129,6 @@ const motorcycleBrands = [
   const carModels = {
     hyundai: [
       "Accent", 
-      "Accord",
       "Elantra Fluidic", 
       "Elantra", 
       "Eon", 
@@ -184,7 +183,7 @@ const motorcycleBrands = [
     ],
     chevrolet: ["Beat"],
     renault: ["Kwid","Duster"],
-    honda: ["Civic", "Honda City", "Amaze", "Honda Jazz"],
+    honda: ["Accord","Civic", "Honda City", "Amaze", "Honda Jazz"],
     nissan: ["Magnite", "Sunny", "Micra"]
   };
 
@@ -235,7 +234,7 @@ const motorcycleBrands = [
     "Libero",
     "R15/Gladiator",
     "RX-100/Saluto",
-    "SZF/Fazer",
+    "SZR/Fazer",
   ],
 };
 

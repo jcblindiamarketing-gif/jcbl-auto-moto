@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -19,8 +20,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "JCBL Auto Moto",
   description: "JCBL India Auto Moto",
+
   icons: {
     icon: "/icon.png",
+  },
+
+  // Google Search Console verification
+  verification: {
+    google: "uB4qkMK2ZQHpwJNlzAHbg4QukX24V0nTY6xDY3X_TGk",
   },
 };
 
@@ -39,37 +46,49 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-full flex flex-col"
       >
+        {/* Header */}
         <Header />
 
+        {/* Main Content */}
         <main className="flex-1">
           {children}
         </main>
 
+        {/* Footer CTA */}
         <FooterCTA />
 
+        {/* Footer */}
         <Footer />
-        <div id="google_translate_element" style={{ display: "none" }} />
 
-<Script id="google-translate-init" strategy="afterInteractive">
-  {`
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement(
-        {
-          pageLanguage: 'en',
-          autoDisplay: false
-        },
-        'google_translate_element'
-      );
-    }
-    window.googleTranslateElementInit = googleTranslateElementInit;
-  `}
-</Script>
+        {/* Google Translate */}
+        <div
+          id="google_translate_element"
+          style={{ display: "none" }}
+        />
 
-<Script
-  src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-  strategy="afterInteractive"
-/>
+        <Script id="google-translate-init" strategy="afterInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement(
+                {
+                  pageLanguage: "en",
+                  autoDisplay: false
+                },
+                "google_translate_element"
+              );
+            }
+
+            window.googleTranslateElementInit =
+              googleTranslateElementInit;
+          `}
+        </Script>
+
+        <Script
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
 }
+
