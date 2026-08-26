@@ -29,6 +29,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/wp-content/:path*",
+        destination:
+          "https://api.jcblautomoto.com/wp-content/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

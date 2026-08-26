@@ -14,6 +14,18 @@ import CategorySection from "./CategorySection";
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
+const getImageUrl = (url) => {
+  if (!url) return "";
+
+  if (url.startsWith("https://api.jcblautomoto.com")) {
+    return url.replace(
+      "https://api.jcblautomoto.com",
+      ""
+    );
+  }
+
+  return url;
+};
 // Skeleton Components
 const CategoryCardSkeleton = () => (
   <div className="category-card skeleton">
@@ -741,7 +753,10 @@ query GetCategory($slug: String!) {
     <img
       loading="lazy"
       decoding="async"
-      src={cat.image?.sourceUrl || "/images/fallback.png"}
+     src={
+  getImageUrl(cat.image?.sourceUrl) ||
+  "/images/fallback.png"
+}
       alt={cat.name}
       onError={(e) => {
         e.target.onerror = null;
@@ -812,8 +827,10 @@ query GetCategory($slug: String!) {
                       <img
                         loading="lazy"
                         decoding="async"
-                        src={product?.image?.sourceUrl || "/images/fallback.png"}
-                        alt={product.name}
+src={
+  getImageUrl(product?.image?.sourceUrl) ||
+  "/images/fallback.png"
+}                        alt={product.name}
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = "/images/fallback.png";
