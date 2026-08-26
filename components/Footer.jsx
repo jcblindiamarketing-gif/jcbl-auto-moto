@@ -14,7 +14,6 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 
-import logo from "../assets/images/JCBL-logo-header.png";
 import "./Footer.css";
 const Footer = () => {
 
@@ -37,14 +36,10 @@ const Footer = () => {
         {/* COLUMN 1 */}
         <div className="footer-left">
 
-          <Image
-            src={logo}
-            alt="JCBL Logo"
-            width={220}
-            height={80}
-            className="footer-logo"
-            priority
-          />
+        <Image
+  src="/images/JCBL-logo-header.png"
+  alt="JCBL Logo"
+/>
 
           <h3>JCBL India Auto & Moto</h3>
 
