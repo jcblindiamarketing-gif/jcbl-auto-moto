@@ -24,7 +24,7 @@ export default function CategorySection({
     "tractor-part",
     "lubricants-engine-oil",
     "batteries",
-    "car-alloy-wheels",
+
   ];
 
   const externalUrls = {

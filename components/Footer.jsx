@@ -36,11 +36,12 @@ const Footer = () => {
         {/* COLUMN 1 */}
         <div className="footer-left">
 
-        <Image
+   <Image
   src="/images/JCBL-logo-header.png"
   alt="JCBL Logo"
+  width={80}
+  height={80}
 />
-
           <h3>JCBL India Auto & Moto</h3>
 
           <p>
