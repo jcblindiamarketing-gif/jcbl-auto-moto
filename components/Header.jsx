@@ -78,7 +78,6 @@ function Header() {
   slug: "lubricants-engine-oil"
 },
     { id: "batteries", name: "Batteries", slug: "batteries" },
-    { id: "alloy-wheels", name: "Alloy Wheels", slug: "alloy-wheels" }
   ];
 
   // STATIC CHILD CATEGORIES (Car Brands)
@@ -429,12 +428,11 @@ if (parentName === "Motorcycle Spare Parts") {
           {/* LOGO */}
           <div className="logo">
             <Link href="/">
-         <Image
+     <Image
   src="/images/JCBL-logo-header.png"
   alt="JCBL Logo"
   width={80}
   height={80}
-  priority
 />
             </Link>
           </div>
