@@ -241,3 +241,127 @@ font-family: "Poppins", "Montserrat", sans-serif;
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================
+   PRODUCT IMAGE SECTION
+========================= */
+
+.product-detail-image {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Main Image */
+
+.main-product-image {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.main-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* =========================
+   GALLERY THUMBNAILS
+========================= */
+
+.product-gallery {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.gallery-item {
+  width: 85px;
+  height: 85px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.gallery-item.active {
+  border: 2px solid #005baa;
+}
+
+.gallery-item:hover {
+  border-color: #005baa;
+}
+
+/* =========================
+   IMAGE NAVIGATION
+========================= */
+
+.image-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-nav.prev {
+  left: 15px;
+}
+
+.image-nav.next {
+  right: 15px;
+}
+
+.image-nav:hover {
+  background: #005baa;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .main-product-image {
+    height: 320px;
+  }
+
+  .gallery-item {
+    width: 70px;
+    height: 70px;
+  }
+
+  .product-gallery {
+    gap: 8px;
+  }
+}

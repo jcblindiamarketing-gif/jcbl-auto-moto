@@ -65,20 +65,59 @@ function Header() {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // STATIC PARENT CATEGORIES
-  const parentCategories = [
-    { id: "car-spare-parts", name: "Car Spare Parts", slug: "car-spare-parts" },
-    { id: "chrome-parts", name: "Chrome Parts", slug: "chrome-parts" },
-    { id: "motorcycle-spare-parts", name: "Motorcycle Spare Parts", slug: "motorcycle-spare-parts" },
-    { id: "heavy-machinery-parts", name: "Heavy Machinery Parts", slug: "heavy-machinery-parts" },
-    { id: "tractor-parts", name: "Tractor Parts", slug: "tractor-part" },
-   {
-  id: "lubricants",
-  name: "Lubricants",
-  slug: "lubricants-engine-oil"
-},
-    { id: "batteries", name: "Batteries", slug: "batteries" },
-  ];
+// STATIC PARENT CATEGORIES
+
+const parentCategories = [
+  {
+    id: "car-spare-parts",
+    name: "Car Spare Parts",
+    slug: "car-spare-parts",
+  },
+
+  {
+    id: "chrome-parts",
+    name: "Chrome Parts",
+    slug: "chrome-parts",
+  },
+
+  {
+    id: "motorcycle-spare-parts",
+    name: "Motorcycle Spare Parts",
+    slug: "motorcycle-spare-parts",
+  },
+
+  // NEW: THREE WHEELER SPARE PARTS
+
+  {
+    id: "three-wheeler-spare-parts",
+    name: "Three Wheeler Spare Parts",
+    slug: "three-wheeler-spare-parts",
+  },
+
+  {
+    id: "heavy-machinery-parts",
+    name: "Heavy Machinery Parts",
+    slug: "heavy-machinery-parts",
+  },
+
+  {
+    id: "tractor-parts",
+    name: "Tractor Parts",
+    slug: "tractor-part",
+  },
+
+  {
+    id: "lubricants",
+    name: "Lubricants",
+    slug: "lubricants-engine-oil",
+  },
+
+  {
+    id: "batteries",
+    name: "Batteries",
+    slug: "batteries",
+  },
+];
 
   // STATIC CHILD CATEGORIES (Car Brands)
   const carBrands = [
@@ -122,6 +161,38 @@ const motorcycleBrands = [
     name: "Yamaha",
     slug: "yamaha",
     parentId: "motorcycle-spare-parts",
+  },
+];
+
+// THREE WHEELER BRANDS / MODELS
+
+const threeWheelerBrands = [
+  {
+    id: "bajaj-compact-4s",
+    name: "BAJAJ COMPACT 4S",
+    slug: "bajaj-compact-4s",
+    parentId: "three-wheeler-spare-parts",
+  },
+
+  {
+    id: "bajaj-maxima-re-250",
+    name: "BAJAJ MAXIMA / RE 250",
+    slug: "bajaj-maxima-re-250",
+    parentId: "three-wheeler-spare-parts",
+  },
+
+  {
+    id: "piaggio-ape-city-petrol",
+    name: "PIAGGIO APE CITY PETROL",
+    slug: "piaggio-ape-city-petrol",
+    parentId: "three-wheeler-spare-parts",
+  },
+
+  {
+    id: "tvs-king",
+    name: "TVS KING",
+    slug: "tvs-king",
+    parentId: "three-wheeler-spare-parts",
   },
 ];
   // STATIC GRANDCHILDREN (Car Models)
@@ -322,15 +393,20 @@ const batterySubs = [
   },
 ];
 
-  // Get children for a parent category
 const getChildrenForParent = (parentId, parentName) => {
   if (parentName === "Car Spare Parts") {
     return carBrands;
   }
 
-if (parentName === "Motorcycle Spare Parts") {
+  if (parentName === "Motorcycle Spare Parts") {
     return motorcycleBrands;
-}
+  }
+
+  // NEW: THREE WHEELER SUBCATEGORIES
+
+  if (parentName === "Three Wheeler Spare Parts") {
+    return threeWheelerBrands;
+  }
 
   if (parentName === "Batteries") {
     return batterySubs;
