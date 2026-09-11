@@ -415,56 +415,63 @@ const getChildrenForParent = (parentId, parentName) => {
   return [];
 };
 
-  // Check if a child has grandchildren
+// Check if a child category has subcategories
 const hasGrandChildren = (parentName, childId) => {
+  if (parentName === "Car Spare Parts") {
+    return (carModels[childId] || []).length > 0;
+  }
 
-    if(parentName === "Car Spare Parts"){
-        return carModels[childId]?.length > 0;
-    }
+  if (parentName === "Motorcycle Spare Parts") {
+    return (motorcycleModels[childId] || []).length > 0;
+  }
 
-    if(parentName === "Batteries"){
-        return batteryGrandChildren[childId]?.length > 0;
-    }
+  if (parentName === "Batteries") {
+    return (batteryGrandChildren[childId] || []).length > 0;
+  }
 
-    return false;
+  return false;
 };
 
-const getGrandChildren = (parentName, childId) => {
-
-    if(parentName === "Car Spare Parts"){
-
-        return (carModels[childId] || []).map(model => ({
-            id:model,
-            name:model,
-            slug:model.toLowerCase().replace(/\s+/g,"-")
-        }));
-
-    }
-if (parentName === "Motorcycle Spare Parts") {
-
-    return (motorcycleModels[childId] || []).map(model => ({
+// Get subcategories
+  const getGrandChildren = (parentName, childId) => {
+    if (parentName === "Car Spare Parts") {
+      return (carModels[childId] || []).map((model) => ({
         id: model,
         name: model,
         slug: model
-            .toLowerCase()
-            .replace(/\//g, "-")
-            .replace(/\s+/g, "-")
-    }));
-}
-    if(parentName === "Batteries"){
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, ""),
+      }));
+    }
 
-        return batteryGrandChildren[childId].map((item,index)=>({
+    if (parentName === "Motorcycle Spare Parts") {
+      return (motorcycleModels[childId] || []).map((model) => ({
+        id: model,
+        name: model,
+        slug: model
+          .toLowerCase()
+          .trim()
+          .replace(/[\/]+/g, "-")
+          .replace(/[^a-z0-9-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, ""),
+      }));
+    }
 
-            id:index,
-            name:item.name,
-            externalUrl:item.url
-
-        }));
-
+    if (parentName === "Batteries") {
+      return (batteryGrandChildren[childId] || []).map((item, index) => ({
+        id: index,
+        name: item.name,
+        externalUrl: item.url,
+      }));
     }
 
     return [];
-};
+  };
+
 
   // Static menu items
   const menuItems = [
@@ -651,36 +658,18 @@ if (parentName === "Motorcycle Spare Parts") {
                                     (c) => c.id === activeChild
                                   );
 
-                                  if (!currentChild) {
-                                    return (
-                                      <div
-                                        key="empty"
-                                        className="no-grandchildren"
-                                      >
-                                        <p className="coming-soon">
-                                          Select a category
-                                        </p>
-                                      </div>
-                                    );
-                                  }
+                                if (!currentChild) {
+  return null;
+}
 
                                   const grandchildren = getGrandChildren(
                                     parent.name,
                                     currentChild.id
                                   );
 
-                                  if (!grandchildren.length) {
-                                    return (
-                                      <div
-                                        key="no-data"
-                                        className="no-grandchildren"
-                                      >
-                                        <p className="coming-soon">
-                                          Coming Soon...
-                                        </p>
-                                      </div>
-                                    );
-                                  }
+                            if (!grandchildren.length) {
+  return null;
+}
 
                            return grandchildren.map((grand) => (
   <Link
