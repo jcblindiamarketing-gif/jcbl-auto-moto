@@ -19,9 +19,11 @@ export async function getWordPressRedirects(): Promise<
       cache: "no-store",
     });
 
+    const contentType = response.headers.get("content-type") || "";
     const text = await response.text();
 
     console.log("WORDPRESS API STATUS:", response.status);
+    console.log("WORDPRESS API CONTENT-TYPE:", contentType);
     console.log("WORDPRESS API RESPONSE:", text.slice(0, 500));
 
     if (!response.ok) {
@@ -29,9 +31,29 @@ export async function getWordPressRedirects(): Promise<
       return [];
     }
 
-    const data = JSON.parse(text);
+    if (!contentType.toLowerCase().includes("application/json")) {
+      console.error(
+        "WordPress redirect API returned non-JSON content:",
+        contentType
+      );
+      return [];
+    }
 
-    if (!Array.isArray(data.redirects)) {
+    let data: unknown;
+
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      console.error("WordPress redirect API returned invalid JSON:", error);
+      return [];
+    }
+
+    if (
+      !data ||
+      typeof data !== "object" ||
+      !("redirects" in data) ||
+      !Array.isArray(data.redirects)
+    ) {
       console.error("Invalid redirect API format:", data);
       return [];
     }
@@ -39,7 +61,7 @@ export async function getWordPressRedirects(): Promise<
     console.log("REDIRECT COUNT:", data.redirects.length);
     console.log("REDIRECT DATA:", data.redirects);
 
-    return data.redirects;
+    return data.redirects as WordPressRedirect[];
   } catch (error) {
     console.error("WordPress redirect fetch error:", error);
     return [];
