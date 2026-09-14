@@ -1,71 +1,22 @@
-"use client"; 
+"use client";
+
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
-import { HiMenu, HiX, HiChevronRight, HiPhone, HiMail } from "react-icons/hi";
-import "./Header.css";
-
-import SearchBar from "./SearchBar";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import {
+  HiMenu,
+  HiX,
+  HiChevronRight,
+  HiPhone,
+  HiMail,
+} from "react-icons/hi";
 
-function Header() {
-  const [activeChild, setActiveChild] = useState(null);
-  const [mobileParentOpen, setMobileParentOpen] = useState(null);
-  const [mobileChildOpen, setMobileChildOpen] = useState(null);
-  const [activeCat, setActiveCat] = useState("car-spare-parts");
-  
-  useEffect(() => {
-    const activeParent = parentCategories.find(
-      (p) => p.id === activeCat
-    );
+import "./Header.css";
+import SearchBar from "./SearchBar";
 
-    if (!activeParent) return;
-
-    const children = getChildrenForParent(
-      activeParent.id,
-      activeParent.name
-    );
-
-    if (children.length > 0) {
-      setActiveChild(children[0].id);
-    }
-  }, [activeCat]);
-  
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const hoverTimeout = useRef(null);
-
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 992);
-    };
-
-    handleResize(); // set initial value
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  // Handle click outside for mobile
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!isMobile) return;
-      const isInsideMenu = e.target.closest(".dropdown.mega");
-      if (!isInsideMenu && openMenu) {
-        setOpenMenu(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, [isMobile, openMenu]);
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-// STATIC PARENT CATEGORIES
+/* =========================
+   PARENT CATEGORIES
+========================= */
 
 const parentCategories = [
   {
@@ -73,45 +24,41 @@ const parentCategories = [
     name: "Car Spare Parts",
     slug: "car-spare-parts",
   },
-
   {
     id: "chrome-parts",
     name: "Chrome Parts",
     slug: "chrome-parts",
   },
-
   {
     id: "motorcycle-spare-parts",
     name: "Motorcycle Spare Parts",
     slug: "motorcycle-spare-parts",
   },
-
-  // NEW: THREE WHEELER SPARE PARTS
-
+  {
+    id: "helmets",
+    name: "Helmet",
+    slug: "helmets",
+  },
   {
     id: "three-wheeler-spare-parts",
     name: "Three Wheeler Spare Parts",
     slug: "three-wheeler-spare-parts",
   },
-
   {
     id: "heavy-machinery-parts",
     name: "Heavy Machinery Parts",
     slug: "heavy-machinery-parts",
   },
-
   {
     id: "tractor-parts",
     name: "Tractor Parts",
     slug: "tractor-part",
   },
-
   {
     id: "lubricants",
     name: "Lubricants",
     slug: "lubricants-engine-oil",
   },
-
   {
     id: "batteries",
     name: "Batteries",
@@ -119,18 +66,65 @@ const parentCategories = [
   },
 ];
 
-  // STATIC CHILD CATEGORIES (Car Brands)
-  const carBrands = [
-    { id: "hyundai", name: "Hyundai", slug: "hyundai", parentId: "car-spare-parts" },
-    { id: "maruti-suzuki", name: "Maruti Suzuki", slug: "maruti-suzuki", parentId: "car-spare-parts" },
-    { id: "mahindra", name: "Mahindra", slug: "mahindra", parentId: "car-spare-parts" },
-    { id: "tata", name: "Tata", slug: "tata", parentId: "car-spare-parts" },
-    { id: "chevrolet", name: "Chevrolet", slug: "chevrolet", parentId: "car-spare-parts" },
-    { id: "renault", name: "Renault", slug: "renault", parentId: "car-spare-parts" },
-    { id: "honda", name: "Honda", slug: "honda", parentId: "car-spare-parts" },
-    { id: "nissan", name: "Nissan", slug: "nissan", parentId: "car-spare-parts" }
-  ];
-// Motorcycle Brands
+/* =========================
+   CAR BRANDS
+========================= */
+
+const carBrands = [
+  {
+    id: "hyundai",
+    name: "Hyundai",
+    slug: "hyundai",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "maruti-suzuki",
+    name: "Maruti Suzuki",
+    slug: "maruti-suzuki",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "mahindra",
+    name: "Mahindra",
+    slug: "mahindra",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "tata",
+    name: "Tata",
+    slug: "tata",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "chevrolet",
+    name: "Chevrolet",
+    slug: "chevrolet",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "renault",
+    name: "Renault",
+    slug: "renault",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "honda",
+    name: "Honda",
+    slug: "honda",
+    parentId: "car-spare-parts",
+  },
+  {
+    id: "nissan",
+    name: "Nissan",
+    slug: "nissan",
+    parentId: "car-spare-parts",
+  },
+];
+
+/* =========================
+   MOTORCYCLE BRANDS
+========================= */
+
 const motorcycleBrands = [
   {
     id: "bajaj",
@@ -147,7 +141,7 @@ const motorcycleBrands = [
   {
     id: "honda",
     name: "Honda",
-    slug: "honda-motorcycle-spare-parts", // Only Honda changed
+    slug: "honda-motorcycle-spare-parts",
     parentId: "motorcycle-spare-parts",
   },
   {
@@ -164,7 +158,46 @@ const motorcycleBrands = [
   },
 ];
 
-// THREE WHEELER BRANDS / MODELS
+/* =========================
+   HELMET SUBCATEGORIES
+========================= */
+
+const helmetCategories = [
+  {
+    id: "flip-up-helmets",
+    name: "Flip Up Helmets",
+    slug: "flip-up-helmets",
+    parentId: "helmets",
+  },
+  {
+    id: "full-face-helmets",
+    name: "Full Face Helmets",
+    slug: "full-face-helmets",
+    parentId: "helmets",
+  },
+  {
+    id: "kids-helmets",
+    name: "Kids Helmets",
+    slug: "kids-helmets",
+    parentId: "helmets",
+  },
+  {
+    id: "motocross-helmets",
+    name: "Motocross Helmets",
+    slug: "motocross-helmets",
+    parentId: "helmets",
+  },
+  {
+    id: "open-face-helmets",
+    name: "Open Face Helmets",
+    slug: "open-face-helmets",
+    parentId: "helmets",
+  },
+];
+
+/* =========================
+   THREE WHEELER CATEGORIES
+========================= */
 
 const threeWheelerBrands = [
   {
@@ -173,21 +206,18 @@ const threeWheelerBrands = [
     slug: "bajaj-compact-4s",
     parentId: "three-wheeler-spare-parts",
   },
-
   {
     id: "bajaj-maxima-re-250",
     name: "BAJAJ MAXIMA / RE 250",
     slug: "bajaj-maxima-re-250",
     parentId: "three-wheeler-spare-parts",
   },
-
   {
     id: "piaggio-ape-city-petrol",
     name: "PIAGGIO APE CITY PETROL",
     slug: "piaggio-ape-city-petrol",
     parentId: "three-wheeler-spare-parts",
   },
-
   {
     id: "tvs-king",
     name: "TVS KING",
@@ -195,69 +225,76 @@ const threeWheelerBrands = [
     parentId: "three-wheeler-spare-parts",
   },
 ];
-  // STATIC GRANDCHILDREN (Car Models)
-  const carModels = {
-    hyundai: [
-      "Accent", 
-      "Elantra Fluidic", 
-      "Elantra", 
-      "Eon", 
-      "Grand i10", 
-      "i20 Elite", 
-    
-      "Verna Fluidic", 
-      "Creta", 
-      "i10", 
-      "i20", 
-      "Santro Xing", 
-        "Santro", 
-      "Venue"
-    ],
-    "maruti-suzuki": [
-      "Alto", 
-      "Alto K10", 
-      "Alto 800", 
-      "Baleno", 
-      "Brezza", 
-      "Celerio", 
-      "Ciaz", 
-      "Dzire", 
-      "Ertiga", 
-      "Swift", 
-      "Swift Dzire", 
-      "Wagon R", 
-      "Zen", 
-      "Zen Estilo"
-    ],
-    mahindra: [
-      "TUV300", 
-      "XUV500", 
-      "Xylo", 
-      "Bolero", 
-      "KUV100", 
-      "XUV300", 
-      "Scorpio"
-    ],
-    tata: [
-      "Bolt",
-      "Indica",
-      "Indica Vista",
-      "Indigo",
-      "Nano",
-      "Nexon",
-      "Safari",
-      "Sumo",
-      "Tiago",
-      "Tigor",
-      "Zest"
-    ],
-    chevrolet: ["Beat"],
-    renault: ["Kwid","Duster"],
-    honda: ["Accord","Civic", "Honda City", "Amaze", "Honda Jazz"],
-    nissan: ["Magnite", "Sunny", "Micra"]
-  };
 
-  const motorcycleModels = {
+/* =========================
+   CAR MODELS
+========================= */
+
+const carModels = {
+  hyundai: [
+    "Accent",
+    "Elantra Fluidic",
+    "Elantra",
+    "Eon",
+    "Grand i10",
+    "i20 Elite",
+    "Verna Fluidic",
+    "Creta",
+    "i10",
+    "i20",
+    "Santro Xing",
+    "Santro",
+    "Venue",
+  ],
+  "maruti-suzuki": [
+    "Alto",
+    "Alto K10",
+    "Alto 800",
+    "Baleno",
+    "Brezza",
+    "Celerio",
+    "Ciaz",
+    "Dzire",
+    "Ertiga",
+    "Swift",
+    "Swift Dzire",
+    "Wagon R",
+    "Zen",
+    "Zen Estilo",
+  ],
+  mahindra: [
+    "TUV300",
+    "XUV500",
+    "Xylo",
+    "Bolero",
+    "KUV100",
+    "XUV300",
+    "Scorpio",
+  ],
+  tata: [
+    "Bolt",
+    "Indica",
+    "Indica Vista",
+    "Indigo",
+    "Nano",
+    "Nexon",
+    "Safari",
+    "Sumo",
+    "Tiago",
+    "Tigor",
+    "Zest",
+  ],
+  chevrolet: ["Beat"],
+  renault: ["Kwid", "Duster"],
+  honda: ["Accord", "Civic", "Honda City", "Amaze", "Honda Jazz"],
+  nissan: ["Magnite", "Sunny", "Micra"],
+};
+
+/* =========================
+   MOTORCYCLE MODELS
+========================= */
+
+const motorcycleModels = {
   bajaj: [
     "Avenger Vibrant",
     "Boxer/KB4S",
@@ -268,7 +305,6 @@ const threeWheelerBrands = [
     "Pulsar",
     "XCD",
   ],
-
   hero: [
     "CD DLX",
     "Glamour",
@@ -278,7 +314,6 @@ const threeWheelerBrands = [
     "Smart/Ambition",
     "Splendor",
   ],
-
   honda: [
     "CBZ/CB Trigger",
     "Dream Yuga",
@@ -288,7 +323,6 @@ const threeWheelerBrands = [
     "Twister",
     "Unicorn",
   ],
-
   tvs: [
     "Apache",
     "Centra",
@@ -297,7 +331,6 @@ const threeWheelerBrands = [
     "Star City",
     "Victor",
   ],
-
   yamaha: [
     "Crux",
     "FZ",
@@ -308,178 +341,277 @@ const threeWheelerBrands = [
   ],
 };
 
-const batteryGrandChildren = {
-  "auto-starting": [
-    {
-      name: "Low Maintenance Dry Charged",
-      url: "https://jcblbatteries.com/category/auto-starting-series/low-maintenance-dry-charged/"
-    },
-    {
-      name: "Sealed Maintenance Free Batteries",
-      url: "https://jcblbatteries.com/category/auto-starting-series/sealed-maintenance-free-batteries/"
-    },
-    {
-      name: "Start Stop Advance Series",
-      url: "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/"
-    },
-    {
-      name: "SMF BCI Series",
-      url: "https://jcblbatteries.com/product/smf-bci-series/"
-    }
-  ],
+/* =========================
+   BATTERY CATEGORIES
+========================= */
 
-  "motorcycle-starting": [
-    {
-      name: "Dry Charged",
-      url: "https://jcblbatteries.com/product/dry-charged-with-acid-bottle/"
-    },
-    {
-      name: "MF Series",
-      url: "https://jcblbatteries.com/category/motorcycle-starting-series/mf-series/"
-    },
-    {
-      name: "Gel Series",
-      url: "https://jcblbatteries.com/category/motorcycle-starting-series/gel-series/"
-    }
-  ],
-
-  "backup-application": [
-    {
-      name: "Solar / Inverter Tubular Batteries",
-      url: "https://jcblbatteries.com/product/high-performance-flooded-lead-acid-tubular-solar-inverter-batteries/"
-    },
-    {
-      name: "SMF VRLA Solar / Industrial Batteries",
-      url: "https://jcblbatteries.com/product/smf-vrla-solar-industrial-batteries/"
-    }
-  ],
-
-  "lithium-ion": [
-    {
-      name: "Residential Energy Storage",
-      url: "https://jcblbatteries.com/category/lithium-ion-batteries/residential-energy-storage-systems/"
-    },
-    {
-      name: "Replacement For VRLA AGM & Gel Batteries",
-      url: "https://jcblbatteries.com/product/replacement-for-vrla-agm-gel-batteries/"
-    },
-    {
-      name: "Start Stop Series",
-      url: "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/"
-    }
-  ]
-};
-  // Battery subcategories
 const batterySubs = [
   {
     id: "auto-starting",
     name: "Auto Starting Series",
-    externalUrl: "https://jcblbatteries.com/category/auto-starting-series/",
+    externalUrl:
+      "https://jcblbatteries.com/category/auto-starting-series/",
   },
   {
     id: "motorcycle-starting",
     name: "Motorcycle Starting Series",
-    externalUrl: "https://jcblbatteries.com/category/motorcycle-starting-series/",
+    externalUrl:
+      "https://jcblbatteries.com/category/motorcycle-starting-series/",
   },
   {
     id: "backup-application",
     name: "Backup Application Batteries",
-    externalUrl: "https://jcblbatteries.com/category/backup-applications/",
+    externalUrl:
+      "https://jcblbatteries.com/category/backup-applications/",
   },
   {
     id: "lithium-ion",
     name: "Lithium-ion Batteries",
-    externalUrl: "https://jcblbatteries.com/category/lithium-ion-batteries/",
+    externalUrl:
+      "https://jcblbatteries.com/category/lithium-ion-batteries/",
   },
 ];
 
-const getChildrenForParent = (parentId, parentName) => {
-  if (parentName === "Car Spare Parts") {
-    return carBrands;
+/* =========================
+   BATTERY GRANDCHILDREN
+========================= */
+
+const batteryGrandChildren = {
+  "auto-starting": [
+    {
+      name: "Low Maintenance Dry Charged",
+      url:
+        "https://jcblbatteries.com/category/auto-starting-series/low-maintenance-dry-charged/",
+    },
+    {
+      name: "Sealed Maintenance Free Batteries",
+      url:
+        "https://jcblbatteries.com/category/auto-starting-series/sealed-maintenance-free-batteries/",
+    },
+    {
+      name: "Start Stop Advance Series",
+      url:
+        "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/",
+    },
+    {
+      name: "SMF BCI Series",
+      url: "https://jcblbatteries.com/product/smf-bci-series/",
+    },
+  ],
+  "motorcycle-starting": [
+    {
+      name: "Dry Charged",
+      url:
+        "https://jcblbatteries.com/product/dry-charged-with-acid-bottle/",
+    },
+    {
+      name: "MF Series",
+      url:
+        "https://jcblbatteries.com/category/motorcycle-starting-series/mf-series/",
+    },
+    {
+      name: "Gel Series",
+      url:
+        "https://jcblbatteries.com/category/motorcycle-starting-series/gel-series/",
+    },
+  ],
+  "backup-application": [
+    {
+      name: "Solar / Inverter Tubular Batteries",
+      url:
+        "https://jcblbatteries.com/product/high-performance-flooded-lead-acid-tubular-solar-inverter-batteries/",
+    },
+    {
+      name: "SMF VRLA Solar / Industrial Batteries",
+      url:
+        "https://jcblbatteries.com/product/smf-vrla-solar-industrial-batteries/",
+    },
+  ],
+  "lithium-ion": [
+    {
+      name: "Residential Energy Storage",
+      url:
+        "https://jcblbatteries.com/category/lithium-ion-batteries/residential-energy-storage-systems/",
+    },
+    {
+      name: "Replacement For VRLA AGM & Gel Batteries",
+      url:
+        "https://jcblbatteries.com/product/replacement-for-vrla-agm-gel-batteries/",
+    },
+    {
+      name: "Start Stop Series",
+      url:
+        "https://jcblbatteries.com/category/auto-starting-series/start-stop-advance-series/",
+    },
+  ],
+};
+
+/* =========================
+   HELPER FUNCTIONS
+========================= */
+
+const getChildrenForParent = (parentId) => {
+  switch (parentId) {
+    case "car-spare-parts":
+      return carBrands;
+
+    case "motorcycle-spare-parts":
+      return motorcycleBrands;
+
+    case "helmets":
+      return helmetCategories;
+
+    case "three-wheeler-spare-parts":
+      return threeWheelerBrands;
+
+    case "batteries":
+      return batterySubs;
+
+    default:
+      return [];
+  }
+};
+
+const slugify = (value) => {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[\/]+/g, "-")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+};
+
+const getGrandChildren = (parentId, childId) => {
+  if (parentId === "car-spare-parts") {
+    return (carModels[childId] || []).map((model) => ({
+      id: model,
+      name: model,
+      slug: slugify(model),
+    }));
   }
 
-  if (parentName === "Motorcycle Spare Parts") {
-    return motorcycleBrands;
+  if (parentId === "motorcycle-spare-parts") {
+    return (motorcycleModels[childId] || []).map((model) => ({
+      id: model,
+      name: model,
+      slug: slugify(model),
+    }));
   }
 
-  // NEW: THREE WHEELER SUBCATEGORIES
-
-  if (parentName === "Three Wheeler Spare Parts") {
-    return threeWheelerBrands;
-  }
-
-  if (parentName === "Batteries") {
-    return batterySubs;
+  if (parentId === "batteries") {
+    return (batteryGrandChildren[childId] || []).map((item, index) => ({
+      id: `${childId}-${index}`,
+      name: item.name,
+      externalUrl: item.url,
+    }));
   }
 
   return [];
 };
 
-// Check if a child category has subcategories
-const hasGrandChildren = (parentName, childId) => {
-  if (parentName === "Car Spare Parts") {
-    return (carModels[childId] || []).length > 0;
-  }
-
-  if (parentName === "Motorcycle Spare Parts") {
-    return (motorcycleModels[childId] || []).length > 0;
-  }
-
-  if (parentName === "Batteries") {
-    return (batteryGrandChildren[childId] || []).length > 0;
-  }
-
-  return false;
+const hasGrandChildren = (parentId, childId) => {
+  return getGrandChildren(parentId, childId).length > 0;
 };
 
-// Get subcategories
-  const getGrandChildren = (parentName, childId) => {
-    if (parentName === "Car Spare Parts") {
-      return (carModels[childId] || []).map((model) => ({
-        id: model,
-        name: model,
-        slug: model
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9-]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, ""),
-      }));
-    }
+/* =========================
+   HEADER COMPONENT
+========================= */
 
-    if (parentName === "Motorcycle Spare Parts") {
-      return (motorcycleModels[childId] || []).map((model) => ({
-        id: model,
-        name: model,
-        slug: model
-          .toLowerCase()
-          .trim()
-          .replace(/[\/]+/g, "-")
-          .replace(/[^a-z0-9-]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, ""),
-      }));
-    }
+function Header() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeCat, setActiveCat] = useState("car-spare-parts");
+  const [activeChild, setActiveChild] = useState(null);
+  const [mobileParentOpen, setMobileParentOpen] = useState(null);
+  const [mobileChildOpen, setMobileChildOpen] = useState(null);
 
-    if (parentName === "Batteries") {
-      return (batteryGrandChildren[childId] || []).map((item, index) => ({
-        id: index,
-        name: item.name,
-        externalUrl: item.url,
-      }));
-    }
+  const hoverTimeout = useRef(null);
 
-    return [];
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 992);
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const activeParent = parentCategories.find(
+      (parent) => parent.id === activeCat
+    );
+
+    if (!activeParent) return;
+
+    const children = getChildrenForParent(activeParent.id);
+
+    setActiveChild(children.length > 0 ? children[0].id : null);
+  }, [activeCat]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!isMobile) return;
+
+      const clickedInsideMenu = event.target.closest(".dropdown.mega");
+
+      if (!clickedInsideMenu) {
+        setOpenMenu(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isMobile]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen((previous) => !previous);
   };
 
+  const closeMenus = () => {
+    setSidebarOpen(false);
+    setOpenMenu(false);
+  };
 
-  // Static menu items
+  const getChildUrl = (parent, child) => {
+    if (child.externalUrl) {
+      return child.externalUrl;
+    }
+
+    return `/category/${parent.slug}/${child.slug}`;
+  };
+
   const menuItems = [
-    { label: "Home", url: "/" },
-    { label: "About Us", url: "/about-us/" },
-   { label: "Products", url: "/category", isProduct: true },
-    { label: "Blog", url: "/blog/" },
-    { label: "News & Events", url: "/news-events/" }
+    {
+      label: "Home",
+      url: "/",
+    },
+    {
+      label: "About Us",
+      url: "/about-us/",
+    },
+    {
+      label: "Products",
+      url: "/category",
+      isProduct: true,
+    },
+    {
+      label: "Blog",
+      url: "/blog/",
+    },
+    {
+      label: "News & Events",
+      url: "/news-events/",
+    },
   ];
 
   return (
@@ -492,13 +624,18 @@ const hasGrandChildren = (parentName, childId) => {
               <HiPhone className="top-icon" />
               <span>+91-8968100180</span>
             </a>
+
             <a href="tel:+918288076221" className="contact-link">
               <HiPhone className="top-icon" />
               <span>+91-8288076221</span>
             </a>
           </div>
+
           <div className="top-right">
-            <a href="mailto:Sales@jcblautomoto.com" className="contact-link">
+            <a
+              href="mailto:Sales@jcblautomoto.com"
+              className="contact-link"
+            >
               <HiMail className="top-icon" />
               <span>Sales@jcblautomoto.com</span>
             </a>
@@ -506,310 +643,348 @@ const hasGrandChildren = (parentName, childId) => {
         </div>
       </div>
 
+      {/* MAIN HEADER */}
       <header className="header">
         <div className="container header-wrapper">
           {/* LOGO */}
           <div className="logo">
             <Link href="/">
-     <Image
-  src="/images/JCBL-logo-header.png"
-  alt="JCBL Logo"
-  width={80}
-  height={80}
-/>
+              <Image
+                src="/images/JCBL-logo-header.png"
+                alt="JCBL Logo"
+                width={80}
+                height={80}
+                priority
+              />
             </Link>
           </div>
 
           {/* NAVIGATION */}
           <nav className={`nav ${sidebarOpen ? "open" : ""}`}>
             <div className="mobile-header">
-              <button className="close-btn" onClick={() => setSidebarOpen(false)}>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close menu"
+              >
                 <HiX size={24} />
               </button>
             </div>
 
-            {menuItems.map((item, index) => {
-              if (item.isProduct) {
+            {menuItems.map((item) => {
+              if (!item.isProduct) {
                 return (
-                  <div
-                    className={`dropdown mega ${openMenu ? "active" : ""}`}
-                    key={index}
-                    onMouseEnter={() => {
-                      if (!isMobile) {
-                        clearTimeout(hoverTimeout.current);
-                        setOpenMenu(true);
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (!isMobile) {
-                        hoverTimeout.current = setTimeout(() => {
-                          setOpenMenu(false);
-                        }, 300);
-                      }
-                    }}
+                  <Link
+                    key={item.label}
+                    href={item.url}
+                    onClick={closeMenus}
                   >
-{isMobile ? (
-  <div className="mobile-product-nav">
-    <Link
-      href="/category"
-      className="nav-link"
-      onClick={() => {
-        setSidebarOpen(false);
-      }}
-    >
-      {item.label}
-    </Link>
+                    {item.label}
+                  </Link>
+                );
+              }
 
-    <button
-      type="button"
-      className="toggle-btn"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpenMenu(!openMenu);
-      }}
-    >
-      {openMenu ? "-" : "+"}
-    </button>
-  </div>
-) : (
-  <Link href="/category" className="nav-link">
-    {item.label}
-  </Link>
-)}
+              return (
+                <div
+                  key={item.label}
+                  className={`dropdown mega ${
+                    openMenu ? "active" : ""
+                  }`}
+                  onMouseEnter={() => {
+                    if (!isMobile) {
+                      clearTimeout(hoverTimeout.current);
+                      setOpenMenu(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!isMobile) {
+                      hoverTimeout.current = setTimeout(() => {
+                        setOpenMenu(false);
+                      }, 300);
+                    }
+                  }}
+                >
+                  {/* PRODUCTS NAV ITEM */}
+                  {isMobile ? (
+                    <div className="mobile-product-nav">
+                      <Link
+                        href="/category"
+                        className="nav-link"
+                        onClick={closeMenus}
+                      >
+                        Products
+                      </Link>
 
-                    {openMenu && (
-                      <div className="mega-menu">
-                        {/* DESKTOP VIEW */}
-                        {!isMobile && (
-                          <>
-                            {/* LEFT PANEL - Parent Categories */}
-                            <div className="mega-left">
-                              {parentCategories.map((parent) => (
+                      <button
+                        type="button"
+                        className="toggle-btn"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          setOpenMenu((previous) => !previous);
+                        }}
+                      >
+                        {openMenu ? "-" : "+"}
+                      </button>
+                    </div>
+                  ) : (
+                    <Link href="/category" className="nav-link">
+                      Products
+                    </Link>
+                  )}
+
+                  {openMenu && (
+                    <div className="mega-menu">
+                      {/* DESKTOP MEGA MENU */}
+                      {!isMobile && (
+                        <>
+                          <div className="mega-left">
+                            {parentCategories.map((parent) => {
+                              const children = getChildrenForParent(
+                                parent.id
+                              );
+
+                              return (
                                 <Link
                                   key={parent.id}
                                   href={`/category/${parent.slug}`}
-                                  className={`parent-item ${activeCat === parent.id ? "active" : ""}`}
+                                  className={`parent-item ${
+                                    activeCat === parent.id
+                                      ? "active"
+                                      : ""
+                                  }`}
                                   onMouseEnter={() => {
                                     setActiveCat(parent.id);
-                                    const children = getChildrenForParent(
-                                      parent.id,
-                                      parent.name
+                                    setActiveChild(
+                                      children.length > 0
+                                        ? children[0].id
+                                        : null
                                     );
-                                    if (children.length > 0) {
-                                      setActiveChild(children[0].id);
-                                    } else {
-                                      setActiveChild(null);
-                                    }
                                   }}
                                   onClick={() => setOpenMenu(false)}
                                 >
                                   <span className="menu-item">
                                     {parent.name}
-                                    {getChildrenForParent(parent.id, parent.name).length > 0 && (
+
+                                    {children.length > 0 && (
                                       <HiChevronRight className="arrow-icon" />
                                     )}
                                   </span>
                                 </Link>
-                              ))}
-                            </div>
-
-                            {/* RIGHT PANEL - Children & Grandchildren */}
-                            <div className="mega-right">
-                              {/* Children Column */}
-                              <div className="child-column">
-                                {parentCategories.map((parent) => {
-                                  if (parent.id !== activeCat) return null;
-                                  const children = getChildrenForParent(parent.id, parent.name);
-                                  return children.map((child) => (
-                                
-<Link
-  key={child.id}
-  href={
-    child.externalUrl
-      ? child.externalUrl
-      : `/category/${parent.slug}/${child.slug}`
-  }
-  className={`child-item ${activeChild === child.id ? "active" : ""}`}
-  onMouseEnter={() => setActiveChild(child.id)}
->
-                                      <span className="menu-item">
-                                        {child.name}
-                                        {hasGrandChildren(parent.name, child.id) && (
-                                          <HiChevronRight className="arrow-icon" />
-                                        )}
-                                      </span>
-                                    </Link>
-                                  ));
-                                })}
-                              </div>
-
-                              {/* Grandchildren Column */}
-                              <div className="grand-column">
-                                {parentCategories.map((parent) => {
-                                  if (parent.id !== activeCat) return null;
-
-                                  const children = getChildrenForParent(
-                                    parent.id,
-                                    parent.name
-                                  );
-
-                                  const currentChild = children.find(
-                                    (c) => c.id === activeChild
-                                  );
-
-                                if (!currentChild) {
-  return null;
-}
-
-                                  const grandchildren = getGrandChildren(
-                                    parent.name,
-                                    currentChild.id
-                                  );
-
-                            if (!grandchildren.length) {
-  return null;
-}
-
-                           return grandchildren.map((grand) => (
-  <Link
-    key={grand.id}
-href={
-  grand.externalUrl
-    ? grand.externalUrl
-    : `/category/${parent.slug}/${currentChild.slug}/${grand.slug}`
-}
-    className="grandchild-link"
-    onClick={() => setOpenMenu(false)}
-  >
-    {grand.name}
-  </Link>
-));
-                                })}
-                              </div>
-                            </div>
-                          </>
-                        )}
-
-                        {/* MOBILE VIEW */}
-                        {isMobile && (
-                          <div className="mobile-categories">
-                            {parentCategories.map((parent) => {
-                              const children = getChildrenForParent(parent.id, parent.name);
-
-                              return (
-                                <div key={parent.id} className="mobile-parent">
-                                  <div className="mobile-parent-header">
-                                    <Link
-                                      href={`/category/${parent.slug}`}
-                                      className="parent-link"
-                                      onClick={() => {
-                                        setSidebarOpen(false);
-                                        setOpenMenu(false);
-                                      }}
-                                    >
-                                      {parent.name}
-                                    </Link>
-
-                                    {children.length > 0 && (
-                                      <button
-                                        type="button"
-                                        className="toggle-btn"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          setMobileParentOpen(
-                                            mobileParentOpen === parent.id ? null : parent.id
-                                          );
-                                        }}
-                                      >
-                                        {mobileParentOpen === parent.id ? "-" : "+"}
-                                      </button>
-                                    )}
-                                  </div>
-
-                                  {mobileParentOpen === parent.id && (
-                                    <div className="mobile-children">
-                                      {children.map((child) => {
-                                        const grandchildren = getGrandChildren(
-                                          parent.name,
-                                          child.id
-                                        );
-
-                                        return (
-                                          <div key={child.id}>
-                                            <div className="mobile-child-header">
-                                              <Link
-                                                href={
-  child.externalUrl
-    ? child.externalUrl
-    : `/category/${parent.slug}/${child.slug}`
-}
-                                                className="child-link"
-                                                onClick={() => {
-                                                  setSidebarOpen(false);
-                                                  setOpenMenu(false);
-                                                }}
-                                              >
-                                                {child.name}
-                                              </Link>
-
-                                              {grandchildren.length > 0 && (
-                                                <button
-                                                  type="button"
-                                                  className="toggle-btn"
-                                                  onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setMobileChildOpen(
-                                                      mobileChildOpen === child.id ? null : child.id
-                                                    );
-                                                  }}
-                                                >
-                                                  {mobileChildOpen === child.id ? "-" : "+"}
-                                                </button>
-                                              )}
-                                            </div>
-
-                                            {mobileChildOpen === child.id &&
-                                              grandchildren.length > 0 && (
-                                                <div className="mobile-grandchildren">
-                                                {grandchildren.map((grand) => (
-  <Link
-    key={grand.id}
-    href={grand.externalUrl ? grand.externalUrl : `/category/${grand.slug}`}
-    className="grandchild-link"
-    onClick={() => {
-      setSidebarOpen(false);
-      setOpenMenu(false);
-    }}
-  >
-    {grand.name}
-  </Link>
-))}
-                                                </div>
-                                              )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                </div>
                               );
                             })}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-              
-              // ✅ FIXED: Added onClick to close sidebar for non‑product links
-              return (
-                <Link key={index} href={item.url} onClick={() => setSidebarOpen(false)}>
-                  {item.label}
-                </Link>
+
+                          <div className="mega-right">
+                            {/* CHILDREN */}
+                            <div className="child-column">
+                              {parentCategories.map((parent) => {
+                                if (parent.id !== activeCat) {
+                                  return null;
+                                }
+
+                                const children = getChildrenForParent(
+                                  parent.id
+                                );
+
+                                return children.map((child) => (
+                                  <Link
+                                    key={child.id}
+                                    href={getChildUrl(parent, child)}
+                                    className={`child-item ${
+                                      activeChild === child.id
+                                        ? "active"
+                                        : ""
+                                    }`}
+                                    onMouseEnter={() =>
+                                      setActiveChild(child.id)
+                                    }
+                                  >
+                                    <span className="menu-item">
+                                      {child.name}
+
+                                      {hasGrandChildren(
+                                        parent.id,
+                                        child.id
+                                      ) && (
+                                        <HiChevronRight className="arrow-icon" />
+                                      )}
+                                    </span>
+                                  </Link>
+                                ));
+                              })}
+                            </div>
+
+                            {/* GRANDCHILDREN */}
+                            <div className="grand-column">
+                              {parentCategories.map((parent) => {
+                                if (parent.id !== activeCat) {
+                                  return null;
+                                }
+
+                                const children = getChildrenForParent(
+                                  parent.id
+                                );
+
+                                const currentChild = children.find(
+                                  (child) => child.id === activeChild
+                                );
+
+                                if (!currentChild) {
+                                  return null;
+                                }
+
+                                const grandchildren = getGrandChildren(
+                                  parent.id,
+                                  currentChild.id
+                                );
+
+                                return grandchildren.map((grand) => (
+                                  <Link
+                                    key={grand.id}
+                                    href={
+                                      grand.externalUrl
+                                        ? grand.externalUrl
+                                        : `/category/${parent.slug}/${currentChild.slug}/${grand.slug}`
+                                    }
+                                    className="grandchild-link"
+                                    onClick={() => setOpenMenu(false)}
+                                  >
+                                    {grand.name}
+                                  </Link>
+                                ));
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* MOBILE MENU */}
+                      {isMobile && (
+                        <div className="mobile-categories">
+                          {parentCategories.map((parent) => {
+                            const children = getChildrenForParent(
+                              parent.id
+                            );
+
+                            const parentIsOpen =
+                              mobileParentOpen === parent.id;
+
+                            return (
+                              <div
+                                key={parent.id}
+                                className="mobile-parent"
+                              >
+                                <div className="mobile-parent-header">
+                                  <Link
+                                    href={`/category/${parent.slug}`}
+                                    className="parent-link"
+                                    onClick={closeMenus}
+                                  >
+                                    {parent.name}
+                                  </Link>
+
+                                  {children.length > 0 && (
+                                    <button
+                                      type="button"
+                                      className="toggle-btn"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+
+                                        setMobileParentOpen(
+                                          parentIsOpen
+                                            ? null
+                                            : parent.id
+                                        );
+                                      }}
+                                    >
+                                      {parentIsOpen ? "-" : "+"}
+                                    </button>
+                                  )}
+                                </div>
+
+                                {parentIsOpen && (
+                                  <div className="mobile-children">
+                                    {children.map((child) => {
+                                      const grandchildren =
+                                        getGrandChildren(
+                                          parent.id,
+                                          child.id
+                                        );
+
+                                      const childIsOpen =
+                                        mobileChildOpen === child.id;
+
+                                      return (
+                                        <div key={child.id}>
+                                          <div className="mobile-child-header">
+                                            <Link
+                                              href={getChildUrl(
+                                                parent,
+                                                child
+                                              )}
+                                              className="child-link"
+                                              onClick={closeMenus}
+                                            >
+                                              {child.name}
+                                            </Link>
+
+                                            {grandchildren.length > 0 && (
+                                              <button
+                                                type="button"
+                                                className="toggle-btn"
+                                                onClick={(event) => {
+                                                  event.preventDefault();
+                                                  event.stopPropagation();
+
+                                                  setMobileChildOpen(
+                                                    childIsOpen
+                                                      ? null
+                                                      : child.id
+                                                  );
+                                                }}
+                                              >
+                                                {childIsOpen ? "-" : "+"}
+                                              </button>
+                                            )}
+                                          </div>
+
+                                          {childIsOpen &&
+                                            grandchildren.length > 0 && (
+                                              <div className="mobile-grandchildren">
+                                                {grandchildren.map(
+                                                  (grand) => (
+                                                    <Link
+                                                      key={grand.id}
+                                                      href={
+                                                        grand.externalUrl
+                                                          ? grand.externalUrl
+                                                          : `/category/${parent.slug}/${child.slug}/${grand.slug}`
+                                                      }
+                                                      className="grandchild-link"
+                                                      onClick={closeMenus}
+                                                    >
+                                                      {grand.name}
+                                                    </Link>
+                                                  )
+                                                )}
+                                              </div>
+                                            )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>
@@ -819,15 +994,19 @@ href={
             <div className="header-search">
               <SearchBar />
             </div>
+
             <Link href="/contact-us" className="btn btn-blue">
               Contact Us
             </Link>
+
             <select
               className="lang"
               defaultValue="en"
-              onChange={(e) => {
-                const lang = e.target.value;
-                const googleSelect = document.querySelector(".goog-te-combo");
+              onChange={(event) => {
+                const lang = event.target.value;
+                const googleSelect =
+                  document.querySelector(".goog-te-combo");
+
                 if (googleSelect) {
                   googleSelect.value = lang;
                   googleSelect.dispatchEvent(new Event("change"));
@@ -839,7 +1018,13 @@ href={
               <option value="es">Spanish</option>
               <option value="fr">French</option>
             </select>
-            <button className="hamburger" onClick={toggleSidebar}>
+
+            <button
+              type="button"
+              className="hamburger"
+              onClick={toggleSidebar}
+              aria-label="Open menu"
+            >
               <HiMenu size={24} />
             </button>
           </div>
