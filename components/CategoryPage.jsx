@@ -14,6 +14,28 @@ import CategorySection from "./CategorySection";
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
+const safeJsonResponse = async (response, label = "GraphQL") => {
+  const rawText = await response.text();
+  const text = rawText.trim();
+
+  if (!response.ok) {
+    console.error(`${label} HTTP error:`, response.status, text.slice(0, 500));
+    return null;
+  }
+
+  if (!text || text.startsWith("<")) {
+    console.error(`${label} returned non-JSON content:`, text.slice(0, 500));
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error(`${label} JSON parse error:`, error, text.slice(0, 500));
+    return null;
+  }
+};
+
 const getImageUrl = (url) => {
   if (!url) return "";
 
@@ -391,7 +413,7 @@ const fetchAllCategories = async () => {
         }),
       });
 
-      const json = await response.json();
+      const json = await safeJsonResponse(response, "All categories request");
 
       const data = json?.data?.productCategories;
 
@@ -556,17 +578,9 @@ description
         }
       }),
     })
-.then(async (response) => {
-  console.log("STATUS:", response.status);
-  console.log("OK:", response.ok);
-
-  const text = await response.text();
-  console.log("RAW RESPONSE:", text);
-
-  return text ? JSON.parse(text) : {};
-})
+.then((response) => safeJsonResponse(response, "Category request"))
 .then((res) => {
-  console.log("CATEGORY RESPONSE", JSON.stringify(res, null, 2));
+  console.log("CATEGORY RESPONSE", res ? JSON.stringify(res, null, 2) : "No valid JSON response");
 
   const cat = res?.data?.productCategories?.nodes?.[0];
   console.log("CATEGORY SEO:", cat?.seo);
@@ -654,9 +668,16 @@ query GetCategory($slug: String!) {
         }
       }),
     })
-      .then((res) => res.json())
+      .then((response) => safeJsonResponse(response, "Products request"))
       .then((res) => {
         const data = res?.data?.products;
+
+        if (!data) {
+          setProducts([]);
+          setHasNextPage(false);
+          setLoading(false);
+          return;
+        }
 
         setProducts(data?.nodes || []);
         setHasNextPage(data?.pageInfo?.hasNextPage || false);

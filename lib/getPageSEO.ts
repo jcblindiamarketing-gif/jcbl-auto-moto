@@ -1,109 +1,97 @@
-const WP_GRAPHQL = "https://api.jcblautomoto.com/graphql";
+const API_URL = "https://api.jcblautomoto.com/graphql";
 
-type PageSEO = {
-  title?: string | null;
-  metaDesc?: string | null;
-  canonical?: string | null;
-  opengraphTitle?: string | null;
-  opengraphDescription?: string | null;
-  opengraphImage?: {
-    sourceUrl?: string | null;
-  } | null;
+const EMPTY_SEO = {
+  title: "",
+  metaDesc: "",
+  canonical: "",
+  opengraphTitle: "",
+  opengraphDescription: "",
+  opengraphImage: "",
 };
 
-type GraphQLResponse = {
-  data?: {
-    page?: {
-      seo?: PageSEO | null;
-    } | null;
-  };
-  errors?: unknown;
-};
+type SEOData = typeof EMPTY_SEO;
 
-export async function getPageSEO(
-  uri: string
-): Promise<PageSEO | null> {
-  console.log("SEO URI:", uri);
+async function safeJsonResponse(
+  response: Response,
+  label = "GraphQL SEO request"
+): Promise<any | null> {
+  const rawText = await response.text();
+  const text = rawText.trim();
 
-  const query = `
-    query GetPageSEO($uri: ID!) {
-      page(id: $uri, idType: URI) {
-        seo {
-          title
-          metaDesc
-          canonical
-          opengraphTitle
-          opengraphDescription
-          opengraphImage {
-            sourceUrl
-          }
-        }
-      }
-    }
-  `;
+  if (!response.ok) {
+    console.error(
+      `${label} HTTP ${response.status}:`,
+      text.slice(0, 500)
+    );
+    return null;
+  }
+
+  if (!text || text.startsWith("<")) {
+    console.error(
+      `${label} returned HTML/non-JSON:`,
+      text.slice(0, 500)
+    );
+    return null;
+  }
 
   try {
-    const response = await fetch(WP_GRAPHQL, {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error(`${label} JSON parse failed:`, error);
+    return null;
+  }
+}
+
+export async function getPageSEO(uri: string): Promise<SEOData> {
+  try {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
       next: {
         revalidate: 60,
       },
       body: JSON.stringify({
-        query,
+        query: `
+          query GetPageSEO($uri: ID!) {
+            page(id: $uri, idType: URI) {
+              seo {
+                title
+                metaDesc
+                canonical
+                opengraphTitle
+                opengraphDescription
+                opengraphImage {
+                  sourceUrl
+                }
+              }
+            }
+          }
+        `,
         variables: {
           uri,
         },
       }),
     });
 
-    const responseText = await response.text();
+    const json = await safeJsonResponse(response, `SEO ${uri}`);
+    const seo = json?.data?.page?.seo;
 
-    // Handles 409, 403, 500, and other failed responses safely.
-    if (!response.ok) {
-      console.error(
-        `GraphQL request failed: ${response.status}`,
-        responseText.slice(0, 300)
-      );
-
-      return null;
+    if (!seo) {
+      return EMPTY_SEO;
     }
 
-    // Prevents "Unexpected token '<'" when the server returns HTML.
-    const contentType = response.headers.get("content-type") ?? "";
-
-    if (
-      !contentType.toLowerCase().includes("application/json") ||
-      responseText.trim().startsWith("<")
-    ) {
-      console.error(
-        "GraphQL returned a non-JSON response:",
-        responseText.slice(0, 300)
-      );
-
-      return null;
-    }
-
-    let result: GraphQLResponse;
-
-    try {
-      result = JSON.parse(responseText) as GraphQLResponse;
-    } catch (error) {
-      console.error("GraphQL JSON parsing failed:", error);
-      return null;
-    }
-
-    if (result.errors) {
-      console.error("GraphQL errors:", result.errors);
-      return null;
-    }
-
-    return result.data?.page?.seo ?? null;
+    return {
+      title: seo.title || "",
+      metaDesc: seo.metaDesc || "",
+      canonical: seo.canonical || "",
+      opengraphTitle: seo.opengraphTitle || "",
+      opengraphDescription: seo.opengraphDescription || "",
+      opengraphImage: seo.opengraphImage?.sourceUrl || "",
+    };
   } catch (error) {
-    console.error("getPageSEO failed:", error);
-    return null;
+    console.error(`getPageSEO failed for ${uri}:`, error);
+    return EMPTY_SEO;
   }
 }
