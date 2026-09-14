@@ -578,11 +578,8 @@ function Header() {
   };
 
   const closeMenus = () => {
-    clearTimeout(hoverTimeout.current);
     setSidebarOpen(false);
     setOpenMenu(false);
-    setMobileParentOpen(null);
-    setMobileChildOpen(null);
   };
 
   const getChildUrl = (parent, child) => {
@@ -732,11 +729,7 @@ function Header() {
                       </button>
                     </div>
                   ) : (
-                    <Link
-                      href="/category"
-                      className="nav-link"
-                      onClick={closeMenus}
-                    >
+                    <Link href="/category" className="nav-link">
                       Products
                     </Link>
                   )}
@@ -807,7 +800,6 @@ function Header() {
                                     onMouseEnter={() =>
                                       setActiveChild(child.id)
                                     }
-                                    onClick={closeMenus}
                                   >
                                     <span className="menu-item">
                                       {child.name}
@@ -857,7 +849,7 @@ function Header() {
                                         : `/category/${parent.slug}/${currentChild.slug}/${grand.slug}`
                                     }
                                     className="grandchild-link"
-                                    onClick={closeMenus}
+                                    onClick={() => setOpenMenu(false)}
                                   >
                                     {grand.name}
                                   </Link>

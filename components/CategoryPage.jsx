@@ -12,22 +12,7 @@ import 'swiper/css';
 import { usePathname } from "next/navigation";
 import CategorySection from "./CategorySection";
 
-const API_URL = "/api/category-page";
-
-const fetchWithTimeout = async (url, options = {}, timeout = 15000) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    return await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-};
-
+const API_URL = "https://api.jcblautomoto.com/graphql";
 
 const getImageUrl = (url) => {
   if (!url) return "";
@@ -290,7 +275,7 @@ const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
 const [allCategoriesPage, setAllCategoriesPage] = useState(1);
 const [allCategoriesCursorStack, setAllCategoriesCursorStack] = useState([null]);
 const [allCategoriesHasNext, setAllCategoriesHasNext] = useState(true);
-const limit = 24;
+const limit = 100;
 const packagingImages = [
   "/assets/images/packaging_img_2.webp",  
   "/assets/images/packaging_img_3.webp",
@@ -343,24 +328,28 @@ const packagingImages = [
     );
   };
 
-  // Fetch only the categories needed for the landing page.
-  // This avoids the old while(hasNextPage) request waterfall.
-  const fetchAllCategories = async () => {
-    setLoading(true);
-    setIsAllCategoriesView(true);
+  // Fetch all categories (for the "All Categories" view)
+const fetchAllCategories = async () => {
+  setLoading(true);
+  setIsAllCategoriesView(true);
 
-    try {
-      const response = await fetchWithTimeout(API_URL, {
+  let allCategoriesFromWP = [];
+  let hasNextPage = true;
+  let after = null;
+
+  try {
+    while (hasNextPage) {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({
           query: `
-            query GetAllCategories($first: Int!) {
+            query GetAllCategories($first: Int!, $after: String) {
               productCategories(
                 first: $first
+                after: $after
                 where: {
                   hideEmpty: false
                 }
@@ -370,74 +359,113 @@ const packagingImages = [
                   name
                   slug
                   description
+
                   image {
                     sourceUrl
                   }
+
                   children {
                     nodes {
                       id
                       name
                       slug
+
                       image {
                         sourceUrl
                       }
                     }
                   }
                 }
+
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
               }
             }
           `,
           variables: {
-            first: 24,
+            first: 100,
+            after,
           },
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to load categories");
-      }
-
       const json = await response.json();
-      const categories = json?.data?.productCategories?.nodes || [];
 
-      const filteredCategories = categories
-        .filter((cat) => {
-          const categorySlug = cat?.slug?.toLowerCase()?.trim();
-          return allowedSlugsInOrder.includes(categorySlug);
-        })
-        .sort((a, b) => {
-          const slugA = a?.slug?.toLowerCase()?.trim();
-          const slugB = b?.slug?.toLowerCase()?.trim();
+      const data = json?.data?.productCategories;
 
-          return (
-            allowedSlugsInOrder.indexOf(slugA) -
-            allowedSlugsInOrder.indexOf(slugB)
-          );
-        });
+      const nodes = data?.nodes || [];
 
-      setAllCategories(filteredCategories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setAllCategories([]);
-    } finally {
-      setLoading(false);
-      setIsFirstLoad(false);
-      setCategoryLoaded(true);
+      allCategoriesFromWP = [
+        ...allCategoriesFromWP,
+        ...nodes,
+      ];
+
+      hasNextPage = data?.pageInfo?.hasNextPage || false;
+
+      after = data?.pageInfo?.endCursor || null;
     }
-  };
+
+    console.log(
+      "TOTAL WORDPRESS CATEGORIES:",
+      allCategoriesFromWP.length
+    );
+
+    const filteredCategories = allCategoriesFromWP
+      .filter((cat) => {
+        const slug = cat?.slug?.toLowerCase()?.trim();
+
+        return allowedSlugsInOrder.includes(slug);
+      })
+      .sort((a, b) => {
+        const slugA = a?.slug?.toLowerCase()?.trim();
+        const slugB = b?.slug?.toLowerCase()?.trim();
+
+        return (
+          allowedSlugsInOrder.indexOf(slugA) -
+          allowedSlugsInOrder.indexOf(slugB)
+        );
+      });
+
+    console.log(
+      "FINAL CATEGORY LIST:",
+      filteredCategories.map((cat) => ({
+        name: cat.name,
+        slug: cat.slug,
+      }))
+    );
+
+    setAllCategories(filteredCategories);
+
+    setLoading(false);
+    setIsFirstLoad(false);
+    setCategoryLoaded(true);
+
+  } catch (error) {
+    console.error(
+      "Error fetching categories:",
+      error
+    );
+
+    setLoading(false);
+    setIsFirstLoad(false);
+    setCategoryLoaded(true);
+  }
+};
 
   // Handle "All Categories" page change
   const handleAllCategoriesPageChange = (page) => {
     const cursor = allCategoriesCursorStack[page - 1] || null;
     setAllCategoriesPage(page);
-    fetchAllCategories();
+    fetchAllCategories(cursor, page);
     window.scrollTo(0, 0);
   };
 
   // If no slug is provided, show all categories
   useEffect(() => {
     if (!effectiveSlug) {
-      fetchAllCategories();
+      fetchAllCategories(null, 1);
     }
   }, [effectiveSlug]);
 
@@ -478,7 +506,7 @@ if (!effectiveSlug) {
     setIsFirstLoad(true);
     setIsAllCategoriesView(false);
 
-    fetchWithTimeout(API_URL, {
+    fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -529,12 +557,22 @@ description
       }),
     })
 .then(async (response) => {
-const text = await response.text();
-return text ? JSON.parse(text) : {};
+  console.log("STATUS:", response.status);
+  console.log("OK:", response.ok);
+
+  const text = await response.text();
+  console.log("RAW RESPONSE:", text);
+
+  return text ? JSON.parse(text) : {};
 })
 .then((res) => {
-const cat = res?.data?.productCategories?.nodes?.[0];
-if (cat) {
+  console.log("CATEGORY RESPONSE", JSON.stringify(res, null, 2));
+
+  const cat = res?.data?.productCategories?.nodes?.[0];
+  console.log("CATEGORY SEO:", cat?.seo);
+  console.log("CATEGORY SEO", cat?.seo);
+
+  if (cat) {
     setCategoryName(cat.name);
     const description = cat.description || "";
     setCategoryDescription(description);
@@ -558,7 +596,23 @@ if (cat) {
   // Fetch products function
   const fetchProducts = (cursor = null, page = 1) => {
     setLoading(true);
-fetchWithTimeout(API_URL, {
+console.log(`
+query GetCategory($slug: String!) {
+  productCategories(where: { slug: [$slug] }) {
+    nodes {
+      id
+      name
+      slug
+      seo {
+        title
+        metaDesc
+        canonical
+      }
+    }
+  }
+}
+`);
+    fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -713,7 +767,7 @@ fetchWithTimeout(API_URL, {
 
   <h4>{cat.name}</h4>
 
-  <Link href={`${pathname}/${cat.slug}`} prefetch={false}>
+  <Link href={`${pathname}/${cat.slug}`}>
     <button type="button" className="btn btn-blue">
       View Category
     </button>
@@ -788,7 +842,7 @@ src={
                     {renderPartNumber('OEM', oemPartNumber)}
                     {renderPartNumber('JCBL', jcblPartNumber)}
 
-                    <Link href={`/product/${product.slug}`} prefetch={false}>
+                    <Link href={`/product/${product.slug}`}>
                       <button className="btn-blue btn">
                         View Product
                       </button>
