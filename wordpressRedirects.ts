@@ -6,48 +6,42 @@ type WordPressRedirect = {
   regex: boolean;
 };
 
-type WordPressRedirectResponse = {
-  success: boolean;
-  count: number;
-  redirects: WordPressRedirect[];
-};
-
 const WORDPRESS_REDIRECT_API =
   "https://api.jcblautomoto.com/wp-json/headless/v1/redirects";
 
 export async function getWordPressRedirects(): Promise<
   WordPressRedirect[]
 > {
-  console.log("CALLING WORDPRESS API:", WORDPRESS_REDIRECT_API);
-
   try {
+    console.log("CALLING WORDPRESS API:", WORDPRESS_REDIRECT_API);
+
     const response = await fetch(WORDPRESS_REDIRECT_API, {
       cache: "no-store",
     });
 
+    const text = await response.text();
+
     console.log("WORDPRESS API STATUS:", response.status);
+    console.log("WORDPRESS API RESPONSE:", text.slice(0, 500));
 
     if (!response.ok) {
-      const errorText = await response.text();
-
-      console.error("WORDPRESS API ERROR:", errorText);
-
+      console.error("WordPress redirect API failed:", response.status);
       return [];
     }
 
-    const data =
-      (await response.json()) as WordPressRedirectResponse;
+    const data = JSON.parse(text);
 
-    console.log("WORDPRESS API DATA:", data);
-
-    if (!data.success || !Array.isArray(data.redirects)) {
+    if (!Array.isArray(data.redirects)) {
+      console.error("Invalid redirect API format:", data);
       return [];
     }
+
+    console.log("REDIRECT COUNT:", data.redirects.length);
+    console.log("REDIRECT DATA:", data.redirects);
 
     return data.redirects;
   } catch (error) {
-    console.error("WORDPRESS REDIRECT FETCH ERROR:", error);
-
+    console.error("WordPress redirect fetch error:", error);
     return [];
   }
 }
