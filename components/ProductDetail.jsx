@@ -251,12 +251,12 @@ const ProductDetail = ({ slug }) => {
               {/* Gallery Thumbnails */}
 
               {allImages.length > 0 && (
-                <div className="product-gallery">
+                <div className="product-detail-gallery">
 
                   {allImages.map((image, index) => (
                     <button
                       type="button"
-                      className={`gallery-item ${
+                      className={`product-detail-gallery-item ${
                         activeImageIndex === index
                           ? "active"
                           : ""
