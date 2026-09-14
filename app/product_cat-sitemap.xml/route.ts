@@ -51,11 +51,30 @@ async function getAllCategories() {
       next: { revalidate: 3600 },
     });
 
-    if (!res.ok) {
-      throw new Error(`GraphQL request failed: ${res.status}`);
-    }
+   if (!res.ok) {
+  const errorText = await res.text();
 
-    const json = (await res.json()) as GraphQLResponse;
+  console.error(
+    `GraphQL request failed: ${res.status}`,
+    errorText.slice(0, 300)
+  );
+
+  break;
+}
+
+const responseText = await res.text();
+
+let json: GraphQLResponse;
+
+try {
+  json = JSON.parse(responseText) as GraphQLResponse;
+} catch {
+  console.error(
+    "Categories GraphQL returned non-JSON response:",
+    responseText.slice(0, 300)
+  );
+  break;
+}
 
     if (json.errors) {
       throw new Error(JSON.stringify(json.errors));

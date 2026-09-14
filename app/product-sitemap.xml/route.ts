@@ -70,11 +70,30 @@ async function getAllProducts(): Promise<ProductNode[]> {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`GraphQL request failed: ${response.status}`);
-    }
+if (!response.ok) {
+  const errorText = await response.text();
 
-    const result = (await response.json()) as ProductsResponse;
+  console.error(
+    `GraphQL request failed: ${response.status}`,
+    errorText.slice(0, 300)
+  );
+
+  break;
+}
+
+  const responseText = await response.text();
+
+let result: ProductsResponse;
+
+try {
+  result = JSON.parse(responseText) as ProductsResponse;
+} catch {
+  console.error(
+    "Products GraphQL returned non-JSON response:",
+    responseText.slice(0, 300)
+  );
+  break;
+}
 
     if (result.errors) {
       console.error(result.errors);
