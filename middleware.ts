@@ -1,60 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWordPressRedirects } from "./wordpressRedirects";
 
-function normalizePath(path: string): string {
-  if (!path || path === "/") {
-    return "/";
-  }
-
-  return path.replace(/\/+$/, "");
-}
-
 export async function middleware(request: NextRequest) {
-  const currentPath = normalizePath(
-    request.nextUrl.pathname
-  );
+  const pathname = request.nextUrl.pathname;
+
+  console.log("MIDDLEWARE HIT:", pathname);
 
   const redirects = await getWordPressRedirects();
 
-  const matchedRedirect = redirects.find((redirect) => {
-    if (!redirect.url || !redirect.target) {
-      return false;
-    }
+  console.log("REDIRECT COUNT:", redirects.length);
 
-    const sourcePath = normalizePath(redirect.url);
-
-    return sourcePath === currentPath;
+  const redirect = redirects.find((item) => {
+    return item.source === pathname;
   });
 
-  if (!matchedRedirect) {
+  console.log("MATCHED REDIRECT:", redirect);
+
+  if (!redirect) {
     return NextResponse.next();
   }
 
-  const allowedStatusCodes = [301, 302, 307, 308];
-
-  const statusCode = allowedStatusCodes.includes(
-    matchedRedirect.actionCode
-  )
-    ? matchedRedirect.actionCode
-    : 301;
+  console.log("REDIRECTING TO:", redirect.target);
 
   const destination = new URL(
-    matchedRedirect.target,
+    redirect.target,
     request.url
   );
 
   return NextResponse.redirect(
     destination,
-    statusCode
+    redirect.statusCode === 302 ? 302 : 301
   );
 }
 
 export const config = {
   matcher: [
-    /*
-     * Run middleware for website pages.
-     * Skip API routes, Next.js files, and static files.
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
