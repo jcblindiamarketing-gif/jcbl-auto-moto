@@ -286,8 +286,7 @@ font-family: "Poppins", "Montserrat", sans-serif;
 }
 
 .gallery-item {
-  width: 85px;
-  height: 85px;
+ 
   padding: 5px;
   border: 1px solid #ddd;
   border-radius: 8px;
