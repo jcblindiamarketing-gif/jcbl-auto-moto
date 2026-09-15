@@ -30,13 +30,7 @@ const safeJsonResponse = async (response, label = "GraphQL") => {
   }
 
   try {
-    const parsed = JSON.parse(text);
-
-    if (parsed?.errors?.length) {
-      console.error(`${label} GraphQL errors:`, parsed.errors);
-    }
-
-    return parsed;
+    return JSON.parse(text);
   } catch (error) {
     console.error(`${label} JSON parse error:`, error);
     return null;
@@ -268,7 +262,8 @@ const PackagingSlider = ({ images }) => {
  * @param {{ slug?: string | null }} props
  */
 const CategoryPage = ({ slug = null }) => {
-const pathname = usePathname() || "";
+  const pathname = usePathname();
+
 const allowedSlugsInOrder = [
   "car-spare-parts",
   "chrome-parts",
@@ -331,16 +326,14 @@ const limit = PRODUCTS_PER_PAGE;
   // Helper function to render part numbers
   const renderPartNumber = (label, value) => {
     if (!value) return null;
-
     const trimmed = value.trim();
     if (!trimmed) return null;
 
-    if (trimmed.includes(" ")) {
-      const parts = trimmed.split(" ").filter(Boolean);
-
+    if (trimmed.includes(' ')) {
+      const parts = trimmed.split(' ').filter(p => p);
       return (
         <p>
-          <strong>{label}:</strong>{" "}
+          <strong>{label}:</strong>{' '}
           {parts.map((part, index) => (
             <React.Fragment key={index}>
               {index > 0 && <br />}
@@ -358,87 +351,46 @@ const limit = PRODUCTS_PER_PAGE;
     );
   };
 
-  // Safe GraphQL request helper
-  const fetchGraphQL = async (
-    query,
-    variables = {},
-    label = "GraphQL request",
-    signal
-  ) => {
+  const fetchGraphQL = async (query, variables = {}, label = "GraphQL request", signal) => {
     const startedAt = performance.now();
     const controller = new AbortController();
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, REQUEST_TIMEOUT);
-
-    const forwardAbort = () => {
-      controller.abort();
-    };
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    const forwardAbort = () => controller.abort();
 
     if (signal) {
-      if (signal.aborted) {
-        controller.abort();
-      } else {
-        signal.addEventListener("abort", forwardAbort, { once: true });
-      }
+      if (signal.aborted) controller.abort();
+      else signal.addEventListener("abort", forwardAbort, { once: true });
     }
 
     try {
-      console.log(
-        `[${label}] STARTED`,
-        new Date().toLocaleTimeString(),
-        variables
-      );
-
+      console.log(`[${label}] started`, variables);
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query,
-          variables,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, variables }),
         signal: controller.signal,
         cache: "no-store",
       });
-
       const json = await safeJsonResponse(response, label);
-
-      console.log(
-        `[${label}] FINISHED in ${(
-          (performance.now() - startedAt) /
-          1000
-        ).toFixed(2)} seconds`
-      );
-
+      console.log(`[${label}] finished in ${((performance.now() - startedAt) / 1000).toFixed(2)}s`);
       return json;
     } catch (error) {
-      if (error?.name === "AbortError") {
-        console.warn(`[${label}] request aborted or timed out`);
-      } else {
-        console.error(`[${label}] failed`, error);
-      }
-
+      console.error(`[${label}] failed`, error);
       return null;
     } finally {
       clearTimeout(timeoutId);
-
-      if (signal) {
-        signal.removeEventListener("abort", forwardAbort);
-      }
+      if (signal) signal.removeEventListener("abort", forwardAbort);
     }
   };
 
   // Fetch all categories (for the "All Categories" view)
-const fetchAllCategories = async (requestedCursor = null, requestedPage = 1) => {
+const fetchAllCategories = async () => {
   setLoading(true);
   setIsAllCategoriesView(true);
 
   let allCategoriesFromWP = [];
   let hasNextPage = true;
-  let after = requestedCursor;
+  let after = null;
 
   try {
     while (hasNextPage) {
@@ -540,7 +492,6 @@ const fetchAllCategories = async (requestedCursor = null, requestedPage = 1) => 
     );
 
     setAllCategories(filteredCategories);
-    setAllCategoriesPage(requestedPage);
 
     setLoading(false);
     setIsFirstLoad(false);
@@ -563,7 +514,7 @@ const fetchAllCategories = async (requestedCursor = null, requestedPage = 1) => 
     const cursor = allCategoriesCursorStack[page - 1] || null;
     setAllCategoriesPage(page);
     fetchAllCategories(cursor, page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   };
 
   // If no slug is provided, show all categories
@@ -604,7 +555,6 @@ if (!effectiveSlug) {
   // Fetch category data
   useEffect(() => {
     if (!effectiveSlug) return;
-
     const controller = new AbortController();
     let active = true;
 
@@ -616,9 +566,6 @@ if (!effectiveSlug) {
       setProducts([]);
       setSubCategories([]);
       setCategoryName("");
-      setCategoryDescription("");
-      setFaqData([]);
-      setDescriptionWithoutFAQ("");
 
       const query = `
         query GetCategory($slug: String!) {
@@ -628,51 +575,28 @@ if (!effectiveSlug) {
               name
               slug
               description
-              image {
-                sourceUrl
-              }
+              image { sourceUrl }
               children {
-                nodes {
-                  id
-                  name
-                  slug
-                  image {
-                    sourceUrl
-                  }
-                }
+                nodes { id name slug image { sourceUrl } }
               }
             }
           }
         }
       `;
 
-      const result = await fetchGraphQL(
-        query,
-        { slug: effectiveSlug },
-        "Category request",
-        controller.signal
-      );
-
-      if (!active || controller.signal.aborted) return;
-
+      const result = await fetchGraphQL(query, { slug: effectiveSlug }, "Category request", controller.signal);
+      if (!active) return;
       const cat = result?.data?.productCategories?.nodes?.[0];
 
       if (cat) {
         const description = cat.description || "";
-
         setCategoryName(cat.name || "");
         setCategoryDescription(description);
         setSubCategories(cat.children?.nodes || []);
         setFaqData(parseFAQsFromDescription(description));
-        setDescriptionWithoutFAQ(
-          removeFAQFromDescription(description)
-        );
+        setDescriptionWithoutFAQ(removeFAQFromDescription(description));
       } else {
-        setCategoryName(
-          effectiveSlug
-            .replace(/-/g, " ")
-            .replace(/\b\w/g, (letter) => letter.toUpperCase())
-        );
+        setCategoryName(effectiveSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()));
       }
 
       setCategoryLoaded(true);
@@ -681,80 +605,28 @@ if (!effectiveSlug) {
     };
 
     loadCategory();
-
-    return () => {
-      active = false;
-      controller.abort();
-    };
+    return () => { active = false; controller.abort(); };
   }, [effectiveSlug]);
 
   // Fetch products function
   const fetchProducts = async (cursor = null, page = 1, signal) => {
-    if (!effectiveSlug || signal?.aborted) return;
-
+    if (!effectiveSlug) return;
     setLoading(true);
-
     const query = `
       query GetProducts($slug: String!, $first: Int!, $after: String) {
-        products(
-          first: $first
-          after: $after
-          where: {
-            category: $slug
-            status: "publish"
-          }
-        ) {
-          nodes {
-            id
-            name
-            slug
-            metaData {
-              key
-              value
-            }
-            image {
-              sourceUrl
-            }
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
+        products(first: $first, after: $after, where: { category: $slug, status: "publish" }) {
+          nodes { id name slug metaData { key value } image { sourceUrl } }
+          pageInfo { hasNextPage endCursor }
         }
       }
     `;
-
-    const result = await fetchGraphQL(
-      query,
-      {
-        slug: effectiveSlug,
-        first: PRODUCTS_PER_PAGE,
-        after: cursor,
-      },
-      "Products request",
-      signal
-    );
-
+    const result = await fetchGraphQL(query, { slug: effectiveSlug, first: PRODUCTS_PER_PAGE, after: cursor }, "Products request", signal);
     if (signal?.aborted) return;
-
     const data = result?.data?.products;
-
-    if (!data) {
-      setProducts([]);
-      setHasNextPage(false);
-      setLoading(false);
-      return;
-    }
-
+    if (!data) { setProducts([]); setHasNextPage(false); setLoading(false); return; }
     setProducts(data.nodes || []);
     setHasNextPage(Boolean(data.pageInfo?.hasNextPage));
-
-    setCursorStack((previous) => {
-      const updated = [...previous];
-      updated[page] = data.pageInfo?.endCursor || null;
-      return updated;
-    });
-
+    setCursorStack((previous) => { const updated = [...previous]; updated[page] = data.pageInfo?.endCursor || null; return updated; });
     setLoading(false);
   };
 
@@ -771,13 +643,10 @@ if (!effectiveSlug) {
 
   // Handle page change
   const handlePageChange = (page) => {
-    if (page < 1) return;
-
     const cursor = cursorStack[page - 1] || null;
-
     setCurrentPage(page);
     fetchProducts(cursor, page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   };
 
   // Show skeleton while loading (first load)
@@ -852,12 +721,11 @@ if (!effectiveSlug) {
 
   <h4>{cat.name}</h4>
 
-<Link
-  href={`${pathname}/${cat.slug}`}
-  className="btn btn-blue"
->
-  View Category
-</Link>
+  <Link href={`${pathname}/${cat.slug}`}>
+    <button type="button" className="btn btn-blue">
+      View Category
+    </button>
+  </Link>
 </div>
                 ))}
               </div>
@@ -928,12 +796,11 @@ src={
                     {renderPartNumber('OEM', oemPartNumber)}
                     {renderPartNumber('JCBL', jcblPartNumber)}
 
-                <Link
-  href={`/product/${product.slug}`}
-  className="btn-blue btn"
->
-  View Product
-</Link>
+                    <Link href={`/product/${product.slug}`}>
+                      <button className="btn-blue btn">
+                        View Product
+                      </button>
+                    </Link>
                   </div>
                 );
               })}
