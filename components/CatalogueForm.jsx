@@ -80,7 +80,7 @@ const CatalogueForm = () => {
       )}
 
       <button type="submit" className="btn btn-blue" disabled={loading}>
-        {loading ? "Sending..." : "Download Catalogue"}
+        {loading ? "Sending..." : "Request a Catalogue"}
       </button>
 
     </form>

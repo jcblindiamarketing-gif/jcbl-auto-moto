@@ -4,18 +4,24 @@ import { getWordPressRedirects } from "./wordpressRedirects";
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  console.log("MIDDLEWARE HIT:", pathname);
+  // Do not run redirect lookup for normal category/page navigation
+  if (
+    pathname.startsWith("/category/") ||
+    pathname.startsWith("/product/") ||
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
 
   const redirects = await getWordPressRedirects();
 
+  const currentPath = pathname.replace(/\/$/, "");
+
   const matchedRedirect = redirects.find((redirect) => {
     const source = redirect.source.replace(/\/$/, "");
-    const currentPath = pathname.replace(/\/$/, "");
-
     return source === currentPath;
   });
-
-  console.log("MATCHED REDIRECT:", matchedRedirect);
 
   if (matchedRedirect) {
     const target = matchedRedirect.target;
@@ -23,8 +29,6 @@ export async function proxy(request: NextRequest) {
     const destination = target.startsWith("http")
       ? target
       : `${request.nextUrl.origin}${target}`;
-
-    console.log("REDIRECTING TO:", destination);
 
     return NextResponse.redirect(
       new URL(destination),

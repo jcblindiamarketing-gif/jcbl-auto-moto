@@ -13,25 +13,26 @@ import { usePathname } from "next/navigation";
 import CategorySection from "./CategorySection";
 
 const API_URL = "https://api.jcblautomoto.com/graphql";
-
+const REQUEST_TIMEOUT = 15000;
+const PRODUCTS_PER_PAGE = 24;
 const safeJsonResponse = async (response, label = "GraphQL") => {
   const rawText = await response.text();
   const text = rawText.trim();
 
   if (!response.ok) {
-    console.error(`${label} HTTP error:`, response.status, text.slice(0, 500));
+    console.error(`${label} HTTP error:`, response.status);
     return null;
   }
 
   if (!text || text.startsWith("<")) {
-    console.error(`${label} returned non-JSON content:`, text.slice(0, 500));
+    console.error(`${label} returned invalid content`);
     return null;
   }
 
   try {
     return JSON.parse(text);
   } catch (error) {
-    console.error(`${label} JSON parse error:`, error, text.slice(0, 500));
+    console.error(`${label} JSON parse error:`, error);
     return null;
   }
 };
@@ -297,8 +298,8 @@ const [isAllCategoriesView, setIsAllCategoriesView] = useState(false);
 const [allCategoriesPage, setAllCategoriesPage] = useState(1);
 const [allCategoriesCursorStack, setAllCategoriesCursorStack] = useState([null]);
 const [allCategoriesHasNext, setAllCategoriesHasNext] = useState(true);
-const limit = 100;
-const packagingImages = [
+const limit = PRODUCTS_PER_PAGE;
+  const packagingImages = [
   "/assets/images/packaging_img_2.webp",  
   "/assets/images/packaging_img_3.webp",
   "/assets/images/packaging_img_4.webp",
@@ -348,6 +349,38 @@ const packagingImages = [
         <strong>{label}:</strong> {trimmed}
       </p>
     );
+  };
+
+  const fetchGraphQL = async (query, variables = {}, label = "GraphQL request", signal) => {
+    const startedAt = performance.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    const forwardAbort = () => controller.abort();
+
+    if (signal) {
+      if (signal.aborted) controller.abort();
+      else signal.addEventListener("abort", forwardAbort, { once: true });
+    }
+
+    try {
+      console.log(`[${label}] started`, variables);
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, variables }),
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      const json = await safeJsonResponse(response, label);
+      console.log(`[${label}] finished in ${((performance.now() - startedAt) / 1000).toFixed(2)}s`);
+      return json;
+    } catch (error) {
+      console.error(`[${label}] failed`, error);
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+      if (signal) signal.removeEventListener("abort", forwardAbort);
+    }
   };
 
   // Fetch all categories (for the "All Categories" view)
@@ -522,191 +555,91 @@ if (!effectiveSlug) {
   // Fetch category data
   useEffect(() => {
     if (!effectiveSlug) return;
-    
-    setLoading(true);
-    setCategoryLoaded(false);
-    setIsFirstLoad(true);
-    setIsAllCategoriesView(false);
+    const controller = new AbortController();
+    let active = true;
 
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-query GetCategory($slug: String!) {
-  productCategories(where: { slug: [$slug] }) {
-    nodes {
-      id
-      name
-slug
+    const loadCategory = async () => {
+      setLoading(true);
+      setCategoryLoaded(false);
+      setIsFirstLoad(true);
+      setIsAllCategoriesView(false);
+      setProducts([]);
+      setSubCategories([]);
+      setCategoryName("");
 
-seo {
-  title
-  metaDesc
-  canonical
-  opengraphTitle
-  opengraphDescription
-  opengraphImage {
-    sourceUrl
-  }
-}
-
-description
-
-      image {
-        sourceUrl
-      }
-
-      children {
-        nodes {
-          id
-          name
-          slug
-          image {
-            sourceUrl
-          }
-        }
-      }
-    }
-  }
-}
-        `,
-        variables: {
-          slug: effectiveSlug
-        }
-      }),
-    })
-.then((response) => safeJsonResponse(response, "Category request"))
-.then((res) => {
-  console.log("CATEGORY RESPONSE", res ? JSON.stringify(res, null, 2) : "No valid JSON response");
-
-  const cat = res?.data?.productCategories?.nodes?.[0];
-  console.log("CATEGORY SEO:", cat?.seo);
-  console.log("CATEGORY SEO", cat?.seo);
-
-  if (cat) {
-    setCategoryName(cat.name);
-    const description = cat.description || "";
-    setCategoryDescription(description);
-
-    const parsedFAQs = parseFAQsFromDescription(description);
-    setFaqData(parsedFAQs);
-    setDescriptionWithoutFAQ(removeFAQFromDescription(description));
-    setSubCategories(cat.children?.nodes || []);
-  } else {
-    setCategoryName(
-      effectiveSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-    );
-  }
-
-  setCategoryLoaded(true);
-  setLoading(false);
-  setIsFirstLoad(false);
-})
-  }, [effectiveSlug]);
-
-  // Fetch products function
-  const fetchProducts = (cursor = null, page = 1) => {
-    setLoading(true);
-console.log(`
-query GetCategory($slug: String!) {
-  productCategories(where: { slug: [$slug] }) {
-    nodes {
-      id
-      name
-      slug
-      seo {
-        title
-        metaDesc
-        canonical
-      }
-    }
-  }
-}
-`);
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-        query GetProducts($slug: String!, $first: Int!, $after: String) {
-          products(
-            first: $first
-            after: $after
-            where: {
-              category: $slug
-              status: "publish"
-            }
-          ) {
+      const query = `
+        query GetCategory($slug: String!) {
+          productCategories(where: { slug: [$slug] }) {
             nodes {
               id
               name
               slug
-              metaData {
-                key
-                value
+              description
+              image { sourceUrl }
+              children {
+                nodes { id name slug image { sourceUrl } }
               }
-              image {
-                sourceUrl
-              }
-            }
-            pageInfo {
-              hasNextPage
-              endCursor
             }
           }
         }
-        `,
-        variables: {
-          slug: effectiveSlug,
-          first: limit,
-          after: cursor
+      `;
+
+      const result = await fetchGraphQL(query, { slug: effectiveSlug }, "Category request", controller.signal);
+      if (!active) return;
+      const cat = result?.data?.productCategories?.nodes?.[0];
+
+      if (cat) {
+        const description = cat.description || "";
+        setCategoryName(cat.name || "");
+        setCategoryDescription(description);
+        setSubCategories(cat.children?.nodes || []);
+        setFaqData(parseFAQsFromDescription(description));
+        setDescriptionWithoutFAQ(removeFAQFromDescription(description));
+      } else {
+        setCategoryName(effectiveSlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()));
+      }
+
+      setCategoryLoaded(true);
+      setLoading(false);
+      setIsFirstLoad(false);
+    };
+
+    loadCategory();
+    return () => { active = false; controller.abort(); };
+  }, [effectiveSlug]);
+
+  // Fetch products function
+  const fetchProducts = async (cursor = null, page = 1, signal) => {
+    if (!effectiveSlug) return;
+    setLoading(true);
+    const query = `
+      query GetProducts($slug: String!, $first: Int!, $after: String) {
+        products(first: $first, after: $after, where: { category: $slug, status: "publish" }) {
+          nodes { id name slug metaData { key value } image { sourceUrl } }
+          pageInfo { hasNextPage endCursor }
         }
-      }),
-    })
-      .then((response) => safeJsonResponse(response, "Products request"))
-      .then((res) => {
-        const data = res?.data?.products;
-
-        if (!data) {
-          setProducts([]);
-          setHasNextPage(false);
-          setLoading(false);
-          return;
-        }
-
-        setProducts(data?.nodes || []);
-        setHasNextPage(data?.pageInfo?.hasNextPage || false);
-
-        if (page === cursorStack.length) {
-          setCursorStack((prev) => [
-            ...prev,
-            data?.pageInfo?.endCursor,
-          ]);
-        }
-
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      }
+    `;
+    const result = await fetchGraphQL(query, { slug: effectiveSlug, first: PRODUCTS_PER_PAGE, after: cursor }, "Products request", signal);
+    if (signal?.aborted) return;
+    const data = result?.data?.products;
+    if (!data) { setProducts([]); setHasNextPage(false); setLoading(false); return; }
+    setProducts(data.nodes || []);
+    setHasNextPage(Boolean(data.pageInfo?.hasNextPage));
+    setCursorStack((previous) => { const updated = [...previous]; updated[page] = data.pageInfo?.endCursor || null; return updated; });
+    setLoading(false);
   };
 
-  // Fetch products when category is loaded and has no subcategories
+  // Fetch products only for leaf categories
   useEffect(() => {
-    if (!categoryLoaded || !effectiveSlug) return;
-
-    if (subCategories.length === 0) {
-      setProducts([]);
-      setCurrentPage(1);
-      setCursorStack([null]);
-      fetchProducts(null, 1);
-    }
-  }, [categoryLoaded, subCategories, effectiveSlug]);
+    if (!categoryLoaded || !effectiveSlug || subCategories.length > 0) return;
+    const controller = new AbortController();
+    setProducts([]);
+    setCurrentPage(1);
+    setCursorStack([null]);
+    fetchProducts(null, 1, controller.signal);
+    return () => controller.abort();
+  }, [categoryLoaded, effectiveSlug, subCategories.length]);
 
   // Handle page change
   const handlePageChange = (page) => {

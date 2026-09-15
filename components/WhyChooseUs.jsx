@@ -36,7 +36,7 @@ const WhyChooseUs = ({ openCatalogue }) => {
           </p>
         </div>
 
-        <button className="btn btn-blue" onClick={openCatalogue}>Download Catalogue</button>
+        <button className="btn btn-blue" onClick={openCatalogue}>Request a Catalogue</button>
       </div>
 
       <div className="container why-cards">

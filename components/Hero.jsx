@@ -63,7 +63,7 @@ function Hero({ openCatalogue }) {
                 className="btn btn-border"
                 onClick={openCatalogue}
               >
-                Download Catalogue
+                Request a Catalogue
               </button>
             </div>
           </div>

@@ -68,7 +68,7 @@ function Home({ categories }) {  const [openForm, setOpenForm] = useState(false)
             </button>
 
             <h3 style={{ marginBottom: "15px" }}>
-              Download Catalogue
+              Request a Catalogue
             </h3>
 
             <CatalogueForm />

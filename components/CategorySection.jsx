@@ -147,7 +147,7 @@ console.log(
 
       {!hideCatalogueButton && (
   <button onClick={openCatalogue} className="btn btn-blue">
-    Download Catalogue
+    Request a Catalogue
   </button>
 )}
         </div>
