@@ -16,7 +16,21 @@
   outline: none;
   transition: all 0.3s ease;
 }
+.success-message {
+  text-align: center;
+  padding: 30px 20px;
+}
 
+.success-message h3 {
+  color: #1e40af;
+  margin-bottom: 10px;
+}
+
+.success-message p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+}
 /* Focus */
 .catalogue-form > input:focus,
 .catalogue-form > select:focus {

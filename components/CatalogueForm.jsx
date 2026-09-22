@@ -1,12 +1,11 @@
+
 import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 import { useForm } from "react-hook-form";
 
-// ✅ FIXED import for Vite
 import PhoneInputLib from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
-// ✅ Ensure correct component
 const PhoneInput = PhoneInputLib?.default || PhoneInputLib;
 
 import "./CatalogueForm.css";
@@ -15,6 +14,7 @@ const CatalogueForm = () => {
   const { register, handleSubmit, reset } = useForm();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const onSubmit = async (data) => {
     if (!phone || phone.length < 8) {
@@ -24,6 +24,7 @@ const CatalogueForm = () => {
 
     try {
       setLoading(true);
+      setSuccess(false);
 
       await emailjs.send(
         "service_lmc907i",
@@ -36,9 +37,10 @@ const CatalogueForm = () => {
         "lKjUzXdIiopdLX71i"
       );
 
-      alert("Catalogue sent!");
-      window.open("/catalogue.pdf", "_blank");
+      // Show success message
+      setSuccess(true);
 
+      // Reset form
       reset();
       setPhone("");
 
@@ -51,38 +53,60 @@ const CatalogueForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="catalogue-form">
-
-      <input {...register("name")} placeholder="Name" required />
-
-      <input
-        {...register("email")}
-        type="email"
-        placeholder="Email"
-        required
-      />
-
-    
-      {typeof PhoneInput === "function" ? (
-        <PhoneInput
-          country="in"
-          value={phone}
-          onChange={setPhone}
-          enableSearch
-        />
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="catalogue-form"
+    >
+      {success ? (
+        <div className="success-message">
+          <h3>Thank You!</h3>
+          <p>
+            We received your request.
+            <br />
+            We will contact you within 24 hours.
+          </p>
+        </div>
       ) : (
-        // 🔥 fallback if lib breaks
-        <input
-          placeholder="Phone Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
+        <>
+          <input
+            {...register("name")}
+            placeholder="Name"
+            required
+          />
+
+          <input
+            {...register("email")}
+            type="email"
+            placeholder="Email"
+            required
+          />
+
+          {typeof PhoneInput === "function" ? (
+            <PhoneInput
+              country="in"
+              value={phone}
+              onChange={setPhone}
+              enableSearch
+            />
+          ) : (
+            <input
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-blue"
+            disabled={loading}
+          >
+            {loading
+              ? "Sending..."
+              : "Request a Catalogue"}
+          </button>
+        </>
       )}
-
-      <button type="submit" className="btn btn-blue" disabled={loading}>
-        {loading ? "Sending..." : "Request a Catalogue"}
-      </button>
-
     </form>
   );
 };

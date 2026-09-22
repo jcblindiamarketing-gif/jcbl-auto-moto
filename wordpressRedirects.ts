@@ -1,9 +1,13 @@
-type WordPressRedirect = {
+export type WordPressRedirect = {
   source: string;
   target: string;
-  statusCode: number;
-  matchType: string;
-  regex: boolean;
+  statusCode?: number;
+  matchType?: string;
+  regex?: boolean;
+};
+
+type WordPressRedirectResponse = {
+  redirects: WordPressRedirect[];
 };
 
 const WORDPRESS_REDIRECT_API =
@@ -13,29 +17,58 @@ export async function getWordPressRedirects(): Promise<
   WordPressRedirect[]
 > {
   try {
-    console.log("CALLING WORDPRESS API:", WORDPRESS_REDIRECT_API);
+    console.log(
+      "CALLING WORDPRESS API:",
+      WORDPRESS_REDIRECT_API
+    );
 
     const response = await fetch(WORDPRESS_REDIRECT_API, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
       cache: "no-store",
     });
 
-    const contentType = response.headers.get("content-type") || "";
+    const contentType =
+      response.headers.get("content-type") || "";
+
     const text = await response.text();
 
-    console.log("WORDPRESS API STATUS:", response.status);
-    console.log("WORDPRESS API CONTENT-TYPE:", contentType);
-    console.log("WORDPRESS API RESPONSE:", text.slice(0, 500));
+    console.log(
+      "WORDPRESS API STATUS:",
+      response.status
+    );
+
+    console.log(
+      "WORDPRESS API CONTENT-TYPE:",
+      contentType
+    );
+
+    console.log(
+      "WORDPRESS API RESPONSE:",
+      text.slice(0, 500)
+    );
 
     if (!response.ok) {
-      console.error("WordPress redirect API failed:", response.status);
+      console.error(
+        "WordPress redirect API failed:",
+        response.status
+      );
+
       return [];
     }
 
-    if (!contentType.toLowerCase().includes("application/json")) {
+    if (
+      !contentType
+        .toLowerCase()
+        .includes("application/json")
+    ) {
       console.error(
         "WordPress redirect API returned non-JSON content:",
         contentType
       );
+
       return [];
     }
 
@@ -44,7 +77,11 @@ export async function getWordPressRedirects(): Promise<
     try {
       data = JSON.parse(text);
     } catch (error) {
-      console.error("WordPress redirect API returned invalid JSON:", error);
+      console.error(
+        "WordPress redirect API returned invalid JSON:",
+        error
+      );
+
       return [];
     }
 
@@ -54,16 +91,46 @@ export async function getWordPressRedirects(): Promise<
       !("redirects" in data) ||
       !Array.isArray(data.redirects)
     ) {
-      console.error("Invalid redirect API format:", data);
+      console.error(
+        "Invalid redirect API format:",
+        data
+      );
+
       return [];
     }
 
-    console.log("REDIRECT COUNT:", data.redirects.length);
-    console.log("REDIRECT DATA:", data.redirects);
+    const apiData =
+      data as WordPressRedirectResponse;
 
-    return data.redirects as WordPressRedirect[];
+    const validRedirects = apiData.redirects.filter(
+      (redirect) => {
+        return (
+          redirect &&
+          typeof redirect.source === "string" &&
+          typeof redirect.target === "string" &&
+          redirect.source.trim() !== "" &&
+          redirect.target.trim() !== ""
+        );
+      }
+    );
+
+    console.log(
+      "REDIRECT COUNT:",
+      validRedirects.length
+    );
+
+    console.log(
+      "REDIRECT DATA:",
+      validRedirects
+    );
+
+    return validRedirects;
   } catch (error) {
-    console.error("WordPress redirect fetch error:", error);
+    console.error(
+      "WordPress redirect fetch error:",
+      error
+    );
+
     return [];
   }
 }
