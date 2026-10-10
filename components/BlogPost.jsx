@@ -45,7 +45,7 @@ if (!post) {
             </span>
             {post._embedded?.author?.[0]?.name && (
               <span className="blog-author">
-                ✍️ By {post._embedded.author[0].name}
+                ✍️ By Jcbl India
               </span>
             )}
           </div>

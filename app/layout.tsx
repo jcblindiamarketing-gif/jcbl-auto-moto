@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/*
+ * Website metadata
+ */
 export const metadata: Metadata = {
   title: "JCBL Auto Moto",
   description: "JCBL India Auto Moto",
@@ -29,6 +32,56 @@ export const metadata: Metadata = {
   verification: {
     google: "uB4qkMK2ZQHpwJNlzAHbg4QukX24V0nTY6xDY3X_TGk",
   },
+};
+
+/*
+ * Organization / Business Structured Data
+ *
+ * Keep this information accurate.
+ * Add telephone/address/social profiles when the real
+ * business information is available.
+ */
+const businessSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+
+  "@id": "https://www.jcblautomoto.com/#organization",
+
+  "name": "JCBL Auto Moto",
+
+  "url": "https://www.jcblautomoto.com/",
+
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://www.jcblautomoto.com/icon.png"
+  },
+
+  "description": "JCBL India Auto Moto",
+
+  "sameAs": [
+    // Add official social media URLs here when available.
+    // "https://www.facebook.com/...",
+    // "https://www.instagram.com/...",
+    // "https://www.linkedin.com/company/..."
+  ]
+};
+
+/*
+ * Website Structured Data
+ */
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+
+  "@id": "https://www.jcblautomoto.com/#website",
+
+  "name": "JCBL Auto Moto",
+
+  "url": "https://www.jcblautomoto.com/",
+
+  "publisher": {
+    "@id": "https://www.jcblautomoto.com/#organization"
+  }
 };
 
 export default function RootLayout({
@@ -46,6 +99,22 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-full flex flex-col"
       >
+        {/* Business Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(businessSchema),
+          }}
+        />
+
+        {/* Website Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
+
         {/* Header */}
         <Header />
 
@@ -66,7 +135,10 @@ export default function RootLayout({
           style={{ display: "none" }}
         />
 
-        <Script id="google-translate-init" strategy="afterInteractive">
+        <Script
+          id="google-translate-init"
+          strategy="afterInteractive"
+        >
           {`
             function googleTranslateElementInit() {
               new google.translate.TranslateElement(

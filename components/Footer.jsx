@@ -98,7 +98,7 @@ const Footer = () => {
   </li>
 
   <li>
-    <Link href="/products">Products</Link>
+    <Link href="/category">Products</Link>
   </li>
 
   <li>
