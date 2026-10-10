@@ -1,4 +1,3 @@
-```tsx
 import type { Metadata } from "next";
 import CategoryPage from "../../../components/CategoryPage";
 import { getCategorySEO } from "../../../lib/getCategorySEO";
@@ -38,4 +37,3 @@ export default async function CategoryPageWrapper({
 
   return <CategoryPage slug={currentSlug} />;
 }
-```
