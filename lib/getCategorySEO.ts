@@ -29,7 +29,7 @@ export async function getCategorySEO(slug: string) {
       `,
       variables: { slug },
     }),
-    next: { revalidate: 60 },
+    next: { revalidate: 3600 },
   });
 
   const json = await res.json();
