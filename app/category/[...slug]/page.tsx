@@ -1,37 +1,26 @@
-import type { Metadata } from "next";
-import CategoryPage from "../../../components/CategoryPage";
-import { getCategorySEO } from "../../../lib/getCategorySEO";
 
-type PageProps = {
+import CategoryPage from "../../../components/CategoryPage";
+import { generateSEOMetadata } from "@/lib/metadata";
+
+type Props = {
   params: Promise<{ slug: string[] }>;
 };
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const currentSlug = slug?.[slug.length - 1];
+  const currentSlug = slug[slug.length - 1];
+  const categoryPath = `/category/${slug.join("/")}`;
 
-  try {
-    const seo = currentSlug ? await getCategorySEO(currentSlug) : null;
-
-    return {
-      title: seo?.title?.trim() || "JCBL Auto Moto",
-      description: seo?.metaDesc?.trim() || "JCBL India Auto Moto",
-    };
-  } catch (error) {
-    console.error("Category SEO metadata error:", error);
-
-    return {
-      title: "JCBL Auto Moto",
-      description: "JCBL India Auto Moto",
-    };
-  }
+  return generateSEOMetadata(
+    currentSlug,
+    "category",
+    categoryPath
+  );
 }
 
 export default async function CategoryPageWrapper({
   params,
-}: PageProps) {
+}: Props) {
   const { slug } = await params;
   const currentSlug = slug[slug.length - 1];
 
