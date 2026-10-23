@@ -317,18 +317,6 @@ const PackagingSlider = ({ images }) => {
 const CategoryPage = ({ slug = null }) => {
   const pathname = usePathname();
 
-  const allowedSlugsInOrder = [
-    "car-spare-parts",
-    "chrome-parts",
-    "motorcycle-spare-parts",
-    "motorcycle-helmets",
-    "heavy-machinery-parts",
-    "tractor-part",
-    "lubricants-engine-oil",
-    "car-alloy-wheels",
-    "batteries",
-  ];
-
   const effectiveSlug = slug || null;
 
   // --------------------------------------------------
@@ -633,36 +621,9 @@ const CategoryPage = ({ slug = null }) => {
         allCategoriesFromWP.length
       );
 
-      const filteredCategories =
-        allCategoriesFromWP
-          .filter((cat) => {
-            const categorySlug =
-              cat?.slug
-                ?.toLowerCase()
-                ?.trim();
-
-            return allowedSlugsInOrder.includes(
-              categorySlug
-            );
-          })
-          .sort((a, b) => {
-            const slugA =
-              a?.slug
-                ?.toLowerCase()
-                ?.trim();
-
-            const slugB =
-              b?.slug
-                ?.toLowerCase()
-                ?.trim();
-
-            return (
-              allowedSlugsInOrder.indexOf(slugA) -
-              allowedSlugsInOrder.indexOf(slugB)
-            );
-          });
-
-      setAllCategories(filteredCategories);
+      // Do not restrict categories by a hardcoded slug list.
+      // Use all categories returned by WordPress.
+      setAllCategories(allCategoriesFromWP);
       setLoading(false);
       setIsFirstLoad(false);
       setCategoryLoaded(true);

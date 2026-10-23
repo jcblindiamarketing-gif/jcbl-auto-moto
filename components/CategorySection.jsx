@@ -4,135 +4,74 @@ import React from "react";
 import Link from "next/link";
 import "./CategorySection.css";
 
-
-
 export default function CategorySection({
-  categories,
+  categories = [],
   openCatalogue,
   hideCatalogueButton = false,
 }) {
-  // const [categories, setCategories] = useState([]);
-  // const [loading, setLoading] = useState(true);
-  // const hasFetched = useRef(false);
-
-  const allowedSlugsInOrder = [
-    "car-spare-parts",
-    "chrome-parts",
-    "motorcycle-spare-parts",
-    "motorcycle-helmets",
-    "heavy-machinery-parts",
-    "tractor-part",
-    "lubricants-engine-oil",
-    "batteries",
-
+  // Display only these 8 categories in this order.
+  const desiredCategories = [
+    { slug: "car-spare-parts" },
+    { slug: "chrome-parts" },
+    { slug: "motorcycle-spare-parts" },
+    {
+      slug: "motorcycle-helmets",
+      fallbackNames: ["Helmet", "Helmets", "Motorcycle Helmets"],
+      displayName: "Helmet",
+    },
+    {
+      fallbackNames: [
+        "Three Wheeler Spare Parts",
+        "Three Wheeler Parts",
+      ],
+      displayName: "Three Wheeler Spare Parts",
+    },
+    { slug: "heavy-machinery-parts" },
+    { slug: "tractor-part" },
+    { slug: "lubricants-engine-oil" },
   ];
 
-  const externalUrls = {
-    batteries: "https://jcblbatteries.com/",
-  };
+  const normalize = (value) =>
+    (value || "").toLowerCase().trim();
 
-  const allowedSlugsSet = new Set(allowedSlugsInOrder);
+  // Match categories using their WordPress slugs or fallback names.
+  const sortedCategories = desiredCategories
+    .map((wanted) => {
+      let category = wanted.slug
+        ? categories.find(
+            (cat) => normalize(cat?.slug) === wanted.slug
+          )
+        : undefined;
 
-  // useEffect(() => {
-  //   if (hasFetched.current) return;
-  //   hasFetched.current = true;
+      if (!category && wanted.fallbackNames) {
+        const names = wanted.fallbackNames.map(normalize);
 
-  //   const fetchAllCategories = async () => {
-  //     let allCats = [];
-  //     let hasNextPage = true;
-  //     let after = null;
+        category = categories.find((cat) =>
+          names.includes(normalize(cat?.name))
+        );
+      }
 
-  //     try {
-  //       while (hasNextPage) {
-  //         const res = await fetch(API_URL, {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify({
-  //             query: `
-  //               query ($after: String) {
-  //                 productCategories(
-  //                   first: 100,
-  //                   after: $after,
-  //                   where: { hideEmpty: false }
-  //                 ) {
-  //                   nodes {
-  //                     id
-  //                     name
-  //                     slug
-  //                     description
-  //                     image {
-  //                       sourceUrl
-  //                     }
-  //                   }
-  //                   pageInfo {
-  //                     hasNextPage
-  //                     endCursor
-  //                   }
-  //                 }
-  //               }
-  //             `,
-  //             variables: { after },
-  //           }),
-  //         });
+      if (!category) {
+        console.warn(
+          `[CategorySection] Category not found: ${
+            wanted.displayName || wanted.slug
+          }`
+        );
+        return null;
+      }
 
-  //         const json = await res.json();
-  //         const data = json?.data?.productCategories;
-
-  //         allCats = [...allCats, ...(data?.nodes || [])];
-
-  //         hasNextPage = data?.pageInfo?.hasNextPage;
-  //         after = data?.pageInfo?.endCursor;
-  //       }
-
-  //       setCategories(allCats);
-  //     } catch (err) {
-  //       console.error("CATEGORY ERROR", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchAllCategories();
-  // }, []);
-
-  const handleCategoryClick = (cat) => {
-    const slug = cat?.slug?.toLowerCase()?.trim();
-
-    if (externalUrls[slug]) {
-      window.open(externalUrls[slug], "_blank");
-    }
-  };
-console.log(
-  categories.map((cat) => ({
-    name: cat.name,
-    slug: cat.slug,
-  }))
-);
-console.log(
-  categories.find((c) => c.slug === "tractor-part")
-);
-  const sortedCategories = categories
-    .filter((cat) => {
-      const slug = cat?.slug?.toLowerCase()?.trim();
-      return slug && allowedSlugsSet.has(slug);
+      return {
+        ...category,
+        displayName: wanted.displayName || category.name,
+      };
     })
-    .sort((a, b) => {
-      const slugA = a?.slug?.toLowerCase()?.trim();
-      const slugB = b?.slug?.toLowerCase()?.trim();
-
-      return (
-        allowedSlugsInOrder.indexOf(slugA) -
-        allowedSlugsInOrder.indexOf(slugB)
-      );
-    });
+    .filter(Boolean);
 
   const getShortDesc = (html) => {
     if (!html) return "Explore our products";
 
-    const text = html.replace(/<[^>]+>/g, "");
-    const words = text.split(" ").filter(Boolean);
+    const text = html.replace(/<[^>]+>/g, "").trim();
+    const words = text.split(/\s+/).filter(Boolean);
 
     return words.length > 10
       ? words.slice(0, 10).join(" ") + "..."
@@ -145,60 +84,61 @@ console.log(
         <div className="category-header">
           <h2>Search By Category</h2>
 
-      {!hideCatalogueButton && (
-  <button onClick={openCatalogue} className="btn btn-blue">
-    Request a Catalogue
-  </button>
-)}
+          {!hideCatalogueButton && (
+            <button
+              type="button"
+              onClick={openCatalogue}
+              className="btn btn-blue"
+            >
+              Request a Catalogue
+            </button>
+          )}
         </div>
 
-       <div className="categories-grid">
-  {sortedCategories.map((cat) => {
-    const imageUrl =
-      cat?.image?.sourceUrl ||
-      `/images/categories/${cat.slug}.png`;
+        <div className="categories-grid">
+          {sortedCategories.map((cat) => {
+            const slug = normalize(cat.slug);
 
-    const isExternal =
-      externalUrls[cat.slug?.toLowerCase()?.trim()];
+            const imageUrl =
+              cat?.image?.sourceUrl ||
+              `/images/categories/${slug}.png`;
 
-    return (
-      <div key={cat.id} className="category-card">
-        <div className="category-image">
-          <img
-            src={imageUrl}
-            alt={cat.name}
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.src = "/images/fallback.png";
-            }}
-          />
+            return (
+              <div
+                key={cat.id || slug}
+                className="category-card"
+              >
+                <div className="category-image">
+                  <img
+                    src={imageUrl}
+                    alt={cat.displayName}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src =
+                        "/images/fallback.png";
+                    }}
+                  />
+                </div>
+
+                <h3 className="category-title">
+                  {cat.displayName}
+                </h3>
+
+                <p className="category-description">
+                  {getShortDesc(cat.description)}
+                </p>
+
+                <Link
+                  href={`/category/${slug}`}
+                  className="btn-blue btn"
+                >
+                  Inquire Now
+                </Link>
+              </div>
+            );
+          })}
         </div>
-
-        <h3 className="category-title">{cat.name}</h3>
-
-        <p className="category-description">
-          {getShortDesc(cat.description)}
-        </p>
-
-        {isExternal ? (
-          <button
-            onClick={() => handleCategoryClick(cat)}
-            className=" btn-blue btn"
-          >
-            Visit Website
-          </button>
-        ) : (
-          <Link
-            href={`/category/${cat.slug}`}
-            className=" btn-blue btn"
-          >
-            Inquire Now
-          </Link>
-        )}
-      </div>
-    );
-  })}
-</div>
       </div>
     </section>
   );
