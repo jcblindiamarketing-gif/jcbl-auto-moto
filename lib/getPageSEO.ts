@@ -1,15 +1,19 @@
+import type { Metadata } from "next";
+
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
 const EMPTY_SEO = {
   title: "",
   metaDesc: "",
   canonical: "",
+  metaRobotsNoindex: "index",
+  metaRobotsNofollow: "follow",
   opengraphTitle: "",
   opengraphDescription: "",
   opengraphImage: "",
 };
 
-type SEOData = typeof EMPTY_SEO;
+export type SEOData = typeof EMPTY_SEO;
 
 async function safeJsonResponse(
   response: Response,
@@ -42,7 +46,9 @@ async function safeJsonResponse(
   }
 }
 
-export async function getPageSEO(uri: string): Promise<SEOData> {
+export async function getPageSEO(
+  uri: string
+): Promise<SEOData> {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -60,6 +66,8 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
                 title
                 metaDesc
                 canonical
+                metaRobotsNoindex
+                metaRobotsNofollow
                 opengraphTitle
                 opengraphDescription
                 opengraphImage {
@@ -69,13 +77,23 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
             }
           }
         `,
-        variables: {
-          uri,
-        },
+        variables: { uri },
       }),
     });
 
-    const json = await safeJsonResponse(response, `SEO ${uri}`);
+    const json = await safeJsonResponse(
+      response,
+      `SEO ${uri}`
+    );
+
+    if (json?.errors?.length) {
+      console.error(
+        `GraphQL SEO errors for ${uri}:`,
+        json.errors
+      );
+      return EMPTY_SEO;
+    }
+
     const seo = json?.data?.page?.seo;
 
     if (!seo) {
@@ -86,12 +104,21 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
       title: seo.title || "",
       metaDesc: seo.metaDesc || "",
       canonical: seo.canonical || "",
+      metaRobotsNoindex:
+        seo.metaRobotsNoindex || "index",
+      metaRobotsNofollow:
+        seo.metaRobotsNofollow || "follow",
       opengraphTitle: seo.opengraphTitle || "",
-      opengraphDescription: seo.opengraphDescription || "",
-      opengraphImage: seo.opengraphImage?.sourceUrl || "",
+      opengraphDescription:
+        seo.opengraphDescription || "",
+      opengraphImage:
+        seo.opengraphImage?.sourceUrl || "",
     };
   } catch (error) {
-    console.error(`getPageSEO failed for ${uri}:`, error);
+    console.error(
+      `getPageSEO failed for ${uri}:`,
+      error
+    );
     return EMPTY_SEO;
   }
 }
