@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { getPageSEO } from "@/lib/getPageSEO";
 import { getProductSEO } from "@/lib/getProductSEO";
@@ -18,6 +19,7 @@ function getFrontendCanonical(
       ? new URL(canonical, FRONTEND_URL)
       : new URL(fallbackPath, FRONTEND_URL);
 
+    // Keep canonical URLs on the public frontend domain.
     if (url.origin === WORDPRESS_URL) {
       url.hostname = new URL(FRONTEND_URL).hostname;
     }
@@ -32,16 +34,6 @@ function getFrontendCanonical(
   } catch {
     return new URL(fallbackPath, FRONTEND_URL).toString();
   }
-}
-
-function getRobotsMetadata(
-  noindex?: string | null,
-  nofollow?: string | null
-): NonNullable<Metadata["robots"]> {
-  return {
-    index: noindex !== "noindex",
-    follow: nofollow !== "nofollow",
-  };
 }
 
 export async function generateSEOMetadata(
@@ -84,10 +76,6 @@ export async function generateSEOMetadata(
     alternates: {
       canonical,
     },
-    robots: getRobotsMetadata(
-      seo?.metaRobotsNoindex,
-      seo?.metaRobotsNofollow
-    ),
     openGraph: {
       title: seo?.opengraphTitle || seo?.title || "JCBL Auto Moto",
       description:
