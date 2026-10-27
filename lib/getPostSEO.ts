@@ -2,8 +2,8 @@
 const WP_GRAPHQL = "https://api.jcblautomoto.com/graphql";
 
 const query = `
-  query GetPostSEO($uri: ID!) {
-    post(id: $uri, idType: URI) {
+  query GetPostSEO($slug: ID!) {
+    post(id: $slug, idType: SLUG) {
       seo {
         title
         metaDesc
@@ -21,6 +21,17 @@ const query = `
 `;
 
 export async function getPostSEO(uri: string) {
+  // Frontend URI: /blog/example-post/
+  // WordPress post lookup: example-post
+  const slug = uri
+    .split("/")
+    .filter(Boolean)
+    .pop();
+
+  if (!slug) {
+    throw new Error(`Invalid post URI: ${uri}`);
+  }
+
   const res = await fetch(WP_GRAPHQL, {
     method: "POST",
     headers: {
@@ -29,7 +40,7 @@ export async function getPostSEO(uri: string) {
     next: { revalidate: 60 },
     body: JSON.stringify({
       query,
-      variables: { uri },
+      variables: { slug },
     }),
   });
 
@@ -44,5 +55,11 @@ export async function getPostSEO(uri: string) {
     throw new Error("Unable to fetch Yoast post SEO data");
   }
 
-  return json.data?.post?.seo ?? null;
+  const post = json.data?.post;
+
+  if (!post) {
+    throw new Error(`WordPress post not found for slug: ${slug}`);
+  }
+
+  return post.seo ?? null;
 }
