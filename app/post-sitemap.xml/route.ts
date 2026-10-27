@@ -21,7 +21,7 @@ async function getAllPosts(): Promise<SitemapPost[]> {
       headers: {
         "Content-Type": "application/json",
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 60 },
       body: JSON.stringify({
         query: `
           query GetPosts($after: String) {
