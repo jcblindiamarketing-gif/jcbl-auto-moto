@@ -2,9 +2,16 @@
 const API_URL = "https://api.jcblautomoto.com/graphql";
 const SITE_URL = "https://www.jcblautomoto.com";
 
-async function getAllPosts() {
-  const allPosts: any[] = [];
+type SitemapPost = {
+  uri: string | null;
+  modified: string | null;
+  seo?: {
+    metaRobotsNoindex?: string | null;
+  } | null;
+};
 
+async function getAllPosts(): Promise<SitemapPost[]> {
+  const allPosts: SitemapPost[] = [];
   let after: string | null = null;
   let hasNextPage = true;
 
@@ -38,39 +45,35 @@ async function getAllPosts() {
     });
 
     if (!res.ok) {
-      throw new Error(
-        `WordPress GraphQL request failed: ${res.status}`
-      );
+      throw new Error(`WordPress GraphQL HTTP error: ${res.status}`);
     }
 
     const json = await res.json();
 
     if (json.errors?.length) {
-      console.error("Sitemap GraphQL errors:", json.errors);
-      throw new Error("Could not fetch Yoast SEO data for sitemap");
+      console.error("Post sitemap GraphQL errors:", json.errors);
+      throw new Error("Unable to retrieve Yoast robots settings");
     }
 
-    const nodes = json?.data?.posts?.nodes ?? [];
-    const pageInfo = json?.data?.posts?.pageInfo;
-
-    if (!pageInfo) {
-      throw new Error("Sitemap pagination data is missing");
+    const posts = json?.data?.posts;
+    if (!posts?.pageInfo || !Array.isArray(posts.nodes)) {
+      throw new Error("Invalid posts response from WordPress GraphQL");
     }
 
-    allPosts.push(...nodes);
+    allPosts.push(...posts.nodes);
 
-    hasNextPage = pageInfo.hasNextPage;
-    after = pageInfo.endCursor;
+    hasNextPage = posts.pageInfo.hasNextPage;
+    after = posts.pageInfo.endCursor;
 
     if (hasNextPage && !after) {
-      throw new Error("Sitemap pagination cursor is missing");
+      throw new Error("Missing GraphQL pagination cursor");
     }
   }
 
   return allPosts;
 }
 
-function escapeXml(value: string) {
+function escapeXml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -86,26 +89,26 @@ export async function GET() {
     const indexablePosts = posts.filter((post) => {
       if (!post.uri) return false;
 
-      const robots = post.seo?.metaRobotsNoindex;
-
-      // Exclude posts explicitly marked noindex in Yoast.
-      return robots !== "noindex";
+      // Exclude only posts explicitly marked noindex by Yoast.
+      return post.seo?.metaRobotsNoindex !== "noindex";
     });
 
-    const urls = indexablePosts
-      .map((post) => {
-        const loc = escapeXml(`${SITE_URL}${post.uri}`);
-        const lastmod = post.modified
-          ? `<lastmod>${escapeXml(post.modified.split("T")[0])}</lastmod>`
-          : "";
+    const urls = indexablePosts.map((post) => {
+      const uri = post.uri!.startsWith("/")
+        ? post.uri!
+        : `/${post.uri}`;
 
-        return `
+      const loc = escapeXml(`${SITE_URL}${uri}`);
+      const lastmod = post.modified
+        ? `<lastmod>${escapeXml(post.modified.split("T")[0])}</lastmod>`
+        : "";
+
+      return `
   <url>
     <loc>${loc}</loc>
     ${lastmod}
   </url>`;
-      })
-      .join("");
+    }).join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -113,6 +116,7 @@ ${urls}
 </urlset>`;
 
     return new Response(xml, {
+      status: 200,
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
@@ -121,8 +125,12 @@ ${urls}
   } catch (error) {
     console.error("Post sitemap generation failed:", error);
 
-    return new Response("Unable to generate sitemap", {
+    return new Response("Unable to generate post sitemap", {
       status: 500,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store",
+      },
     });
   }
 }
