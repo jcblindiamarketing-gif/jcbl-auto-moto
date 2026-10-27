@@ -10,6 +10,17 @@ const FRONTEND_URL = "https://www.jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
+type SEOResult = {
+  title?: string;
+  metaDesc?: string;
+  canonical?: string;
+  metaRobotsNoindex?: string | null;
+  metaRobotsNofollow?: string | null;
+  opengraphTitle?: string;
+  opengraphDescription?: string;
+  opengraphImage?: string | { sourceUrl?: string };
+} | null;
+
 function getFrontendCanonical(
   canonical: string | undefined,
   fallbackPath: string
@@ -40,7 +51,7 @@ export async function generateSEOMetadata(
   type: SEOType = "page",
   fallbackPath?: string
 ): Promise<Metadata> {
-  let seo = null;
+  let seo: SEOResult = null;
 
   try {
     switch (type) {
@@ -60,9 +71,9 @@ export async function generateSEOMetadata(
     console.error(`SEO fetch failed for ${type}: ${uri}`, error);
   }
 
-  const path =
-    fallbackPath ??
-    (uri.startsWith("/") ? uri : `/${uri}`);
+  const path = fallbackPath ?? (
+    uri.startsWith("/") ? uri : `/${uri}`
+  );
 
   const canonical = getFrontendCanonical(
     seo?.canonical,
@@ -72,19 +83,21 @@ export async function generateSEOMetadata(
   const noindex = seo?.metaRobotsNoindex === "noindex";
   const nofollow = seo?.metaRobotsNofollow === "nofollow";
 
+  const image =
+    typeof seo?.opengraphImage === "string"
+      ? seo.opengraphImage
+      : seo?.opengraphImage?.sourceUrl;
+
   return {
     title: seo?.title || "JCBL Auto Moto",
     description: seo?.metaDesc || "",
-
     robots: {
       index: !noindex,
       follow: !nofollow,
     },
-
     alternates: {
       canonical,
     },
-
     openGraph: {
       title: seo?.opengraphTitle || seo?.title || "JCBL Auto Moto",
       description:
@@ -92,9 +105,7 @@ export async function generateSEOMetadata(
       url: canonical,
       siteName: "JCBL Auto Moto",
       type: type === "post" ? "article" : "website",
-      images: seo?.opengraphImage?.sourceUrl
-        ? [seo.opengraphImage.sourceUrl]
-        : [],
+      images: image ? [image] : [],
     },
   };
 }
