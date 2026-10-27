@@ -10,17 +10,6 @@ const FRONTEND_URL = "https://www.jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
-type SEOResult = {
-  title?: string;
-  metaDesc?: string;
-  canonical?: string;
-  metaRobotsNoindex?: string | null;
-  metaRobotsNofollow?: string | null;
-  opengraphTitle?: string;
-  opengraphDescription?: string;
-  opengraphImage?: string | { sourceUrl?: string };
-} | null;
-
 function getFrontendCanonical(
   canonical: string | undefined,
   fallbackPath: string
@@ -30,6 +19,7 @@ function getFrontendCanonical(
       ? new URL(canonical, FRONTEND_URL)
       : new URL(fallbackPath, FRONTEND_URL);
 
+    // Keep canonical URLs on the public frontend domain.
     if (url.origin === WORDPRESS_URL) {
       url.hostname = new URL(FRONTEND_URL).hostname;
     }
@@ -51,7 +41,7 @@ export async function generateSEOMetadata(
   type: SEOType = "page",
   fallbackPath?: string
 ): Promise<Metadata> {
-  let seo: SEOResult = null;
+  let seo = null;
 
   try {
     switch (type) {
@@ -71,30 +61,18 @@ export async function generateSEOMetadata(
     console.error(`SEO fetch failed for ${type}: ${uri}`, error);
   }
 
-  const path = fallbackPath ?? (
-    uri.startsWith("/") ? uri : `/${uri}`
-  );
+  const path =
+    fallbackPath ??
+    (uri.startsWith("/") ? uri : `/${uri}`);
 
   const canonical = getFrontendCanonical(
     seo?.canonical,
     path
   );
 
-  const noindex = seo?.metaRobotsNoindex === "noindex";
-  const nofollow = seo?.metaRobotsNofollow === "nofollow";
-
-  const image =
-    typeof seo?.opengraphImage === "string"
-      ? seo.opengraphImage
-      : seo?.opengraphImage?.sourceUrl;
-
   return {
     title: seo?.title || "JCBL Auto Moto",
     description: seo?.metaDesc || "",
-    robots: {
-      index: !noindex,
-      follow: !nofollow,
-    },
     alternates: {
       canonical,
     },
@@ -105,7 +83,9 @@ export async function generateSEOMetadata(
       url: canonical,
       siteName: "JCBL Auto Moto",
       type: type === "post" ? "article" : "website",
-      images: image ? [image] : [],
+      images: seo?.opengraphImage?.sourceUrl
+        ? [seo.opengraphImage.sourceUrl]
+        : [],
     },
   };
 }
