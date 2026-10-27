@@ -1,12 +1,9 @@
-
 const API_URL = "https://api.jcblautomoto.com/graphql";
 
 const EMPTY_SEO = {
   title: "",
   metaDesc: "",
   canonical: "",
-  metaRobotsNoindex: "index",
-  metaRobotsNofollow: "follow",
   opengraphTitle: "",
   opengraphDescription: "",
   opengraphImage: "",
@@ -21,8 +18,19 @@ async function safeJsonResponse(
   const rawText = await response.text();
   const text = rawText.trim();
 
-  if (!response.ok || !text || text.startsWith("<")) {
-    console.error(`${label} failed:`, response.status, text.slice(0, 500));
+  if (!response.ok) {
+    console.error(
+      `${label} HTTP ${response.status}:`,
+      text.slice(0, 500)
+    );
+    return null;
+  }
+
+  if (!text || text.startsWith("<")) {
+    console.error(
+      `${label} returned HTML/non-JSON:`,
+      text.slice(0, 500)
+    );
     return null;
   }
 
@@ -38,8 +46,12 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 60 },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: {
+        revalidate: 60,
+      },
       body: JSON.stringify({
         query: `
           query GetPageSEO($uri: ID!) {
@@ -48,8 +60,6 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
                 title
                 metaDesc
                 canonical
-                metaRobotsNoindex
-                metaRobotsNofollow
                 opengraphTitle
                 opengraphDescription
                 opengraphImage {
@@ -59,27 +69,23 @@ export async function getPageSEO(uri: string): Promise<SEOData> {
             }
           }
         `,
-        variables: { uri },
+        variables: {
+          uri,
+        },
       }),
     });
 
-    const json = await safeJsonResponse(response, `Page SEO ${uri}`);
-
-    if (json?.errors?.length) {
-      console.error("Page SEO GraphQL errors:", json.errors);
-      return EMPTY_SEO;
-    }
-
+    const json = await safeJsonResponse(response, `SEO ${uri}`);
     const seo = json?.data?.page?.seo;
 
-    if (!seo) return EMPTY_SEO;
+    if (!seo) {
+      return EMPTY_SEO;
+    }
 
     return {
       title: seo.title || "",
       metaDesc: seo.metaDesc || "",
       canonical: seo.canonical || "",
-      metaRobotsNoindex: seo.metaRobotsNoindex ?? "index",
-      metaRobotsNofollow: seo.metaRobotsNofollow ?? "follow",
       opengraphTitle: seo.opengraphTitle || "",
       opengraphDescription: seo.opengraphDescription || "",
       opengraphImage: seo.opengraphImage?.sourceUrl || "",
