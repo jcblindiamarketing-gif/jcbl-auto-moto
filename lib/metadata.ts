@@ -19,7 +19,6 @@ function getFrontendCanonical(
       ? new URL(canonical, FRONTEND_URL)
       : new URL(fallbackPath, FRONTEND_URL);
 
-    // Keep canonical URLs on the public frontend domain.
     if (url.origin === WORDPRESS_URL) {
       url.hostname = new URL(FRONTEND_URL).hostname;
     }
@@ -70,12 +69,22 @@ export async function generateSEOMetadata(
     path
   );
 
+  const noindex = seo?.metaRobotsNoindex === "noindex";
+  const nofollow = seo?.metaRobotsNofollow === "nofollow";
+
   return {
     title: seo?.title || "JCBL Auto Moto",
     description: seo?.metaDesc || "",
+
+    robots: {
+      index: !noindex,
+      follow: !nofollow,
+    },
+
     alternates: {
       canonical,
     },
+
     openGraph: {
       title: seo?.opengraphTitle || seo?.title || "JCBL Auto Moto",
       description:
