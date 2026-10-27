@@ -1,6 +1,3 @@
-import BlogPost from "@/components/BlogPost";
-import { notFound } from "next/navigation";
-import { generateSEOMetadata } from "@/lib/metadata";
 
 export async function generateMetadata({
   params,
@@ -9,60 +6,20 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
 
-  console.log("Metadata slug:", slug);
+  const metadata = await generateSEOMetadata(
+    `/blog/${slug}/`,
+    "post"
+  );
 
-  return generateSEOMetadata(`/blog/${slug}/`, "post");
-}
-
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-
-  if (!slug) {
-    notFound();
+  if (slug === "ertiga-fuel-filter") {
+    return {
+      ...metadata,
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
   }
 
- const [postRes, latestRes] = await Promise.all([
-  fetch(
-    `https://api.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed&status=publish`,
-    {
-      next: { revalidate: 3600 },
-    }
-  ),
-  fetch(
-    `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`,
-    {
-      next: { revalidate: 3600 },
-    }
-  ),
-]);
-
-const posts = await postRes.json();
-
-if (!posts.length) {
-  notFound();
-}
-
-const latestPosts = await latestRes.json();
-
-const post = posts[0];
-
-post.cleanedContent = post.content.rendered
-  .replace(
-    /https:\/\/api\.jcblautomoto\.com/g,
-    "https://www.jcblautomoto.com"
-  )
-  .replace(/overflow\s*:\s*hidden/gi, "overflow:visible")
-  .replace(/height\s*:\s*100vh/gi, "height:auto")
-  .replace(/max-height\s*:\s*\d+px/gi, "max-height:none");
-
-return (
-  <BlogPost
-    post={post}
-    latestPosts={latestPosts}
-  />
-);
+  return metadata;
 }
