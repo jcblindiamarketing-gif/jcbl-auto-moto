@@ -21,12 +21,7 @@ const query = `
 `;
 
 export async function getPostSEO(uri: string) {
-  // Frontend URI: /blog/example-post/
-  // WordPress post lookup: example-post
-  const slug = uri
-    .split("/")
-    .filter(Boolean)
-    .pop();
+  const slug = uri.split("/").filter(Boolean).pop();
 
   if (!slug) {
     throw new Error(`Invalid post URI: ${uri}`);
@@ -37,7 +32,7 @@ export async function getPostSEO(uri: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    next: { revalidate: 60 },
+    cache: "no-store",
     body: JSON.stringify({
       query,
       variables: { slug },
@@ -61,5 +56,9 @@ export async function getPostSEO(uri: string) {
     throw new Error(`WordPress post not found for slug: ${slug}`);
   }
 
-  return post.seo ?? null;
+  if (!post.seo) {
+    throw new Error(`Yoast SEO data missing for post: ${slug}`);
+  }
+
+  return post.seo;
 }
