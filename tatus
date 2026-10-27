@@ -1,0 +1,221 @@
+[1mdiff --git a/app/category/[...slug]/page.tsx b/app/category/[...slug]/page.tsx[m
+[1mindex c4ead19..55bff83 100644[m
+[1m--- a/app/category/[...slug]/page.tsx[m
+[1m+++ b/app/category/[...slug]/page.tsx[m
+[36m@@ -1,12 +1,29 @@[m
+[32m+[m
+ import CategoryPage from "../../../components/CategoryPage";[m
+[32m+[m[32mimport { generateSEOMetadata } from "@/lib/metadata";[m
+[32m+[m
+[32m+[m[32mtype Props = {[m
+[32m+[m[32m  params: Promise<{ slug: string[] }>;[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32mexport async function generateMetadata({ params }: Props) {[m
+[32m+[m[32m  const { slug } = await params;[m
+[32m+[m
+[32m+[m[32m  const currentSlug = slug[slug.length - 1];[m
+[32m+[m[32m  const categoryPath = `/category/${slug.join("/")}`;[m
+[32m+[m
+[32m+[m[32m  return generateSEOMetadata([m
+[32m+[m[32m    currentSlug,[m
+[32m+[m[32m    "category",[m
+[32m+[m[32m    categoryPath[m
+[32m+[m[32m  );[m
+[32m+[m[32m}[m
+ [m
+ export default async function CategoryPageWrapper({[m
+   params,[m
+[31m-}: {[m
+[31m-  params: Promise<{ slug: string[] }>;[m
+[31m-}) {[m
+[32m+[m[32m}: Props) {[m
+   const { slug } = await params;[m
+   const currentSlug = slug[slug.length - 1];[m
+ [m
+   return <CategoryPage slug={currentSlug} />;[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/app/page.tsx b/app/page.tsx[m
+[1mindex 41ee5eb..323f74e 100644[m
+[1m--- a/app/page.tsx[m
+[1m+++ b/app/page.tsx[m
+[36m@@ -1,44 +1,61 @@[m
+[32m+[m
+[32m+[m[32mimport type { Metadata } from "next";[m
+ import Home from "@/components/Home";[m
+ import { getCategories } from "@/lib/getCategories";[m
+ import { getYoastSEO } from "@/lib/yoast";[m
+ [m
+[31m-export async function generateMetadata() {[m
+[31m-  // Fetch homepage SEO from the WordPress site URL[m
+[31m-  const seo = await getYoastSEO("https://api.jcblautomoto.com/");[m
+[32m+[m[32mconst FRONTEND_URL = "https://www.jcblautomoto.com";[m
+[32m+[m
+[32m+[m[32mexport async function generateMetadata(): Promise<Metadata> {[m
+[32m+[m[32m  const fallbackCanonical = `${FRONTEND_URL}/`;[m
+[32m+[m
+[32m+[m[32m  try {[m
+[32m+[m[32m    const seo = await getYoastSEO("https://api.jcblautomoto.com/");[m
+[32m+[m
+[32m+[m[32m    if (!seo?.json) {[m
+[32m+[m[32m      return {[m
+[32m+[m[32m        title: "JCBL Auto Moto",[m
+[32m+[m[32m        description: "",[m
+[32m+[m[32m        alternates: {[m
+[32m+[m[32m          canonical: fallbackCanonical,[m
+[32m+[m[32m        },[m
+[32m+[m[32m      };[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return {[m
+[32m+[m[32m      title: seo.json.title || "JCBL Auto Moto",[m
+[32m+[m[32m      description: seo.json.description || "",[m
+[32m+[m[32m      alternates: {[m
+[32m+[m[32m        canonical: fallbackCanonical,[m
+[32m+[m[32m      },[m
+[32m+[m[32m      robots: seo.json.robots,[m
+[32m+[m[32m      openGraph: {[m
+[32m+[m[32m        title: seo.json.og_title || seo.json.title,[m
+[32m+[m[32m        description:[m
+[32m+[m[32m          seo.json.og_description || seo.json.description,[m
+[32m+[m[32m        url: fallbackCanonical,[m
+[32m+[m[32m        siteName: seo.json.og_site_name || "JCBL Auto Moto",[m
+[32m+[m[32m        type: "website",[m
+[32m+[m[32m      },[m
+[32m+[m[32m      twitter: {[m
+[32m+[m[32m        card: seo.json.twitter_card || "summary_large_image",[m
+[32m+[m[32m      },[m
+[32m+[m[32m    };[m
+[32m+[m[32m  } catch (error) {[m
+[32m+[m[32m    console.error("Homepage SEO fetch failed:", error);[m
+ [m
+[31m-  if (!seo || !seo.json) {[m
+     return {[m
+       title: "JCBL Auto Moto",[m
+       description: "",[m
+[32m+[m[32m      alternates: {[m
+[32m+[m[32m        canonical: fallbackCanonical,[m
+[32m+[m[32m      },[m
+     };[m
+   }[m
+[31m-[m
+[31m-  return {[m
+[31m-    title: seo.json.title,[m
+[31m-    description: seo.json.description,[m
+[31m-[m
+[31m-    alternates: {[m
+[31m-      canonical: "https://www.jcblautomoto.com/",[m
+[31m-    },[m
+[31m-[m
+[31m-    robots: seo.json.robots,[m
+[31m-[m
+[31m-    openGraph: {[m
+[31m-      title: seo.json.og_title,[m
+[31m-      description: seo.json.og_description,[m
+[31m-      url: "https://www.jcblautomoto.com/",[m
+[31m-      siteName: seo.json.og_site_name,[m
+[31m-      type: "website",[m
+[31m-    },[m
+[31m-[m
+[31m-    twitter: {[m
+[31m-      card: seo.json.twitter_card || "summary_large_image",[m
+[31m-    },[m
+[31m-  };[m
+ }[m
+ [m
+ export default async function Page() {[m
+   const categories = await getCategories();[m
+ [m
+   return <Home categories={categories} />;[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/app/robots.txt/route.ts b/app/robots.txt/route.ts[m
+[1mnew file mode 100644[m
+[1mindex 0000000..901d4b1[m
+[1m--- /dev/null[m
+[1m+++ b/app/robots.txt/route.ts[m
+[36m@@ -0,0 +1,89 @@[m
+[32m+[m
+[32m+[m[32mconst WORDPRESS_ROBOTS_URL =[m
+[32m+[m[32m  "https://api.jcblautomoto.com/robots.txt";[m
+[32m+[m
+[32m+[m[32mconst FRONTEND_URL = "https://www.jcblautomoto.com";[m
+[32m+[m[32mconst FRONTEND_SITEMAP = `${FRONTEND_URL}/sitemap.xml`;[m
+[32m+[m
+[32m+[m[32mexport const revalidate = 60;[m
+[32m+[m
+[32m+[m[32mexport async function GET() {[m
+[32m+[m[32m  try {[m
+[32m+[m[32m    const response = await fetch(WORDPRESS_ROBOTS_URL, {[m
+[32m+[m[32m      headers: {[m
+[32m+[m[32m        Accept: "text/plain",[m
+[32m+[m[32m      },[m
+[32m+[m[32m      next: {[m
+[32m+[m[32m        revalidate: 60,[m
+[32m+[m[32m      },[m
+[32m+[m[32m    });[m
+[32m+[m
+[32m+[m[32m    if (!response.ok) {[m
+[32m+[m[32m      throw new Error([m
+[32m+[m[32m        `WordPress robots.txt returned ${response.status}`[m
+[32m+[m[32m      );[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    let robotsText = await response.text();[m
+[32m+[m
+[32m+[m[32m    // Prevent returning an error page as robots.txt.[m
+[32m+[m[32m    if ([m
+[32m+[m[32m      /<html[\s>]/i.test(robotsText) ||[m
+[32m+[m[32m      /<!doctype html/i.test(robotsText)[m
+[32m+[m[32m    ) {[m
+[32m+[m[32m      throw new Error([m
+[32m+[m[32m        "WordPress returned HTML instead of robots.txt"[m
+[32m+[m[32m      );[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Keep Yoast's rules, but publish the frontend sitemap.[m
+[32m+[m[32m    robotsText = robotsText[m
+[32m+[m[32m      .split(/\r?\n/)[m
+[32m+[m[32m      .filter([m
+[32m+[m[32m        (line) =>[m
+[32m+[m[32m          !/^\s*Sitemap\s*:/i.test(line) &&[m
+[32m+[m[32m          !/^\s*Host\s*:/i.test(line)[m
+[32m+[m[32m      )[m
+[32m+[m[32m      .join("\n")[m
+[32m+[m[32m      .trim();[m
+[32m+[m
+[32m+[m[32m    const output = [[m
+[32m+[m[32m      robotsText,[m
+[32m+[m[32m      "",[m
+[32m+[m[32m      `Sitemap: ${FRONTEND_SITEMAP}`,[m
+[32m+[m[32m      "",[m
+[32m+[m[32m    ][m
+[32m+[m[32m      .filter((part, index) => index !== 0 || part !== "")[m
+[32m+[m[32m      .join("\n");[m
+[32m+[m
+[32m+[m[32m    return new Response(output, {[m
+[32m+[m[32m      status: 200,[m
+[32m+[m[32m      headers: {[m
+[32m+[m[32m        "Content-Type": "text/plain; charset=utf-8",[m
+[32m+[m[32m        "Cache-Control":[m
+[32m+[m[32m          "public, max-age=0, s-maxage=60, stale-while-revalidate=300",[m
+[32m+[m[32m      },[m
+[32m+[m[32m    });[m
+[32m+[m[32m  } catch (error) {[m
+[32m+[m[32m    console.error("Failed to fetch WordPress robots.txt:", error);[m
+[32m+[m
+[32m+[m[32m    // Safe fallback if WordPress is temporarily unavailable.[m
+[32m+[m[32m    return new Response([m
+[32m+[m[32m      [[m
+[32m+[m[32m        "User-Agent: *",[m
+[32m+[m[32m        "Allow: /",[m
+[32m+[m[32m        "Disallow: /api/",[m
+[32m+[m[32m        "",[m
+[32m+[m[32m        `Sitemap: ${FRONTEND_SITEMAP}`,[m
+[32m+[m[32m        "",[m
+[32m+[m[32m      ].join("\n"),[m
+[32m+[m[32m      {[m
+[32m+[m[32m        status: 200,

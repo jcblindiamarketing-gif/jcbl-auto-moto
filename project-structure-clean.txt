@@ -1,0 +1,53 @@
+﻿Folder PATH listing
+Volume serial number is AC25-24FF
+D:\JCBL-AUTO-MOTO-NEXT\APP
++---about-us
++---api
+|   +---category-page
+|   \---graphql
++---blog
+|   \---[slug]
++---category
+|   +---subcategory
+|   \---[...slug]
++---category-sitemap.xml
++---contact-us
++---gallery
++---news-events
++---page-sitemap.xml
++---post-sitemap.xml
++---product
+|   \---[slug]
++---product-sitemap.xml
++---product_cat-sitemap.xml
+\---sitemap.xml
+Folder PATH listing
+Volume serial number is AC25-24FF
+D:\JCBL-AUTO-MOTO-NEXT\ASSETS
+\---images
+    \---New folder
+Folder PATH listing
+Volume serial number is AC25-24FF
+D:\JCBL-AUTO-MOTO-NEXT\COMPONENTS
+No subfolders exist 
+
+Folder PATH listing
+Volume serial number is AC25-24FF
+D:\JCBL-AUTO-MOTO-NEXT\LIB
+No subfolders exist 
+
+.gitignore
+AGENTS.md
+CLAUDE.md
+eslint.config.mjs
+next-env.d.ts
+next.config.ts
+package-lock.json
+package.json
+postcss.config.mjs
+project-structure-clean.txt
+proxy.ts
+README.md
+tsconfig.json
+tsconfig.tsbuildinfo
+wordpressRedirects.ts

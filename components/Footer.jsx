@@ -148,7 +148,7 @@ const Footer = () => {
 
      
             <li>
-              <Link href="/category/automotive-battery">
+              <Link href="https://jcblbatteries.com/">
                 Batteries
               </Link>
             </li>
