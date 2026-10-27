@@ -1,27 +1,19 @@
-
 const API_URL = "https://api.jcblautomoto.com/graphql";
 const SITE_URL = "https://www.jcblautomoto.com";
 
-type SitemapPost = {
-  uri: string | null;
-  modified: string | null;
-  seo?: {
-    metaRobotsNoindex?: string | null;
-  } | null;
-};
+async function getAllPosts() {
+  const allPosts: any[] = [];
 
-async function getAllPosts(): Promise<SitemapPost[]> {
-  const allPosts: SitemapPost[] = [];
   let after: string | null = null;
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const res = await fetch(API_URL, {
+   const res: Response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
       body: JSON.stringify({
         query: `
           query GetPosts($after: String) {
@@ -33,104 +25,69 @@ async function getAllPosts(): Promise<SitemapPost[]> {
               nodes {
                 uri
                 modified
-                seo {
-                  metaRobotsNoindex
-                }
               }
             }
           }
         `,
-        variables: { after },
+        variables: {
+          after,
+        },
       }),
     });
 
-    if (!res.ok) {
-      throw new Error(`WordPress GraphQL HTTP error: ${res.status}`);
+   const json: any = await res.json();
+
+    if (json.errors) {
+      console.error(json.errors);
+      break;
     }
 
-    const json = await res.json();
+  const nodes: any[] = json.data.posts.nodes;
+const pageInfo: {
+  hasNextPage: boolean;
+  endCursor: string | null;
+} = json.data.posts.pageInfo;
+    allPosts.push(...nodes);
 
-    if (json.errors?.length) {
-      console.error("Post sitemap GraphQL errors:", json.errors);
-      throw new Error("Unable to retrieve Yoast robots settings");
-    }
+    console.log(
+      `Fetched ${nodes.length}, Total: ${allPosts.length}`
+    );
 
-    const posts = json?.data?.posts;
-    if (!posts?.pageInfo || !Array.isArray(posts.nodes)) {
-      throw new Error("Invalid posts response from WordPress GraphQL");
-    }
+    hasNextPage = pageInfo.hasNextPage;
+    after = pageInfo.endCursor;
 
-    allPosts.push(...posts.nodes);
-
-    hasNextPage = posts.pageInfo.hasNextPage;
-    after = posts.pageInfo.endCursor;
-
+    // Safety check
     if (hasNextPage && !after) {
-      throw new Error("Missing GraphQL pagination cursor");
+      console.warn("Pagination stopped because endCursor is null.");
+      break;
     }
   }
 
   return allPosts;
 }
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
 export async function GET() {
-  try {
-    const posts = await getAllPosts();
+  const posts = await getAllPosts();
 
-    const indexablePosts = posts.filter((post) => {
-      if (!post.uri) return false;
-
-      // Exclude only posts explicitly marked noindex by Yoast.
-      return post.seo?.metaRobotsNoindex !== "noindex";
-    });
-
-    const urls = indexablePosts.map((post) => {
-      const uri = post.uri!.startsWith("/")
-        ? post.uri!
-        : `/${post.uri}`;
-
-      const loc = escapeXml(`${SITE_URL}${uri}`);
-      const lastmod = post.modified
-        ? `<lastmod>${escapeXml(post.modified.split("T")[0])}</lastmod>`
-        : "";
-
-      return `
+  const urls = posts
+    .filter((post) => post.uri)
+    .map(
+      (post) => `
   <url>
-    <loc>${loc}</loc>
-    ${lastmod}
-  </url>`;
-    }).join("");
+    <loc>${SITE_URL}${post.uri}</loc>
+   <lastmod>${post.modified.split("T")[0]}</lastmod>
+  </url>`
+    )
+    .join("");
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls}
 </urlset>`;
 
-    return new Response(xml, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-      },
-    });
-  } catch (error) {
-    console.error("Post sitemap generation failed:", error);
-
-    return new Response("Unable to generate post sitemap", {
-      status: 500,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-store",
-      },
-    });
-  }
+  return new Response(xml, {
+    headers: {
+      "Content-Type": "application/xml",
+    },
+  });
 }
