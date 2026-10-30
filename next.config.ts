@@ -1,6 +1,11 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Prevent automatic trailing-slash redirects.
+  // The proxy will handle the legacy URLs.
+  skipTrailingSlashRedirect: true,
+
   async redirects() {
     return [
       {
