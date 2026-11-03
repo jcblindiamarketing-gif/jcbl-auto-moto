@@ -20,6 +20,7 @@ export async function GET() {
       `,
     }),
 cache: "no-store",
+
   });
 
   if (!res.ok) {

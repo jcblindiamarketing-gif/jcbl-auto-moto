@@ -34,7 +34,6 @@ const noindexPaths = new Set(
     "/home-italiano",
     "/home-espanol",
     "/home-francais",
-    "/news-events",
     "/glimpses-of-automechanika-dubai-2023",
     "/thank-you",
     "/automechanika-ho-chi-minh-city-2023",
