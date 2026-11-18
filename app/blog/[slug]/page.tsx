@@ -29,13 +29,13 @@ export default async function Page({
   fetch(
     `https://api.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed&status=publish`,
     {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     }
   ),
   fetch(
     `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`,
     {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     }
   ),
 ]);
