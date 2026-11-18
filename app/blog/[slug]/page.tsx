@@ -50,8 +50,7 @@ export default async function Page({
     cleanedContent,
   };
 
-  let latestPosts = [];
-
+let latestPosts: any[] = [];
   try {
     const latestRes = await fetch(
       `${WP_API}/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`,
