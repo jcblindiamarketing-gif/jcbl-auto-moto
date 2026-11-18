@@ -6,11 +6,11 @@ import { getPostSEO } from "@/lib/getPostSEO";
 import { getYoastRobots } from "@/lib/yoast";
 
 const WORDPRESS_URL = "https://jcblautomoto.com";
-const FRONTEND_URL = "https://www.jcblautomoto.com";
+const FRONTEND_URL = "https://jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
-export function cleanWpmString(str: string | undefined | null, lang = "en"): string {
+function cleanWpmString(str: string | undefined | null, lang = "en"): string {
   if (!str) return "";
 
   const langRegex = new RegExp(
@@ -88,20 +88,8 @@ export async function generateSEOMetadata(
     console.error(`SEO fetch failed for ${type}: ${uri}`, error);
   }
 
-const normalizedSlug = uri.replace(/^\/+|\/+$/g, "");
-
-const path =
-  fallbackPath ??
-  (type === "product"
-    ? `/product/${normalizedSlug}`
-    : uri.startsWith("/")
-      ? uri
-      : `/${uri}`);
-
-const canonical =
-  type === "product"
-    ? new URL(path, FRONTEND_URL).toString()
-    : getFrontendCanonical(seo?.canonical, path);
+  const path = fallbackPath ?? (uri.startsWith("/") ? uri : `/${uri}`);
+  const canonical = getFrontendCanonical(seo?.canonical, path);
   const robotsType = type === "category" ? "product_cat" : type;
   const robotsSlug = uri
     .replace(/^\/+|\/+$/g, "")
