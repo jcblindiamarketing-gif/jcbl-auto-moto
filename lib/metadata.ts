@@ -13,7 +13,6 @@ type SEOType = "page" | "product" | "category" | "post";
 function cleanWpmString(str: string | undefined | null, lang = "en"): string {
   if (!str) return "";
 
-  // Extract the requested language block if WP Multilang syntax exists
   const langRegex = new RegExp(
     `\\[:${lang}\\]([\\s\\S]*?)(?=\\[:[a-z]{2}(?:_[A-Z]{2})?\\]|\\[:\\]|$)`,
     "i"
@@ -23,7 +22,6 @@ function cleanWpmString(str: string | undefined | null, lang = "en"): string {
     return match[1].trim();
   }
 
-  // Fallback to English if requested language block isn't found
   if (lang !== "en") {
     const enMatch = str.match(
       /\[:en\]([\s\S]*?)(?=\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]|$)/i
@@ -33,7 +31,6 @@ function cleanWpmString(str: string | undefined | null, lang = "en"): string {
     }
   }
 
-  // Strip any stray [:xx] or [:] tags if present
   return str.replace(/\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]/gi, "").trim();
 }
 
@@ -46,7 +43,6 @@ function getFrontendCanonical(
       ? new URL(canonical, FRONTEND_URL)
       : new URL(fallbackPath, FRONTEND_URL);
 
-    // Keep canonical URLs on the public frontend domain.
     if (url.origin === WORDPRESS_URL) {
       url.hostname = new URL(FRONTEND_URL).hostname;
     }
@@ -71,27 +67,20 @@ export async function generateSEOMetadata(
 ): Promise<Metadata> {
   let seo = null;
 
-  // Auto-detect language from URI if not explicitly provided (e.g., /hi/..., /es/..., /fr/...)
-  const detectedLang =
-    lang ||
-    uri.match(/^\/?(hi|es|fr)(?:\/|$)/i)?.[1]?.toLowerCase() ||
-    "en";
+  const langMatch = uri.match(/^\/?(hi|es|fr)(?:\/|$)/i);
+  const detectedLang = lang || (langMatch && langMatch[1] ? langMatch[1].toLowerCase() : "en");
 
-  // Fetch existing SEO metadata.
   try {
     switch (type) {
       case "product":
         seo = await getProductSEO(uri);
         break;
-
       case "category":
         seo = await getCategorySEO(uri);
         break;
-
       case "post":
         seo = await getPostSEO(uri);
         break;
-
       default:
         seo = await getPageSEO(uri);
     }
@@ -99,59 +88,36 @@ export async function generateSEOMetadata(
     console.error(`SEO fetch failed for ${type}: ${uri}`, error);
   }
 
-  // Generate frontend canonical path.
   const path = fallbackPath ?? (uri.startsWith("/") ? uri : `/${uri}`);
-
   const canonical = getFrontendCanonical(seo?.canonical, path);
-
-  // Map Next.js category type to WordPress taxonomy type.
   const robotsType = type === "category" ? "product_cat" : type;
-
-  // Extract the WordPress content slug.
   const robotsSlug = uri
     .replace(/^\/+|\/+$/g, "")
     .split("/")
     .filter(Boolean)
     .pop();
 
-  // Fetch robots directives from the custom WordPress API.
   const robots = await getYoastRobots(robotsType, robotsSlug);
 
-  const cleanTitle =
-    cleanWpmString(seo?.title, detectedLang) || "JCBL Auto Moto";
+  const cleanTitle = cleanWpmString(seo?.title, detectedLang) || "JCBL Auto Moto";
   const cleanDescription = cleanWpmString(seo?.metaDesc, detectedLang);
-  const cleanOgTitle =
-    cleanWpmString(seo?.opengraphTitle, detectedLang) || cleanTitle;
-  const cleanOgDescription =
-    cleanWpmString(seo?.opengraphDescription, detectedLang) ||
-    cleanDescription;
+  const cleanOgTitle = cleanWpmString(seo?.opengraphTitle, detectedLang) || cleanTitle;
+  const cleanOgDescription = cleanWpmString(seo?.opengraphDescription, detectedLang) || cleanDescription;
 
   return {
     title: cleanTitle,
-
     description: cleanDescription,
-
     alternates: {
       canonical,
     },
-
-    // Dynamic robots directives from Yoast Advanced settings.
     robots,
-
     openGraph: {
       title: cleanOgTitle,
-
       description: cleanOgDescription,
-
       url: canonical,
-
       siteName: "JCBL Auto Moto",
-
       type: type === "post" ? "article" : "website",
-
-      images: seo?.opengraphImage?.sourceUrl
-        ? [seo.opengraphImage.sourceUrl]
-        : [],
+      images: seo?.opengraphImage?.sourceUrl ? [seo.opengraphImage.sourceUrl] : [],
     },
   };
 }
