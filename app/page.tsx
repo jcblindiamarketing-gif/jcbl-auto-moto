@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import Home from "@/components/Home";
 import { getCategories } from "@/lib/getCategories";
@@ -31,10 +32,22 @@ export async function generateMetadata(): Promise<Metadata> {
       };
     }
 
-    return {
-      title: seo.json.title || "JCBL Auto Moto",
+    // Clean WP Multilang markers from homepage SEO metadata.
+    const title =
+      cleanWpmString(seo.json.title) || "JCBL Auto Moto";
 
-      description: seo.json.description || "",
+    const description =
+      cleanWpmString(seo.json.description);
+
+    const ogTitle =
+      cleanWpmString(seo.json.og_title) || title;
+
+    const ogDescription =
+      cleanWpmString(seo.json.og_description) || description;
+
+    return {
+      title,
+      description,
 
       alternates: {
         canonical: fallbackCanonical,
@@ -44,18 +57,13 @@ export async function generateMetadata(): Promise<Metadata> {
       robots,
 
       openGraph: {
-        title:
-          seo.json.og_title ||
-          seo.json.title,
-
-        description:
-          seo.json.og_description ||
-          seo.json.description,
+        title: ogTitle,
+        description: ogDescription,
 
         url: fallbackCanonical,
 
         siteName:
-          seo.json.og_site_name ||
+          cleanWpmString(seo.json.og_site_name) ||
           "JCBL Auto Moto",
 
         type: "website",
