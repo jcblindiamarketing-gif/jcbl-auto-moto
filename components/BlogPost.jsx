@@ -17,7 +17,12 @@ const formatDate = (value) => {
     timeZone: "UTC",
   });
 };
-
+/**
+ * @param {{
+ *   post: any,
+ *   latestPosts?: any[]
+ * }} props
+ */
 const BlogPost = ({ post, latestPosts = [] }) => {
   if (!post) return null;
 
