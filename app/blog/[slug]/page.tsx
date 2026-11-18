@@ -1,6 +1,7 @@
-import BlogPost from "@/components/BlogPost";
-import { notFound } from "next/navigation";
+import ProductDetail from "@/components/ProductDetail";
 import { generateSEOMetadata } from "@/lib/metadata";
+
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -8,10 +9,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  console.log("Metadata slug:", slug);
-
-  return generateSEOMetadata(`/blog/${slug}/`, "post");
+  return generateSEOMetadata(slug, "product");
 }
 
 export default async function Page({
@@ -22,47 +20,8 @@ export default async function Page({
   const { slug } = await params;
 
   if (!slug) {
-    notFound();
+    return <p>Product not found.</p>;
   }
 
- const [postRes, latestRes] = await Promise.all([
-  fetch(
-    `https://api.jcblautomoto.com/wp-json/wp/v2/posts?slug=${slug}&_embed&status=publish`,
-    {
-      cache: "no-store",
-    }
-  ),
-  fetch(
-    `https://api.jcblautomoto.com/wp-json/wp/v2/posts?per_page=3&_embed&status=publish`,
-    {
-      cache: "no-store",
-    }
-  ),
-]);
-
-const posts = await postRes.json();
-
-if (!posts.length) {
-  notFound();
-}
-
-const latestPosts = await latestRes.json();
-
-const post = posts[0];
-
-post.cleanedContent = post.content.rendered
-  .replace(
-    /https:\/\/api\.jcblautomoto\.com/g,
-    "https://www.jcblautomoto.com"
-  )
-  .replace(/overflow\s*:\s*hidden/gi, "overflow:visible")
-  .replace(/height\s*:\s*100vh/gi, "height:auto")
-  .replace(/max-height\s*:\s*\d+px/gi, "max-height:none");
-
-return (
-  <BlogPost
-    post={post}
-    latestPosts={latestPosts}
-  />
-);
+  return <ProductDetail slug={slug} />;
 }
