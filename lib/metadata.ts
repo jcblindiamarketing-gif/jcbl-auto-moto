@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { getPageSEO } from "@/lib/getPageSEO";
 import { getProductSEO } from "@/lib/getProductSEO";
@@ -10,14 +11,19 @@ const FRONTEND_URL = "https://jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
-function cleanWpmString(str: string | undefined | null, lang = "en"): string {
+export function cleanWpmString(
+  str: string | undefined | null,
+  lang = "en"
+): string {
   if (!str) return "";
 
   const langRegex = new RegExp(
     `\\[:${lang}\\]([\\s\\S]*?)(?=\\[:[a-z]{2}(?:_[A-Z]{2})?\\]|\\[:\\]|$)`,
     "i"
   );
+
   const match = str.match(langRegex);
+
   if (match && match[1]) {
     return match[1].trim();
   }
@@ -26,12 +32,15 @@ function cleanWpmString(str: string | undefined | null, lang = "en"): string {
     const enMatch = str.match(
       /\[:en\]([\s\S]*?)(?=\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]|$)/i
     );
+
     if (enMatch && enMatch[1]) {
       return enMatch[1].trim();
     }
   }
 
-  return str.replace(/\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]/gi, "").trim();
+  return str
+    .replace(/\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]/gi, "")
+    .trim();
 }
 
 function getFrontendCanonical(
@@ -68,19 +77,26 @@ export async function generateSEOMetadata(
   let seo = null;
 
   const langMatch = uri.match(/^\/?(hi|es|fr)(?:\/|$)/i);
-  const detectedLang = lang || (langMatch && langMatch[1] ? langMatch[1].toLowerCase() : "en");
+  const detectedLang =
+    lang ||
+    (langMatch && langMatch[1]
+      ? langMatch[1].toLowerCase()
+      : "en");
 
   try {
     switch (type) {
       case "product":
         seo = await getProductSEO(uri);
         break;
+
       case "category":
         seo = await getCategorySEO(uri);
         break;
+
       case "post":
         seo = await getPostSEO(uri);
         break;
+
       default:
         seo = await getPageSEO(uri);
     }
@@ -90,7 +106,9 @@ export async function generateSEOMetadata(
 
   const path = fallbackPath ?? (uri.startsWith("/") ? uri : `/${uri}`);
   const canonical = getFrontendCanonical(seo?.canonical, path);
+
   const robotsType = type === "category" ? "product_cat" : type;
+
   const robotsSlug = uri
     .replace(/^\/+|\/+$/g, "")
     .split("/")
@@ -99,25 +117,40 @@ export async function generateSEOMetadata(
 
   const robots = await getYoastRobots(robotsType, robotsSlug);
 
-  const cleanTitle = cleanWpmString(seo?.title, detectedLang) || "JCBL Auto Moto";
-  const cleanDescription = cleanWpmString(seo?.metaDesc, detectedLang);
-  const cleanOgTitle = cleanWpmString(seo?.opengraphTitle, detectedLang) || cleanTitle;
-  const cleanOgDescription = cleanWpmString(seo?.opengraphDescription, detectedLang) || cleanDescription;
+  const cleanTitle =
+    cleanWpmString(seo?.title, detectedLang) || "JCBL Auto Moto";
+
+  const cleanDescription = cleanWpmString(
+    seo?.metaDesc,
+    detectedLang
+  );
+
+  const cleanOgTitle =
+    cleanWpmString(seo?.opengraphTitle, detectedLang) || cleanTitle;
+
+  const cleanOgDescription =
+    cleanWpmString(seo?.opengraphDescription, detectedLang) ||
+    cleanDescription;
 
   return {
     title: cleanTitle,
     description: cleanDescription,
+
     alternates: {
       canonical,
     },
+
     robots,
+
     openGraph: {
       title: cleanOgTitle,
       description: cleanOgDescription,
       url: canonical,
       siteName: "JCBL Auto Moto",
       type: type === "post" ? "article" : "website",
-      images: seo?.opengraphImage?.sourceUrl ? [seo.opengraphImage.sourceUrl] : [],
+      images: seo?.opengraphImage?.sourceUrl
+        ? [seo.opengraphImage.sourceUrl]
+        : [],
     },
   };
 }
