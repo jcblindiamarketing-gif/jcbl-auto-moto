@@ -37,12 +37,12 @@ if (!post) {
           {/* Meta Info */}
           <div className="blog-meta">
             <span className="blog-date">
-              📅 {new Date(post.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+  📅 Last Updated: {new Date(post.modified).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}
+</span>
             {post._embedded?.author?.[0]?.name && (
               <span className="blog-author">
                 ✍️ By Jcbl India
