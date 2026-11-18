@@ -10,7 +10,7 @@ const FRONTEND_URL = "https://jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
-function cleanWpmString(str: string | undefined | null, lang = "en"): string {
+export function cleanWpmString(str: string | undefined | null, lang = "en"): string {
   if (!str) return "";
 
   const langRegex = new RegExp(
