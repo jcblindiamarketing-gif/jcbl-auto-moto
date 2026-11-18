@@ -1,120 +1,31 @@
-const API_URL = "https://api.jcblautomoto.com/graphql";
-const SITE_URL = "https://www.jcblautomoto.com";
+import { getYoastSitemap } from "@/lib/yoast";
 
-type ProductCategory = {
-  uri: string;
-  name: string;
-};
-
-type GraphQLResponse = {
-  data: {
-    productCategories: {
-      nodes: ProductCategory[];
-      pageInfo: {
-        hasNextPage: boolean;
-        endCursor: string | null;
-      };
-    };
-  };
-  errors?: unknown;
-};
-
-async function getAllCategories() {
-  const categories: ProductCategory[] = [];
-
-  let hasNextPage = true;
-  let after: string | null = null;
-
-  while (hasNextPage) {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query GetCategories($after: String) {
-            productCategories(first: 100, after: $after) {
-              nodes {
-                name
-                uri
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-            }
-          }
-        `,
-        variables: { after },
-      }),
-      next: { revalidate: 3600 },
-    });
-
-   if (!res.ok) {
-  const errorText = await res.text();
-
-  console.error(
-    `GraphQL request failed: ${res.status}`,
-    errorText.slice(0, 300)
-  );
-
-  break;
-}
-
-const responseText = await res.text();
-
-let json: GraphQLResponse;
-
-try {
-  json = JSON.parse(responseText) as GraphQLResponse;
-} catch {
-  console.error(
-    "Categories GraphQL returned non-JSON response:",
-    responseText.slice(0, 300)
-  );
-  break;
-}
-
-    if (json.errors) {
-      throw new Error(JSON.stringify(json.errors));
-    }
-
-    categories.push(...json.data.productCategories.nodes);
-
-    hasNextPage = json.data.productCategories.pageInfo.hasNextPage;
-    after = json.data.productCategories.pageInfo.endCursor;
-  }
-
-  return categories;
-}
+export const revalidate = 3600;
 
 export async function GET() {
-  const categories = await getAllCategories();
+  try {
+    const xml = await getYoastSitemap("product_cat-sitemap.xml");
 
-  // Remove duplicates if any
-  const uniqueCategories = Array.from(
-    new Map(categories.map((c) => [c.uri, c])).values()
-  );
+    return new Response(xml, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control":
+          "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
+  } catch (error) {
+    console.error("Product category sitemap proxy failed:", error);
 
-  const urls = uniqueCategories
-    .filter((cat) => cat.uri)
-    .map(
-      (cat) => `
-  <url>
-    <loc>${SITE_URL}${cat.uri}</loc>
-  </url>`
-    )
-    .join("");
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
-
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml",
-    },
-  });
+    return new Response(
+      "Unable to fetch Yoast product category sitemap",
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      }
+    );
+  }
 }
