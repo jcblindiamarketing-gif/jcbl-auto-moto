@@ -1,51 +1,31 @@
-const API_URL = "https://api.jcblautomoto.com/graphql";
-const SITE_URL = "https://www.jcblautomoto.com";
+import { getYoastSitemap } from "@/lib/yoast";
+
+export const revalidate = 3600;
 
 export async function GET() {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-        query {
-          categories(first: 1000) {
-            nodes {
-              name
-              uri
-            }
-          }
-        }
-      `,
-    }),
-    next: { revalidate: 3600 },
-  });
+  try {
+    const xml = await getYoastSitemap("category-sitemap.xml");
 
-  const { data } = await res.json();
+    return new Response(xml, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control":
+          "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
+  } catch (error) {
+    console.error("Blog category sitemap proxy failed:", error);
 
-  const urls = data.categories.nodes
-    .filter(
-      (category: any) =>
-        category.uri &&
-        !category.uri.includes("uncategorized")
-    )
-    .map(
-      (category: any) => `
-  <url>
-    <loc>${SITE_URL}${category.uri}</loc>
-  </url>`
-    )
-    .join("");
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
-
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml",
-    },
-  });
+    return new Response(
+      "Unable to fetch Yoast blog category sitemap",
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      }
+    );
+  }
 }
