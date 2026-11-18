@@ -34,15 +34,34 @@ if (!post) {
           {/* Title */}
           <h1 className="blog-title" dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
 
-          {/* Meta Info */}
-          <div className="blog-meta">
-            <span className="blog-date">
-  📅 Last Updated: {new Date(post.modified).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })}
-</span>
+{/* Meta Info */}
+<div className="blog-meta">
+
+  <span className="blog-date">
+    📅 Published: {new Date(post.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}
+  </span>
+
+  {post.modified && post.modified !== post.date && (
+    <span className="blog-date">
+      🔄 Last Updated: {new Date(post.modified).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}
+    </span>
+  )}
+
+  {post._embedded?.author?.[0]?.name && (
+    <span className="blog-author">
+      ✍️ By JCBL India
+    </span>
+  )}
+
+</div>
             {post._embedded?.author?.[0]?.name && (
               <span className="blog-author">
                 ✍️ By Jcbl India
