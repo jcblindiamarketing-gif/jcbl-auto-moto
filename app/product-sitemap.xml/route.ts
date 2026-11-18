@@ -1,152 +1,93 @@
-const API_URL = "https://api.jcblautomoto.com/graphql";
-const SITE_URL = "https://www.jcblautomoto.com";
+import { getYoastSitemap } from "@/lib/yoast";
 
-type ProductNode = {
-  uri: string;
-  modified: string;
-};
+export const revalidate = 3600;
 
-type ProductsResponse = {
-  data: {
-    products: {
-      nodes: ProductNode[];
-      pageInfo: {
-        hasNextPage: boolean;
-        endCursor: string | null;
-      };
-    };
-  };
-  errors?: unknown;
-};
+const PRODUCT_SITEMAPS = [
+  "product-sitemap.xml",
+  "product-sitemap2.xml",
+  "product-sitemap3.xml",
+  "product-sitemap4.xml",
+];
 
-async function getAllProducts(): Promise<ProductNode[]> {
-  const allProducts: ProductNode[] = [];
+function getNamespaces(xml: string): string[] {
+  const root = xml.match(/<urlset\b([^>]*)>/i);
 
-  let after: string | null = null;
-  let hasNextPage = true;
-  let previousCursor: string | null = null;
-
-  while (hasNextPage) {
-    const response: Response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      next: { revalidate: 3600 },
-      body: JSON.stringify({
-        query: `
-          query GetProducts($after: String) {
-            products(first: 100, after: $after) {
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-              nodes {
-                ... on Product {
-                  uri
-                  modified
-                }
-                ... on SimpleProduct {
-                  uri
-                  modified
-                }
-                ... on VariableProduct {
-                  uri
-                  modified
-                }
-                ... on ExternalProduct {
-                  uri
-                  modified
-                }
-                ... on GroupProduct {
-                  uri
-                  modified
-                }
-              }
-            }
-          }
-        `,
-        variables: { after },
-      }),
-    });
-
-if (!response.ok) {
-  const errorText = await response.text();
-
-  console.error(
-    `GraphQL request failed: ${response.status}`,
-    errorText.slice(0, 300)
-  );
-
-  break;
-}
-
-  const responseText = await response.text();
-
-let result: ProductsResponse;
-
-try {
-  result = JSON.parse(responseText) as ProductsResponse;
-} catch {
-  console.error(
-    "Products GraphQL returned non-JSON response:",
-    responseText.slice(0, 300)
-  );
-  break;
-}
-
-    if (result.errors) {
-      console.error(result.errors);
-      break;
-    }
-
-    const nodes = result.data.products.nodes;
-    const pageInfo = result.data.products.pageInfo;
-
-    allProducts.push(...nodes);
-
-    if (pageInfo.endCursor === previousCursor) {
-      console.warn("Cursor did not advance. Stopping pagination.");
-      break;
-    }
-
-    previousCursor = pageInfo.endCursor;
-    after = pageInfo.endCursor;
-    hasNextPage = pageInfo.hasNextPage;
+  if (!root) {
+    throw new Error("Invalid product sitemap: urlset not found");
   }
 
-  return allProducts;
+  return (
+    root[1].match(
+      /\s+xmlns(?::[A-Za-z_][\w.-]*)?\s*=\s*("[^"]*"|'[^']*')/gi
+    ) ?? []
+  );
+}
+
+function getUrlEntries(xml: string): string[] {
+  if (!/<\/urlset\s*>/i.test(xml)) {
+    throw new Error("Invalid product sitemap closing tag");
+  }
+
+  return xml.match(/<url\b[\s\S]*?<\/url>/gi) ?? [];
 }
 
 export async function GET() {
   try {
-    const products = await getAllProducts();
+    // Fetch all four Yoast product sitemaps.
+    const sitemapXMLs = await Promise.all(
+      PRODUCT_SITEMAPS.map((file) => getYoastSitemap(file))
+    );
 
-    const urls = products
-      .map(
-        (product) => `
-  <url>
-    <loc>${SITE_URL}${product.uri}</loc>
-   <lastmod>${product.modified.split("T")[0]}</lastmod>
-  </url>`
-      )
-      .join("");
+    // Collect all namespace declarations.
+    const namespaces = [
+      ...new Set(sitemapXMLs.flatMap(getNamespaces)),
+    ];
+
+    // Combine all product URL entries.
+    const urlEntries = sitemapXMLs.flatMap(getUrlEntries);
+
+    if (urlEntries.length === 0) {
+      throw new Error("No product URLs found in Yoast sitemaps");
+    }
+
+    // A single sitemap must not exceed 50,000 URLs.
+    if (urlEntries.length > 50000) {
+      throw new Error("Combined product sitemap exceeds 50,000 URLs");
+    }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
+<urlset ${namespaces.join(" ")}>
+${urlEntries.join("\n")}
 </urlset>`;
 
+    // A single sitemap must not exceed 50 MB uncompressed.
+    const sizeInBytes = new TextEncoder().encode(xml).byteLength;
+
+    if (sizeInBytes > 50 * 1024 * 1024) {
+      throw new Error("Combined product sitemap exceeds 50 MB");
+    }
+
     return new Response(xml, {
+      status: 200,
       headers: {
-        "Content-Type": "application/xml",
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control":
+          "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
-  } catch (error) {
-    console.error(error);
 
-    return new Response("Failed to generate sitemap", {
-      status: 500,
-    });
+  } catch (error) {
+    console.error("Combined product sitemap failed:", error);
+
+    return new Response(
+      "Unable to generate combined Yoast product sitemap",
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+        },
+      }
+    );
   }
 }
