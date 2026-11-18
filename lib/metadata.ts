@@ -1,9 +1,9 @@
-
 import type { Metadata } from "next";
 import { getPageSEO } from "@/lib/getPageSEO";
 import { getProductSEO } from "@/lib/getProductSEO";
 import { getCategorySEO } from "@/lib/getCategorySEO";
 import { getPostSEO } from "@/lib/getPostSEO";
+import { getYoastRobots } from "@/lib/yoast";
 
 const WORDPRESS_URL = "https://api.jcblautomoto.com";
 const FRONTEND_URL = "https://www.jcblautomoto.com";
@@ -43,24 +43,32 @@ export async function generateSEOMetadata(
 ): Promise<Metadata> {
   let seo = null;
 
+  // Fetch existing SEO metadata.
   try {
     switch (type) {
       case "product":
         seo = await getProductSEO(uri);
         break;
+
       case "category":
         seo = await getCategorySEO(uri);
         break;
+
       case "post":
         seo = await getPostSEO(uri);
         break;
+
       default:
         seo = await getPageSEO(uri);
     }
   } catch (error) {
-    console.error(`SEO fetch failed for ${type}: ${uri}`, error);
+    console.error(
+      `SEO fetch failed for ${type}: ${uri}`,
+      error
+    );
   }
 
+  // Generate frontend canonical path.
   const path =
     fallbackPath ??
     (uri.startsWith("/") ? uri : `/${uri}`);
@@ -70,19 +78,52 @@ export async function generateSEOMetadata(
     path
   );
 
+  // Map Next.js category type to WordPress taxonomy type.
+  const robotsType =
+    type === "category" ? "product_cat" : type;
+
+  // Extract the WordPress content slug.
+  const robotsSlug = uri
+    .replace(/^\/+|\/+$/g, "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+
+  // Fetch robots directives from the custom WordPress API.
+  const robots = await getYoastRobots(
+    robotsType,
+    robotsSlug
+  );
+
   return {
     title: seo?.title || "JCBL Auto Moto",
+
     description: seo?.metaDesc || "",
+
     alternates: {
       canonical,
     },
+
+    // Dynamic robots directives from Yoast Advanced settings.
+    robots,
+
     openGraph: {
-      title: seo?.opengraphTitle || seo?.title || "JCBL Auto Moto",
+      title:
+        seo?.opengraphTitle ||
+        seo?.title ||
+        "JCBL Auto Moto",
+
       description:
-        seo?.opengraphDescription || seo?.metaDesc || "",
+        seo?.opengraphDescription ||
+        seo?.metaDesc ||
+        "",
+
       url: canonical,
+
       siteName: "JCBL Auto Moto",
+
       type: type === "post" ? "article" : "website",
+
       images: seo?.opengraphImage?.sourceUrl
         ? [seo.opengraphImage.sourceUrl]
         : [],
