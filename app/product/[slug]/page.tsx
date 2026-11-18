@@ -9,11 +9,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-return generateSEOMetadata(
-  slug,
-  "product",
-  `/product/${slug}/`
-);
+return generateSEOMetadata(slug, "product");
 
 export default async function Page({
   params,
