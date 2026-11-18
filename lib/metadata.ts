@@ -6,7 +6,7 @@ import { getPostSEO } from "@/lib/getPostSEO";
 import { getYoastRobots } from "@/lib/yoast";
 
 const WORDPRESS_URL = "https://jcblautomoto.com";
-const FRONTEND_URL = "https://jcblautomoto.com";
+const FRONTEND_URL = "www.https://jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
