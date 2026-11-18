@@ -21,8 +21,13 @@ const geistMono = Geist_Mono({
  * Website metadata
  */
 export const metadata: Metadata = {
-  title: "JCBL Auto Moto",
+  title: "JCBL India Auto Moto",
   description: "JCBL India Auto Moto",
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 
   icons: {
     icon: "/icon.png",
