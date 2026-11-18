@@ -5,8 +5,8 @@ import { getCategorySEO } from "@/lib/getCategorySEO";
 import { getPostSEO } from "@/lib/getPostSEO";
 import { getYoastRobots } from "@/lib/yoast";
 
-const WORDPRESS_URL = "https://api.jcblautomoto.com";
-const FRONTEND_URL = "https://www.jcblautomoto.com";
+const WORDPRESS_URL = "https://jcblautomoto.com";
+const FRONTEND_URL = "https://jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
@@ -67,9 +67,15 @@ export async function generateSEOMetadata(
   uri: string,
   type: SEOType = "page",
   fallbackPath?: string,
-  lang: string = "en"
+  lang?: string
 ): Promise<Metadata> {
   let seo = null;
+
+  // Auto-detect language from URI if not explicitly provided (e.g., /hi/..., /es/..., /fr/...)
+  const detectedLang =
+    lang ||
+    uri.match(/^\/?(hi|es|fr)(?:\/|$)/i)?.[1]?.toLowerCase() ||
+    "en";
 
   // Fetch existing SEO metadata.
   try {
@@ -111,12 +117,14 @@ export async function generateSEOMetadata(
   // Fetch robots directives from the custom WordPress API.
   const robots = await getYoastRobots(robotsType, robotsSlug);
 
-  const cleanTitle = cleanWpmString(seo?.title, lang) || "JCBL Auto Moto";
-  const cleanDescription = cleanWpmString(seo?.metaDesc, lang);
+  const cleanTitle =
+    cleanWpmString(seo?.title, detectedLang) || "JCBL Auto Moto";
+  const cleanDescription = cleanWpmString(seo?.metaDesc, detectedLang);
   const cleanOgTitle =
-    cleanWpmString(seo?.opengraphTitle, lang) || cleanTitle;
+    cleanWpmString(seo?.opengraphTitle, detectedLang) || cleanTitle;
   const cleanOgDescription =
-    cleanWpmString(seo?.opengraphDescription, lang) || cleanDescription;
+    cleanWpmString(seo?.opengraphDescription, detectedLang) ||
+    cleanDescription;
 
   return {
     title: cleanTitle,
