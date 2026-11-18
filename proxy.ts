@@ -56,6 +56,9 @@ const noindexPaths = new Set(
     "/product/jcbl-india-automotive-battery",
     "/product/jcbl-india-motorcycle-battery",
     "/shop",
+      "/category/batteries/tall-tubular-battery",
+    "/product/jis-type-2",
+    "/category/motorcycle-helmets",
   ].map(normalizePath)
 );
 
