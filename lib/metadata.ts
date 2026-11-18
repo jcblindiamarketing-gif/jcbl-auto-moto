@@ -10,6 +10,33 @@ const FRONTEND_URL = "https://www.jcblautomoto.com";
 
 type SEOType = "page" | "product" | "category" | "post";
 
+function cleanWpmString(str: string | undefined | null, lang = "en"): string {
+  if (!str) return "";
+
+  // Extract the requested language block if WP Multilang syntax exists
+  const langRegex = new RegExp(
+    `\\[:${lang}\\]([\\s\\S]*?)(?=\\[:[a-z]{2}(?:_[A-Z]{2})?\\]|\\[:\\]|$)`,
+    "i"
+  );
+  const match = str.match(langRegex);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  // Fallback to English if requested language block isn't found
+  if (lang !== "en") {
+    const enMatch = str.match(
+      /\[:en\]([\s\S]*?)(?=\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]|$)/i
+    );
+    if (enMatch && enMatch[1]) {
+      return enMatch[1].trim();
+    }
+  }
+
+  // Strip any stray [:xx] or [:] tags if present
+  return str.replace(/\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]/gi, "").trim();
+}
+
 function getFrontendCanonical(
   canonical: string | undefined,
   fallbackPath: string
@@ -39,7 +66,8 @@ function getFrontendCanonical(
 export async function generateSEOMetadata(
   uri: string,
   type: SEOType = "page",
-  fallbackPath?: string
+  fallbackPath?: string,
+  lang: string = "en"
 ): Promise<Metadata> {
   let seo = null;
 
@@ -62,25 +90,16 @@ export async function generateSEOMetadata(
         seo = await getPageSEO(uri);
     }
   } catch (error) {
-    console.error(
-      `SEO fetch failed for ${type}: ${uri}`,
-      error
-    );
+    console.error(`SEO fetch failed for ${type}: ${uri}`, error);
   }
 
   // Generate frontend canonical path.
-  const path =
-    fallbackPath ??
-    (uri.startsWith("/") ? uri : `/${uri}`);
+  const path = fallbackPath ?? (uri.startsWith("/") ? uri : `/${uri}`);
 
-  const canonical = getFrontendCanonical(
-    seo?.canonical,
-    path
-  );
+  const canonical = getFrontendCanonical(seo?.canonical, path);
 
   // Map Next.js category type to WordPress taxonomy type.
-  const robotsType =
-    type === "category" ? "product_cat" : type;
+  const robotsType = type === "category" ? "product_cat" : type;
 
   // Extract the WordPress content slug.
   const robotsSlug = uri
@@ -90,15 +109,19 @@ export async function generateSEOMetadata(
     .pop();
 
   // Fetch robots directives from the custom WordPress API.
-  const robots = await getYoastRobots(
-    robotsType,
-    robotsSlug
-  );
+  const robots = await getYoastRobots(robotsType, robotsSlug);
+
+  const cleanTitle = cleanWpmString(seo?.title, lang) || "JCBL Auto Moto";
+  const cleanDescription = cleanWpmString(seo?.metaDesc, lang);
+  const cleanOgTitle =
+    cleanWpmString(seo?.opengraphTitle, lang) || cleanTitle;
+  const cleanOgDescription =
+    cleanWpmString(seo?.opengraphDescription, lang) || cleanDescription;
 
   return {
-    title: seo?.title || "JCBL Auto Moto",
+    title: cleanTitle,
 
-    description: seo?.metaDesc || "",
+    description: cleanDescription,
 
     alternates: {
       canonical,
@@ -108,15 +131,9 @@ export async function generateSEOMetadata(
     robots,
 
     openGraph: {
-      title:
-        seo?.opengraphTitle ||
-        seo?.title ||
-        "JCBL Auto Moto",
+      title: cleanOgTitle,
 
-      description:
-        seo?.opengraphDescription ||
-        seo?.metaDesc ||
-        "",
+      description: cleanOgDescription,
 
       url: canonical,
 
