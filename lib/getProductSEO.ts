@@ -17,7 +17,12 @@ type ProductSEOData = {
 
 type ProductRecord = {
   description?: string | null;
+  shortDescription?: string | null;
   seo?: ProductSEOData | null;
+  metaData?: Array<{
+    key?: string | null;
+    value?: string | null;
+  }> | null;
 };
 
 type GraphQLResponse = {
@@ -31,11 +36,32 @@ function getText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-// Convert product HTML description into plain text.
-function cleanProductDescription(value: string | null | undefined): string {
-  if (!value) return "";
+// Extract English content from WPML/Polylang language strings.
+function getLocalizedText(value: unknown): string {
+  const raw = getText(value);
 
-  return value
+  if (!raw) return "";
+
+  const englishMatch = raw.match(
+    /\[:en\]([\s\S]*?)(?=\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]|$)/i
+  );
+
+  if (englishMatch && englishMatch[1].trim()) {
+    return englishMatch[1].trim();
+  }
+
+  return raw
+    .replace(/\[:[a-z]{2}(?:_[A-Z]{2})?\]|\[:\]/gi, "")
+    .trim();
+}
+
+// Remove HTML and convert product content into plain text.
+function cleanProductDescription(value: string | null | undefined): string {
+  const text = getLocalizedText(value);
+
+  if (!text) return "";
+
+  return text
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
     .replace(/&amp;/gi, "&")
@@ -49,7 +75,7 @@ function cleanProductDescription(value: string | null | undefined): string {
     .trim();
 }
 
-// Keep fallback meta descriptions within approximately 160 characters.
+// Limit generated fallback descriptions to approximately 160 characters.
 function createMetaDescription(value: string): string {
   if (!value) return "";
 
@@ -74,9 +100,9 @@ export async function getProductSEO(slug: string) {
   let product: ProductRecord | null = null;
   let graphqlSEO: ProductSEOData = {};
 
-  // STEP 1: Fetch product SEO through WordPress GraphQL.
+  // STEP 1: Fetch product data and Yoast SEO fields.
   try {
-    const res = await fetch(WP_GRAPHQL, {
+    const response = await fetch(WP_GRAPHQL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -89,6 +115,7 @@ export async function getProductSEO(slug: string) {
           query GetProductSEO($slug: ID!) {
             product(id: $slug, idType: SLUG) {
               description
+
               seo {
                 title
                 metaDesc
@@ -97,6 +124,15 @@ export async function getProductSEO(slug: string) {
                 opengraphDescription
                 opengraphImage {
                   sourceUrl
+                }
+              }
+
+              ... on SimpleProduct {
+                shortDescription
+
+                metaData {
+                  key
+                  value
                 }
               }
             }
@@ -108,11 +144,11 @@ export async function getProductSEO(slug: string) {
       }),
     });
 
-    const rawText = await res.text();
+    const rawText = await response.text();
 
-    if (!res.ok) {
+    if (!response.ok) {
       console.error(
-        `Product SEO HTTP ${res.status}:`,
+        `Product SEO HTTP ${response.status}:`,
         rawText.slice(0, 500)
       );
     } else {
@@ -120,7 +156,10 @@ export async function getProductSEO(slug: string) {
         const json = JSON.parse(rawText) as GraphQLResponse;
 
         if (json.errors?.length) {
-          console.error("Product SEO GraphQL errors:", json.errors);
+          console.error(
+            "Product SEO GraphQL errors:",
+            json.errors
+          );
         }
 
         product = json.data?.product ?? null;
@@ -130,12 +169,18 @@ export async function getProductSEO(slug: string) {
       }
     }
   } catch (error) {
-    console.error(`Product SEO fetch failed for ${slug}:`, error);
+    console.error(
+      `Product SEO fetch failed for ${slug}:`,
+      error
+    );
   }
 
-  // STEP 2: Use Yoast REST API if GraphQL meta description is empty.
-  const graphqlDescription = getText(graphqlSEO.metaDesc);
+  // STEP 2: Get the manually saved Yoast meta description.
+  const graphqlDescription = getLocalizedText(
+    graphqlSEO.metaDesc
+  );
 
+  // STEP 3: Fetch Yoast REST API description if necessary.
   let yoastJson: {
     description?: unknown;
     og_description?: unknown;
@@ -157,25 +202,41 @@ export async function getProductSEO(slug: string) {
     }
   }
 
-  // STEP 3: Build fallback from the actual product description.
-  const yoastDescription = getText(yoastJson?.description);
+  const yoastDescription = getLocalizedText(
+    yoastJson?.description
+  );
+
+  // STEP 4: Extract actual product content.
+  // This is the same custom field used by ProductDetail.jsx.
+  const customDescription = product?.metaData?.find(
+    (item) => item.key === "_wpt_field_description"
+  )?.value;
+
+  const productCustomDescription = createMetaDescription(
+    cleanProductDescription(customDescription)
+  );
+
+  const productShortDescription = createMetaDescription(
+    cleanProductDescription(product?.shortDescription)
+  );
 
   const productDescription = createMetaDescription(
     cleanProductDescription(product?.description)
   );
 
-  // Priority:
-  // 1. GraphQL Yoast meta description
-  // 2. Yoast REST API meta description
-  // 3. Product description
-
+  // STEP 5: Final meta description priority.
   const metaDesc =
     graphqlDescription ||
     yoastDescription ||
+    productCustomDescription ||
+    productShortDescription ||
     productDescription;
 
   if (!product && !metaDesc) {
-    console.error(`No product SEO data found for: ${slug}`);
+    console.error(
+      `No product SEO data found for: ${slug}`
+    );
+
     return null;
   }
 
@@ -185,8 +246,8 @@ export async function getProductSEO(slug: string) {
     metaDesc,
 
     opengraphDescription:
-      getText(graphqlSEO.opengraphDescription) ||
-      getText(yoastJson?.og_description) ||
+      getLocalizedText(graphqlSEO.opengraphDescription) ||
+      getLocalizedText(yoastJson?.og_description) ||
       metaDesc,
   };
 }
