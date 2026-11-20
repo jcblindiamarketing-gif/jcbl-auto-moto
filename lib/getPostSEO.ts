@@ -15,6 +15,7 @@ query GetPostSEO($slug: ID!) {
       }
     }
   }
+}
 `;
 
 export async function getPostSEO(slug: string) {
