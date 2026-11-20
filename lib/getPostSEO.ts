@@ -1,8 +1,9 @@
+
 const WP_GRAPHQL = "https://api.jcblautomoto.com/graphql";
 
 const query = `
-query GetPostSEO($uri: ID!) { 
-  post(id: $uri, idType: URI) {
+query GetPostSEO($slug: ID!) {
+  post(id: $slug, idType: SLUG) {
     seo {
       title
       metaDesc
@@ -14,10 +15,9 @@ query GetPostSEO($uri: ID!) {
       }
     }
   }
-}
 `;
 
-export async function getPostSEO(uri: string) {
+export async function getPostSEO(slug: string) {
   const res = await fetch(WP_GRAPHQL, {
     method: "POST",
     headers: {
@@ -26,7 +26,7 @@ export async function getPostSEO(uri: string) {
     next: { revalidate: 60 },
     body: JSON.stringify({
       query,
-      variables: { uri },
+      variables: { slug },
     }),
   });
 
