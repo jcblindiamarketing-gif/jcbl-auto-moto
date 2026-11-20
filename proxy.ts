@@ -2,11 +2,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWordPressRedirects } from "./wordpressRedirects";
 
-const SITE_HOSTS = new Set([
-  "jcblautomoto.com",
-  "www.jcblautomoto.com",
-]);
-
 function normalizePath(pathname: string): string {
   let cleanPath = pathname.split("?")[0].split("#")[0].trim();
 
@@ -21,17 +16,6 @@ function normalizePath(pathname: string): string {
   }
 
   return `/${cleanPath.replace(/^\/+|\/+$/g, "").toLowerCase()}`;
-}
-
-function isValidRedirectStatus(
-  statusCode: unknown
-): statusCode is 301 | 302 | 307 | 308 {
-  return (
-    statusCode === 301 ||
-    statusCode === 302 ||
-    statusCode === 307 ||
-    statusCode === 308
-  );
 }
 
 // These legacy URLs should be removed from search indexing.
@@ -72,11 +56,22 @@ const noindexPaths = new Set(
     "/product/jcbl-india-automotive-battery",
     "/product/jcbl-india-motorcycle-battery",
     "/shop",
-    "/category/batteries/tall-tubular-battery",
+      "/category/batteries/tall-tubular-battery",
     "/product/jis-type-2",
     "/category/motorcycle-helmets",
   ].map(normalizePath)
 );
+
+function isValidRedirectStatus(
+  statusCode: unknown
+): statusCode is 301 | 302 | 307 | 308 {
+  return (
+    statusCode === 301 ||
+    statusCode === 302 ||
+    statusCode === 307 ||
+    statusCode === 308
+  );
+}
 
 export async function proxy(request: NextRequest) {
   const pathname = normalizePath(request.nextUrl.pathname);
@@ -84,7 +79,6 @@ export async function proxy(request: NextRequest) {
   console.log("========== PROXY ==========");
   console.log("REQUEST PATH:", pathname);
 
-  // Skip Next.js internal assets.
   if (
     pathname.startsWith("/_next/") ||
     pathname === "/favicon.ico"
@@ -92,7 +86,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // STEP 1: Handle permanently removed legacy URLs.
+  // Permanently removed legacy URLs: do not redirect these elsewhere.
   if (noindexPaths.has(pathname)) {
     console.log(`[LEGACY NOINDEX / 410] ${pathname}`);
 
@@ -106,7 +100,6 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  // STEP 2: Fetch existing WordPress redirects.
   const redirects = await getWordPressRedirects();
 
   console.log("REDIRECT COUNT:", redirects.length);
@@ -117,106 +110,54 @@ export async function proxy(request: NextRequest) {
 
   console.log("MATCHED REDIRECT:", matchedRedirect);
 
-  // STEP 3: Handle WordPress redirects.
-  if (matchedRedirect) {
-    if (matchedRedirect.statusCode === 410) {
-      console.log(`[410 GONE] ${pathname}`);
-
-      return new NextResponse("Gone", {
-        status: 410,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-store",
-          "X-Robots-Tag": "noindex, follow",
-        },
-      });
-    }
-
-    const target = matchedRedirect.target?.trim();
-
-    if (target) {
-      try {
-        const destination = new URL(
-          target,
-          request.nextUrl.origin
-        );
-
-        const currentUrl = request.nextUrl.clone();
-
-        const statusCode = isValidRedirectStatus(
-          matchedRedirect.statusCode
-        )
-          ? matchedRedirect.statusCode
-          : 301;
-
-        // Check whether both URLs belong to this website.
-        const sameSiteHost =
-          SITE_HOSTS.has(destination.hostname.toLowerCase()) &&
-          SITE_HOSTS.has(currentUrl.hostname.toLowerCase());
-
-        // Check whether the destination is the same logical page.
-        const samePath =
-          normalizePath(destination.pathname) ===
-          normalizePath(currentUrl.pathname);
-
-        const sameQuery =
-          destination.search === currentUrl.search;
-
-        // Prevent self-redirects, including www/non-www
-        // and trailing-slash variations of the same page.
-        if (sameSiteHost && samePath && sameQuery) {
-          console.log(
-            `[SKIP SELF REDIRECT] ${currentUrl.href}`
-          );
-        } else {
-          console.log(
-            `[Redirect ${statusCode}] ${currentUrl.href} -> ${destination.href}`
-          );
-
-          return NextResponse.redirect(
-            destination,
-            statusCode
-          );
-        }
-      } catch {
-        console.error(
-          `[Redirect] Invalid target for ${pathname}:`,
-          target
-        );
-      }
-    }
+  if (!matchedRedirect) {
+    console.log("NO MATCH FOUND");
+    return NextResponse.next();
   }
 
-  // STEP 4: Enforce trailing slash for website page URLs.
-  const originalPathname = request.nextUrl.pathname;
+  if (matchedRedirect.statusCode === 410) {
+    console.log(`[410 GONE] ${pathname}`);
 
-  const canonicalPath = originalPathname.replace(/\/+$/, "");
+    return new NextResponse("Gone", {
+      status: 410,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex, follow",
+      },
+    });
+  }
 
-  const lastSegment =
-    canonicalPath.split("/").pop() || "";
+  const target = matchedRedirect.target?.trim();
 
-  // Do not modify file URLs such as XML, TXT, PDF or images.
-  const isFileUrl = /\.[a-z0-9]{1,10}$/i.test(lastSegment);
+  if (!target) {
+    console.log(`[Redirect] Empty target for ${pathname}`);
+    return NextResponse.next();
+  }
 
-  if (
-    canonicalPath &&
-    !isFileUrl &&
-    originalPathname !== `${canonicalPath}/`
-  ) {
-    const destination = request.nextUrl.clone();
+  let destination: URL;
 
-    destination.pathname = `${canonicalPath}/`;
-
-    console.log(
-      `[Trailing Slash 308] ${originalPathname} -> ${destination.pathname}`
+  try {
+    destination = new URL(target, request.nextUrl.origin);
+  } catch {
+    console.error(
+      `[Redirect] Invalid target for ${pathname}:`,
+      target
     );
-
-    return NextResponse.redirect(destination, 308);
+    return NextResponse.next();
   }
 
-  console.log("NO REDIRECT REQUIRED");
+  const statusCode = isValidRedirectStatus(
+    matchedRedirect.statusCode
+  )
+    ? matchedRedirect.statusCode
+    : 301;
 
-  return NextResponse.next();
+  console.log(
+    `[Redirect ${statusCode}] ${pathname} -> ${destination.href}`
+  );
+
+  return NextResponse.redirect(destination, statusCode);
 }
 
 export const config = {
