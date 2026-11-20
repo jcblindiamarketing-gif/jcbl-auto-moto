@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Home from "@/components/Home";
 import { getCategories } from "@/lib/getCategories";
+import { cleanWpmString } from "@/lib/metadata";
 import {
   getYoastSEO,
   getYoastRobots,
@@ -113,10 +114,29 @@ export async function generateMetadata(): Promise<Metadata> {
       };
     }
 
+    // Clean multilingual tags from Yoast SEO fields.
+    const cleanDescription = cleanWpmString(
+      seo.json.description
+    );
+
+    const cleanOgTitle =
+      cleanWpmString(seo.json.og_title) ||
+      cleanWpmString(seo.json.title) ||
+      "JCBL Auto Moto";
+
+    const cleanOgDescription =
+      cleanWpmString(seo.json.og_description) ||
+      cleanDescription;
+
+    const cleanTwitterDescription =
+      cleanWpmString(seo.json.twitter_description) ||
+      cleanOgDescription ||
+      cleanDescription;
+
     return {
       title: seo.json.title || "JCBL Auto Moto",
 
-      description: seo.json.description || "",
+      description: cleanDescription,
 
       alternates: {
         canonical: fallbackCanonical,
@@ -126,20 +146,12 @@ export async function generateMetadata(): Promise<Metadata> {
       robots,
 
       openGraph: {
-        title:
-          seo.json.og_title ||
-          seo.json.title,
-
-        description:
-          seo.json.og_description ||
-          seo.json.description,
-
+        title: cleanOgTitle,
+        description: cleanOgDescription,
         url: fallbackCanonical,
-
         siteName:
           seo.json.og_site_name ||
           "JCBL Auto Moto",
-
         type: "website",
       },
 
@@ -147,6 +159,7 @@ export async function generateMetadata(): Promise<Metadata> {
         card:
           seo.json.twitter_card ||
           "summary_large_image",
+        description: cleanTwitterDescription,
       },
     };
 
